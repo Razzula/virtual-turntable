@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import { Track } from './App';
+
 // see https://developer.spotify.com/documentation/web-playback-sdk/reference/
 
 type WebPlaybackPlayer = {
@@ -12,10 +14,17 @@ type WebPlaybackError = {
 
 type SpotifyPlayerProps = {
     authToken: string;
-    setPlaying: (playing: boolean) => void;
+    setDeviceID: (player: string) => void;
+
+    isActive: boolean;
+    isPlaying: boolean;
+
+    setIsPlaying: (playing: boolean) => void;
+    setIsActive: (active: boolean) => void;
+    setCurrentTrack: (track: Track | null) => void;
 };
 
-function SpotifyPlayer({ authToken, setPlaying }: SpotifyPlayerProps): JSX.Element {
+function SpotifyPlayer({ authToken, setDeviceID, isActive, isPlaying, setIsPlaying, setIsActive, setCurrentTrack }: SpotifyPlayerProps): JSX.Element {
 
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
 
@@ -53,6 +62,7 @@ function SpotifyPlayer({ authToken, setPlaying }: SpotifyPlayerProps): JSX.Eleme
 
                 newPlayer.addListener('ready', ({ device_id }: WebPlaybackPlayer ) => {
                     console.log('Ready with Device ID', device_id);
+                    setDeviceID(device_id);
                 });
                 newPlayer.addListener('not_ready', ({ device_id }: WebPlaybackPlayer ) => {
                     console.log('Device ID has gone offline', device_id);
@@ -108,17 +118,43 @@ function SpotifyPlayer({ authToken, setPlaying }: SpotifyPlayerProps): JSX.Eleme
         // console.log('Player state changed', state);
         if (state) {
             if (state.paused) {
-                setPlaying(false);
+                setIsPlaying(false);
             }
             else {
-                setPlaying(true);
+                setIsPlaying(true);
             }
+
+            setCurrentTrack(state.track_window.current_track);
+            setIsActive(state.track_window.current_track !== null);
+        }
+        else {
+            setIsActive(false);
+            setCurrentTrack(null);
+        }
+    }
+
+    function handleNextTrack() {
+        if (player !== null) {
+            player.nextTrack();
+        }
+    }
+
+    function handlePreviousTrack() {
+        if (player !== null) {
+            player.previousTrack();
         }
     }
 
     return <div>
-        <h1>Spotify Player</h1>
-        <button onClick={handleTogglePlay}>toggle play</button>
+        <button disabled={!isActive} onClick={handlePreviousTrack}>
+            &lt;&lt;
+        </button>
+        <button disabled={!isActive} onClick={handleTogglePlay}>
+            { isPlaying ? 'PAUSE' : 'PLAY' }
+        </button>
+        <button disabled={!isActive} onClick={handleNextTrack}>
+            &gt;&gt;
+        </button>
     </div>;
 
 }

@@ -46,7 +46,7 @@ def generateRandomString(length: int) -> str:
 async def login() -> RedirectResponse:
     """Spotify auth login endpoint"""
 
-    scope = 'streaming user-read-email user-read-private'
+    scope = 'streaming user-read-email user-read-private user-modify-playback-state'
     state = generateRandomString(16)
 
     authQueryParameters = {
