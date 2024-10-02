@@ -38,7 +38,7 @@ function SpotifyPlayer({ authToken, setDeviceID, isActive, isPlaying, setIsPlayi
                 script.async = true;
 
                 script.onload = () => {
-                    console.log('Spotify SDK loaded successfully.');
+                    // console.log('Spotify SDK loaded successfully.');
                     resolve();
                 };
 
@@ -61,7 +61,7 @@ function SpotifyPlayer({ authToken, setDeviceID, isActive, isPlaying, setIsPlayi
                 });
 
                 newPlayer.addListener('ready', ({ device_id }: WebPlaybackPlayer ) => {
-                    console.log('Ready with Device ID', device_id);
+                    // console.log('Ready with Device ID', device_id);
                     setDeviceID(device_id);
                 });
                 newPlayer.addListener('not_ready', ({ device_id }: WebPlaybackPlayer ) => {

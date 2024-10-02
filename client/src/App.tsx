@@ -1,19 +1,34 @@
 import { useEffect, useState } from 'react';
 
 import SpotifyPlayer from './SpotifyPlayer'
+import WebSocketManagerInstance from './WebSocketManager'
 
 import './styles/App.css'
+import SpotifyAPI from './SpotifyAPI';
 
 export type Track = {
     name: string;
     album: {
-        images: {
-            url: string;
-        }[];
+        uri: string;
     },
     artists: {
         name: string;
     }[];
+}
+
+type Album = {
+    album_type: string;
+    artists: {
+        name: string;
+    }[];
+    images: {
+        url: string;
+        height: number;
+        width: number;
+    }[];
+    label : string;
+    name: string;
+    release_date: string;
 }
 
 function App() {
@@ -24,6 +39,8 @@ function App() {
 
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [isActive, setIsActive] = useState<boolean>(false);
+
+    const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
 
     useEffect(() => {
@@ -38,19 +55,50 @@ function App() {
 
         getToken();
 
+        WebSocketManagerInstance.connect('ws://localhost:8491/ws', handleWebSocketMessage);
+
     }, []);
 
+    useEffect(() => {
+        if (authToken !== '' && deviceID !== undefined) {
+            handleActivation();
+        }
+    }, [authToken, deviceID]);
+
+    useEffect(() => {
+        if (!isActive) {
+            setCurrentAlbum(null);
+            setCurrentTrack(null);
+        }
+    }, [isActive]);
+
+    useEffect(() => {
+        if (currentTrack !== null) {
+            SpotifyAPI.getAlbum(authToken, currentTrack.album.uri.split(':')[2])
+                .then((data: Album) => {
+                    setCurrentAlbum(data);
+                });
+        }
+    }, [currentTrack]);
+
+    function handleWebSocketMessage(e: MessageEvent) {
+        const message = JSON.parse(e.data);
+
+        if (message.command === 'ALBUM') {
+            // SpotifyAPI.getAlbum(message.token, message.value)
+            //     .then((data: Album) => {
+            //         setCurrentAlbum(data);
+            //     })
+            SpotifyAPI.playAlbum(message.token, message.value);
+        }
+    }
 
     async function handleActivation() {
         if (deviceID !== undefined) {
-            fetch('https://api.spotify.com/v1/me/player', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ device_ids: [deviceID] }),
-            });
+            SpotifyAPI.setDevice(authToken, deviceID);
+        }
+        else {
+            console.warn('Cannot activate player without device ID');
         }
     }
 
@@ -70,15 +118,24 @@ function App() {
                 { !isActive &&
                     <button onClick={handleActivation}>ACTIVATE</button>
                 }
-                <h1>{currentTrack?.name}</h1>
+
+                <h1>{currentAlbum?.name}</h1>
+                { currentAlbum !== null &&
+                    <img className='albumArt' src={currentAlbum.images[0].url} alt='Album Cover' />
+                }
+                <h2>{currentTrack?.name}</h2>
+
                 <div>
                     <img src='/virtual-turntable/vinyl.svg' className={dicsClasses.join(' ')} alt='Vinyl' />
                 </div>
+
                 <SpotifyPlayer
                     authToken={authToken} setDeviceID={setDeviceID}
                     isActive={isActive} isPlaying={isPlaying}
                     setIsPlaying={setIsPlaying} setIsActive={setIsActive} setCurrentTrack={setCurrentTrack}
                 />
+
+                <button onClick={() => WebSocketManagerInstance.send('PING!')}>PING SERVER</button>
             </>
         );
     }

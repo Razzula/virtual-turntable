@@ -5,9 +5,10 @@ import string
 from urllib.parse import urlencode
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.websockets import WebSocketState
 import requests
 
 load_dotenv('.env')
@@ -27,7 +28,9 @@ app.add_middleware(
 )
 
 tokens = {}
+currentWebsocket = None
 
+# HEALTH ENDPOINTS
 @app.get('/')
 async def root() -> JSONResponse:
     """Health endpoint"""
@@ -42,6 +45,69 @@ def generateRandomString(length: int) -> str:
     """Generate a random string of letters and digits with a given length"""
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 
+# WEBSOCKET
+@app.websocket('/ws')
+async def websocketEndpoint(websocket: WebSocket) -> None:
+    """Endpoint that establishes a websocket connection"""
+    global currentWebsocket
+
+    if (currentWebsocket is not None):
+        print('A client is attempting to connect while another client is already connected.')
+        raise HTTPException(status_code=400, detail='Another client is already connected.')
+
+    currentWebsocket = websocket
+    await websocket.accept()
+
+    # main loop
+    while (True):
+        if (websocket.client_state == WebSocketState.DISCONNECTED):
+            break
+
+        try:
+            request = await websocket.receive_text()
+            print(request)
+        except Exception as e:
+            print('Error with websocket:', e, 'Terminating connection.')
+            break
+
+    if (websocket.client_state != WebSocketState.DISCONNECTED):
+        await websocket.close()
+    currentWebsocket = None
+
+async def sendToClient(data: dict[str, str], supplyAuth: bool = False) -> None:
+    """Send a message to the client"""
+    if (currentWebsocket is None):
+        print('No client connected.')
+        return
+    if (supplyAuth and (ACCESS_TOKEN := tokens.get('access_token'))):
+        data['token'] = ACCESS_TOKEN
+
+    await currentWebsocket.send_json(data)
+
+# PI CONTROLS
+@app.get('/ping')
+async def ping() -> JSONResponse:
+    """DEV! This endpoint triggers a ping event to the client, from the server."""
+    if (currentWebsocket is None):
+        raise HTTPException(status_code=400, detail='No client connected.')
+
+    await sendToClient({'message': 'ping'})
+    return JSONResponse(content={'message': 'ping'})
+
+@app.get('/setAlbum')
+async def setAlbum() -> JSONResponse:
+    """
+        DEV! This endpoint allows a developer to simulate a playevent
+        (to mimic what the album detection would do).
+    """
+
+    await sendToClient({
+        'command': 'ALBUM',
+        'value': '7ligZljXfUtcKPCotWul5g', # Jeff Wayne's Musical Version of The War of The Worlds
+    }, supplyAuth=True)
+    return JSONResponse(content={'message': 'play'})
+
+# SPOTIFY AUTHENTICATION
 @app.get('/auth/login')
 async def login() -> RedirectResponse:
     """Spotify auth login endpoint"""
@@ -81,12 +147,9 @@ async def callback(request: Request) -> RedirectResponse:
         timeout = 20
     )
 
-    print(response)
-    print((SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET))
     response.raise_for_status()
     BODY = response.json()
     tokens['access_token'] = BODY.get('access_token')
-    print(BODY)
 
     return RedirectResponse(url='/')
 

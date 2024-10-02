@@ -5,6 +5,11 @@
     text-align: center;
 }
 
+.albumArt {
+    width: 200px;
+    height: 200px;
+}
+
 .disc {
     width: 400px;
     padding: 8px;
