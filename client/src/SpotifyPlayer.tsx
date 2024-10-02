@@ -11,14 +11,13 @@ type WebPlaybackError = {
 };
 
 type SpotifyPlayerProps = {
+    authToken: string;
     setPlaying: (playing: boolean) => void;
 };
 
-function SpotifyPlayer({ setPlaying }: SpotifyPlayerProps): JSX.Element {
+function SpotifyPlayer({ authToken, setPlaying }: SpotifyPlayerProps): JSX.Element {
 
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
-
-    const token = 'CHANGEME';
 
     useEffect(() => {
 
@@ -47,8 +46,8 @@ function SpotifyPlayer({ setPlaying }: SpotifyPlayerProps): JSX.Element {
         window.onSpotifyWebPlaybackSDKReady = () => {
             if (player === null) {
                 const newPlayer = new Spotify.Player({
-                    name: 'Web Playback SDK Quick Start Player',
-                    getOAuthToken: (cb: (token: string) => void) => { cb(token); },
+                    name: 'Virtual Turntable',
+                    getOAuthToken: (cb: (authToken: string) => void) => { cb(authToken); },
                     volume: 0.3
                 });
 

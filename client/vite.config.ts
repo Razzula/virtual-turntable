@@ -12,6 +12,13 @@ export default defineConfig({
         /* "In 1948, backed by Columbia Records, the first vinyl record was introduced at the soon-to-be standardized 33 1/3 rpm speed."
          * - https://victrola.com/blogs/articles/beyond-the-needle-history-of-vinyl-records
         */
+        proxy: {
+            '/virtual-turntable/auth': {
+                target: 'http://127.0.0.1:8491',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/virtual-turntable/, '')
+            }
+        },
     },
     base: '/virtual-turntable/',
 })
