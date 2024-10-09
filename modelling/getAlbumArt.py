@@ -72,21 +72,21 @@ for album in ALBUMS:
             break
 
     # DOWNLOAD IMAGE(S)
+    dirName = album['name'].replace(' ', '') + '_' + album['artist'].replace(' ', '')
+    if (not os.path.exists(os.path.join(root, 'data/art/', dirName))):
+        os.makedirs(os.path.join(root, 'data/art/', dirName))
+
     if (frontURL is not None):
-        path = os.path.join(root, 'data/art/', f'{album.get("name")}.png')
+        path = os.path.join(root, 'data/art/', dirName, 'front.png')
         if (os.path.exists(path)):
             print('\t', frontURL, '⏭')
         else:
-            urllib.request.urlretrieve(
-                frontURL, os.path.join(root, 'data/art', f'{album.get("name")}.png')
-            )
+            urllib.request.urlretrieve(frontURL, path)
             print('\t', frontURL, '💾')
     if (backURL is not None):
-        path = os.path.join(root, 'data/art/', f'{album.get("name")}_back.png')
+        path = os.path.join(root, 'data/art/', dirName, 'back.png')
         if (os.path.exists(path)):
             print('\t', backURL, '⏭')
         else:
-            urllib.request.urlretrieve(
-                backURL, os.path.join(root, 'data/art/', f'{album.get("name")}_back.png')
-            )
+            urllib.request.urlretrieve(backURL, path)
             print('\t', backURL, '💾')

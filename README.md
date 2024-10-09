@@ -16,6 +16,7 @@ Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/
 > For a stretch goal, the application could be extended to cover other media: the cassette tape ([Guardian](https://www.theguardian.com/music/2023/apr/20/fun-way-consume-music-why-sales-of-cassette-tapes-soaring)) is also experiencing a come back, although the [eight-track](https://en.wikipedia.org/wiki/8-track_cartridge) is unlikely to be retrieved from the dustbin of history.
 > The project should be considered as challenging. It will require integration of several technologies and some creativity.
 
+# Application
 ## Installation
 
 ### Prerequisites
@@ -27,8 +28,8 @@ Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/
 
 ```bash
 $ cd ./server
-$ python3 -m venv ./venv/virtual-tabletop/
-$ source ./venv/virtual-tabletop/bin/activate
+$ python3 -m venv ./venv/virtual-turntable/
+$ source ./venv/virtual-turntable/bin/activate
 $ pip install -r requirements.txt
 ```
 note: use `python` for Windows systems.
@@ -51,7 +52,7 @@ note: use `dev.bat` for Windows, _although_, this project is designed for use pr
 
 ```bash
 $ cd ./server
-$ source ./venv/virtual-tabletop/bin/activate
+$ source ./venv/virtual-turntable/bin/activate
 $ python3 ./runner.py
 ```
 
@@ -59,3 +60,6 @@ $ python3 ./runner.py
 $ cd ./client
 $ bun run dev
 ```
+
+# Utilities
+See [modelling](./modelling/README.md) for more information.
