@@ -1,10 +1,46 @@
 [
     {
-        "name": "War of the Worlds",
+        "name": "Jeff Wayne's Musical Version of The War of the Worlds",
         "artist": "Jeff Wayne"
     },
     {
-        "name": "The Dark Side of the Moon",
+        "name": "OK Computer",
+        "artist": "Radiohead"
+    },
+    {
+        "name": "The Dark Side Of The Moon",
         "artist": "Pink Floyd"
+    },
+    {
+        "name": "Abbey Road",
+        "artist": "The Beatles"
+    },
+    {
+        "name": "Revolver",
+        "artist": "The Beatles"
+    },
+    {
+        "name": "In Rainbows",
+        "artist": "Radiohead"
+    },
+    {
+        "name": "Kid A",
+        "artist": "Radiohead"
+    },
+    {
+        "name": "Wish You Were Here",
+        "artist": "Pink Floyd"
+    },
+    {
+        "name": "Sgt. Pepper's Lonely Hearts Club Band",
+        "artist": "The Beatles"
+    },
+    {
+        "name": "The Rise And Fall Of Ziggy Stardust And The Spiders From Mars",
+        "artist": "David Bowie"
+    },
+    {
+        "name": "The Velvet Underground & Nico",
+        "artist": "The Velvet Underground & Nico"
     }
 ]

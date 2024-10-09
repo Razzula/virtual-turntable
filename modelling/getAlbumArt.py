@@ -1,70 +1,92 @@
 """WIP"""
-import hashlib
 import json
 import os
 import urllib.request
+import urllib.parse
 
 from dotenv import load_dotenv
 import requests
 
 load_dotenv('.env')
+root = os.path.dirname(os.path.abspath(__file__))
 
-# METHOD = 'auth.getMobileSession'
-# USERNAME = os.getenv('LASTFM_USERNAME')
-# PASSWORD = os.getenv('LASTFM_PASSWORD')
-API_KEY = os.getenv('LASTFM_API_KEY')
-# API_SIG = hashlib.md5(
-#     f'api_key{API_KEY}method{METHOD}password{PASSWORD}username{USERNAME}{os.getenv("LASTFM_SECRET")}'
-#     .encode()
-# )
-# print(API_SIG.hexdigest())
+VERSION = os.getenv('VERSION')
+CONTACT = os.getenv('CONTACT')
 
-# test = requests.post(
-#     'http://ws.audioscrobbler.com/2.0/?format=json',
-#     data = {
-#         'method': METHOD,
-#         'username': USERNAME,
-#         'password': PASSWORD,
-#         'api_key': API_KEY,
-#         'api_sig': API_SIG.hexdigest(),
-#     }
-# )
+HEADERS = {
+    'Accept': 'application/json',
+    'User-Agent': f"Virtual Turntable/{VERSION} ({CONTACT})"
+}
 
-# test.raise_for_status()
-# key = test.json()['session']['key']
-
-# print(key)
-
-with open('data/albums.json', 'r', encoding='utf-8') as file:
+with open(os.path.join(root, 'data/albums.json'), 'r', encoding='utf-8') as file:
     ALBUMS = json.load(file)
     # TODO: handle errors
 
-for ALBUM in ALBUMS:
+for album in ALBUMS:
+    print(album.get('name'), album.get('artist'))
 
-    request = requests.post(
-        'http://ws.audioscrobbler.com/2.0/?format=json',
-        data = {
-            'method': 'album.getInfo',
-            'artist': ALBUM.get('artist'),
-            'album': ALBUM.get('name'),
-            'autocorrect': 1,
-            'api_key': API_KEY
-        },
-        timeout=30
+    # note: requests to musicbrainz are rate-limited. The average rate must be <= 1 request per second.
+    # however, the time taken to download the images ensures that we will not exceed this rate.
+    # hence, no explicitly rate limiting has been implemented.
+
+    # FIND ALBUM MBID
+    query = urllib.parse.quote(
+        f'releasegroup:"{album.get("name")}" AND artist:"{album.get("artist")}" AND primarytype:"album"'
+    )
+
+    request = requests.get(
+        f'https://musicbrainz.org/ws/2/release-group/?query={query}',
+        headers = HEADERS,
+        timeout=5
     )
 
     request.raise_for_status()
     response = request.json()
 
-    # print(response)
+    if (response['count'] == 0):
+        print(f"Album not found: {album.get('name')}")
+        continue
+    mbid = response['release-groups'][0]['id']
 
-    # print(response['album']['name'])
-    # print(response['album']['artist'])
-    # print(response['album']['image'])
+    # FIND ALBUM ART
+    request = requests.get(
+        f'https://coverartarchive.org/release-group/{mbid}',
+        headers = HEADERS,
+        timeout=5
+    )
 
-    imageURL = response['album']['image'][-1]['#text']
-    imageURL = imageURL.replace('u/300x300/', 'u/') # get highest quality image available
-    fileExt = imageURL.split('.')[-1]
-    print(imageURL)
+    request.raise_for_status()
+    response = request.json()
 
-    urllib.request.urlretrieve(imageURL, f'data/art/{ALBUM.get("name")}.png')
+    frontURL = None
+    backURL = None
+    for image in response['images']:
+        if (image['front']):
+            if (frontURL is None):
+                frontURL = image['image']
+        elif (image['back']):
+            if (backURL is None):
+                backURL = image['image']
+
+        if (frontURL is not None and backURL is not None):
+            break
+
+    # DOWNLOAD IMAGE(S)
+    if (frontURL is not None):
+        path = os.path.join(root, 'data/art/', f'{album.get("name")}.png')
+        if (os.path.exists(path)):
+            print('\t', frontURL, '⏭')
+        else:
+            urllib.request.urlretrieve(
+                frontURL, os.path.join(root, 'data/art', f'{album.get("name")}.png')
+            )
+            print('\t', frontURL, '💾')
+    if (backURL is not None):
+        path = os.path.join(root, 'data/art/', f'{album.get("name")}_back.png')
+        if (os.path.exists(path)):
+            print('\t', backURL, '⏭')
+        else:
+            urllib.request.urlretrieve(
+                backURL, os.path.join(root, 'data/art/', f'{album.get("name")}_back.png')
+            )
+            print('\t', backURL, '💾')
