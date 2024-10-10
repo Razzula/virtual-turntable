@@ -11,8 +11,8 @@ This directory contains the tools and scripts used to retrieve, handle, and proc
 ### Server
 
 ```bash
-$ python3 -m venv ./venv/vtt-modelling/
-$ source ./venv/vtt-modelling/bin/activate
+$ python3 -m venv ./.venv/vtt-modelling/
+$ source ./.venv/vtt-modelling/bin/activate
 $ pip install -r requirements.txt
 ```
 note: use `python` for Windows systems.

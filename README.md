@@ -28,8 +28,8 @@ Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/
 
 ```bash
 $ cd ./server
-$ python3 -m venv ./venv/virtual-turntable/
-$ source ./venv/virtual-turntable/bin/activate
+$ python3 -m venv ./.venv/virtual-turntable/
+$ source ./.venv/virtual-turntable/bin/activate
 $ pip install -r requirements.txt
 ```
 note: use `python` for Windows systems.
