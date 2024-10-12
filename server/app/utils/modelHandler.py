@@ -1,5 +1,6 @@
 
 """Handler class for the model."""
+import json
 import os
 from typing import Final
 
@@ -12,9 +13,11 @@ from modelling.models.SimpleCNN import SimpleCNN, transform
 class ModelHandler:
     """Handler class for the model."""
 
-    def __init__(self, modelPath: str | None = None) -> None:
+    def __init__(self, rootPath: str, modelPath: str | None = None) -> None:
         """Initialise the model handler."""
+        self.ROOT_DIR: Final = rootPath
         self.model: nn.Module | None = None
+        self.classes: dict[str, dict[str, str]] = {}
 
         if (modelPath is not None):
             self.loadModel(modelPath)
@@ -23,9 +26,15 @@ class ModelHandler:
     def loadModel(self, modelPath: str) -> None:
         """Load a pre-trained model."""
         checkpoint = torch.load(modelPath)
-        self.model = SimpleCNN(classes=checkpoint['classes'])
+        self.model = SimpleCNN(classes=checkpoint['classes']) # artificial IDs
         self.model.load_state_dict(checkpoint['modelStateDict'])
         self.model.eval()
+
+        CLASS_MANIFEST: Final = os.path.join(self.ROOT_DIR, '..', 'modelling', 'data', 'manifest.json')
+        if (not os.path.exists(CLASS_MANIFEST)):
+            raise FileNotFoundError('No class manifest found.')
+        with open(CLASS_MANIFEST, 'r', encoding='utf-8') as f:
+            self.classes = json.load(f) # structured metadata
 
 
     def scan(self, imagePath: str) -> dict[str, str | int | float]:

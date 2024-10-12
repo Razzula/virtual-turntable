@@ -37,7 +37,7 @@ class Server:
 
         self.spotifyAuth = SpotifyAuth()
         self.websocketHandler = WebsocketHandler()
-        self.modelHandler = ModelHandler(os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models', 'simpleCNN.pth'))
+        self.modelHandler = ModelHandler(ROOT_DIR, os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models', 'simpleCNN.pth'))
 
         self.setupRoutes()
 
@@ -70,12 +70,13 @@ class Server:
 
             # FIND SPOTIFY ID
             if (SCAN_RESULT['predictedProb'] < 0.5):
-                raise HTTPException(status_code=400, detail='No album detected.')
+                raise HTTPException(status_code=400, detail='No album (sufficiently) detected.')
+            ALBUM: Final = self.modelHandler.classes[SCAN_RESULT['predictedClass']]
 
             # TODO: extract this to API wrapper
             AUTH_TOKEN: Final = self.spotifyAuth.token().get('access_token')
             PARAMS: Final = {
-                'q': SCAN_RESULT["predictedClass"],
+                'q': f'{ALBUM["name"]} artist:{ALBUM["artist"]} year:{ALBUM["year"]}',
                 'type': 'album',
                 'limit': 1,
             }

@@ -1,5 +1,6 @@
 """A script to train the SimpleCNN model."""
 import os
+from typing import Final
 
 import torch
 import torch.nn as nn
@@ -59,6 +60,9 @@ def train(model: nn.Module, trainLoader: DataLoader, criterion: nn.CrossEntropyL
             correct += (predicted == labels).sum().item()
         print(f'(Epoch {epoch+1}) Loss: {runningLoss/len(trainLoader)}\t Accuracy: {correct/total}')
 
+# CONFIG
+MODEL_NAME: Final = 'simpleCNN'
+
 # LOAD DATASET
 rootDir = os.path.dirname(os.path.abspath(__file__))
 dataDir = os.path.join(rootDir, '..', 'data', 'art')
@@ -86,5 +90,5 @@ torch.save(
         'modelStateDict': model.state_dict(),
         'classes': model.classes
     },
-    os.path.join(rootDir, 'models', 'simpleCNN.pth')
+    os.path.join(rootDir, 'bin', f'{MODEL_NAME}.pth')
 )
