@@ -83,6 +83,7 @@ function App() {
 
     function handleWebSocketMessage(e: MessageEvent) {
         const message = JSON.parse(e.data);
+        console.log('SERVER:', message);
 
         if (message.command === 'ALBUM') {
             // SpotifyAPI.getAlbum(message.token, message.value)

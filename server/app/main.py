@@ -1,163 +1,124 @@
 """FastAPI server application."""
 import os
-import random
-import string
+from typing import Final, Optional
 from urllib.parse import urlencode
 
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request, WebSocket
+from fastapi import FastAPI, HTTPException, WebSocket, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.websockets import WebSocketState
+from dotenv import load_dotenv
 import requests
 
-load_dotenv('.env')
+from app.utils.spotifyAuth import SpotifyAuth
+from app.utils.websocketHandler import WebsocketHandler
+from app.utils.modelHandler import ModelHandler
 
-SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
-SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
+ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
+print(ROOT_DIR)
 
-app = FastAPI()
-origins = ['*']
+class Server:
+    """FastAPI server application."""
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=['*'],
-    allow_headers=['*'],
-)
+    def __init__(self) -> None:
+        """Initialise the FastAPI application."""
 
-tokens = {}
-currentWebsocket = None
+        load_dotenv('.env')
+        self.app = FastAPI()
 
-# HEALTH ENDPOINTS
-@app.get('/')
-async def root() -> JSONResponse:
-    """Health endpoint"""
-    return await test()
+        origins = ['*']
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=True,
+            allow_methods=['*'],
+            allow_headers=['*'],
+        )
 
-@app.get('/test')
-async def test() -> JSONResponse:
-    """Health endpoint"""
-    return JSONResponse(content={'message': 'Hello, World!'})
+        self.spotifyAuth = SpotifyAuth()
+        self.websocketHandler = WebsocketHandler()
+        self.modelHandler = ModelHandler(os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models', 'simpleCNN.pth'))
 
-def generateRandomString(length: int) -> str:
-    """Generate a random string of letters and digits with a given length"""
-    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
+        self.setupRoutes()
 
-# WEBSOCKET
-@app.websocket('/ws')
-async def websocketEndpoint(websocket: WebSocket) -> None:
-    """Endpoint that establishes a websocket connection"""
-    global currentWebsocket
+    def setupRoutes(self) -> None:
+        """Setup the FastAPI routes."""
 
-    if (currentWebsocket is not None):
-        print('A client is attempting to connect while another client is already connected.')
-        raise HTTPException(status_code=400, detail='Another client is already connected.')
+        @self.app.get("/")
+        async def root() -> JSONResponse:
+            """Health endpoint"""
+            return await test()
 
-    currentWebsocket = websocket
-    await websocket.accept()
+        @self.app.get("/test")
+        async def test() -> JSONResponse:
+            """Health endpoint"""
+            return JSONResponse(content={'message': 'Hello, World!'})
 
-    # main loop
-    while (True):
-        if (websocket.client_state == WebSocketState.DISCONNECTED):
-            break
+        @self.app.get("/ping")
+        async def ping() -> JSONResponse:
+            """DEV! This endpoint triggers a ping event to the client, from the server."""
+            return JSONResponse(await self.websocketHandler.ping())
 
-        try:
-            request = await websocket.receive_text()
-            print(request)
-        except Exception as e:
-            print('Error with websocket:', e, 'Terminating connection.')
-            break
+        @self.app.get("/scan")
+        async def scan() -> JSONResponse:
+            """
+                DEV! This endpoint allows a developer to simulate a playevent
+                (to mimic what the album detection would do).
+            """
+            # DETECT ALBUM
+            SCAN_RESULT: Final = self.modelHandler.scan(os.path.join(ROOT_DIR, 'data', 'testImage.png'))
 
-    if (websocket.client_state != WebSocketState.DISCONNECTED):
-        await websocket.close()
-    currentWebsocket = None
+            # FIND SPOTIFY ID
+            if (SCAN_RESULT['predictedProb'] < 0.5):
+                raise HTTPException(status_code=400, detail='No album detected.')
 
-async def sendToClient(data: dict[str, str], supplyAuth: bool = False) -> None:
-    """Send a message to the client"""
-    if (currentWebsocket is None):
-        print('No client connected.')
-        return
-    if (supplyAuth and (ACCESS_TOKEN := tokens.get('access_token'))):
-        data['token'] = ACCESS_TOKEN
+            # TODO: extract this to API wrapper
+            AUTH_TOKEN: Final = self.spotifyAuth.token().get('access_token')
+            PARAMS: Final = {
+                'q': SCAN_RESULT["predictedClass"],
+                'type': 'album',
+                'limit': 1,
+            }
+            REQUEST: Final = requests.get(
+                f'https://api.spotify.com/v1/search/?{urlencode(PARAMS)}',
+                headers={
+                    'Authorization': f'Bearer {AUTH_TOKEN}',
+                },
+                timeout=10
+            )
 
-    await currentWebsocket.send_json(data)
+            REQUEST.raise_for_status()
+            RESPONSE: Final = REQUEST.json()
+            SPOTIFY_ID = RESPONSE['albums']['items'][0]['id']
 
-# PI CONTROLS
-@app.get('/ping')
-async def ping() -> JSONResponse:
-    """DEV! This endpoint triggers a ping event to the client, from the server."""
-    if (currentWebsocket is None):
-        raise HTTPException(status_code=400, detail='No client connected.')
+            print(SPOTIFY_ID)
 
-    await sendToClient({'message': 'ping'})
-    return JSONResponse(content={'message': 'ping'})
+            # SEND TO CLIENT
+            await self.websocketHandler.sendToClient({
+                'command': 'ALBUM',
+                'value': SPOTIFY_ID,
+            }, authToken=AUTH_TOKEN)
 
-@app.get('/setAlbum')
-async def setAlbum() -> JSONResponse:
-    """
-        DEV! This endpoint allows a developer to simulate a playevent
-        (to mimic what the album detection would do).
-    """
+            return JSONResponse(content={'album': SPOTIFY_ID})
 
-    await sendToClient({
-        'command': 'ALBUM',
-        'value': '7ligZljXfUtcKPCotWul5g', # Jeff Wayne's Musical Version of The War of The Worlds
-    }, supplyAuth=True)
-    return JSONResponse(content={'message': 'play'})
+        @self.app.get("/auth/login")
+        async def login() -> RedirectResponse:
+            return await self.spotifyAuth.login()
 
-# SPOTIFY AUTHENTICATION
-@app.get('/auth/login')
-async def login() -> RedirectResponse:
-    """Spotify auth login endpoint"""
+        @self.app.get("/auth/callback")
+        async def callback(request: Request) -> RedirectResponse:
+            return await self.spotifyAuth.callback(request)
 
-    scope = 'streaming user-read-email user-read-private user-modify-playback-state'
-    state = generateRandomString(16)
+        @self.app.get("/auth/token")
+        async def token() -> JSONResponse:
+            return JSONResponse(self.spotifyAuth.token())
 
-    authQueryParameters = {
-        'response_type': "code",
-        'client_id': SPOTIFY_CLIENT_ID,
-        'scope': scope,
-        'redirect_uri': 'http://localhost:1948/virtual-turntable/auth/callback',
-        'state': state
-    }
-    url = f'https://accounts.spotify.com/authorize/?{urlencode(authQueryParameters)}'
+        @self.app.websocket("/ws")
+        async def connectWebsocket(websocket: WebSocket) -> None:
+            await self.websocketHandler.handleConnectionRequest(websocket)
 
-    return RedirectResponse(url)
+    def get(self) -> FastAPI:
+        """Return the FastAPI application singleton."""
+        return self.app
 
-@app.get('/auth/callback')
-async def callback(request: Request) -> RedirectResponse:
-    """Spotify auth callback endpoint"""
-
-    AUTH_CODE = request.query_params.get('code')
-    if (not AUTH_CODE):
-        raise HTTPException(status_code=400, detail='Missing authorisation code.')
-
-    REDIRECT_URI = 'http://localhost:1948/virtual-turntable/auth/callback'
-
-    response = requests.post(
-        'https://accounts.spotify.com/api/token',
-        data = {
-            'code': AUTH_CODE,
-            'redirect_uri': REDIRECT_URI,
-            'grant_type': 'authorization_code'
-        },
-        auth = (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET),
-        timeout = 20
-    )
-
-    response.raise_for_status()
-    BODY = response.json()
-    tokens['access_token'] = BODY.get('access_token')
-
-    return RedirectResponse(url='/')
-
-@app.get('/auth/token')
-async def token() -> JSONResponse:
-    """Spotify auth token endpoint"""
-    ACCESS_TOKEN = tokens.get('access_token')
-    if (not ACCESS_TOKEN):
-        raise HTTPException(status_code=404, detail='Access token not found.')
-
-    return JSONResponse(content={'access_token': ACCESS_TOKEN})
+serverInstance = Server()

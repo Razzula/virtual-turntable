@@ -1,0 +1,57 @@
+[
+    {
+        "name": "Jeff Wayne's Musical Version of The War of the Worlds",
+        "artist": "Jeff Wayne",
+        "year": 1978
+    },
+    {
+        "name": "OK Computer",
+        "artist": "Radiohead",
+        "year": 1997
+    },
+    {
+        "name": "The Dark Side Of The Moon",
+        "artist": "Pink Floyd",
+        "year": 1973
+    },
+    {
+        "name": "Abbey Road",
+        "artist": "The Beatles",
+        "year": 1969
+    },
+    {
+        "name": "Revolver",
+        "artist": "The Beatles",
+        "year": 1966
+    },
+    {
+        "name": "In Rainbows",
+        "artist": "Radiohead",
+        "year": 2007
+    },
+    {
+        "name": "Kid A",
+        "artist": "Radiohead",
+        "year": 2000
+    },
+    {
+        "name": "Wish You Were Here",
+        "artist": "Pink Floyd",
+        "year": 1975
+    },
+    {
+        "name": "Sgt. Pepper's Lonely Hearts Club Band",
+        "artist": "The Beatles",
+        "year": 1967
+    },
+    {
+        "name": "The Rise And Fall Of Ziggy Stardust And The Spiders From Mars",
+        "artist": "David Bowie",
+        "year": 1972
+    },
+    {
+        "name": "The Velvet Underground & Nico",
+        "artist": "The Velvet Underground & Nico",
+        "year": 1967
+    }
+]

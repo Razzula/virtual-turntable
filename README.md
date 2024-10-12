@@ -60,6 +60,3 @@ $ python3 ./runner.py
 $ cd ./client
 $ bun run dev
 ```
-
-# Utilities
-See [modelling](./modelling/README.md) for more information.
