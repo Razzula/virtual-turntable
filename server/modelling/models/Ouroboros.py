@@ -26,7 +26,7 @@ transform = transforms.Compose([
     )
 ])
 
-class SimpleCNN(nn.Module):
+class Ouroboros(nn.Module):
     """
     This is a simple convolutional neural network, for POC.
     It has two convolutional layers and two fully connected layers (see below).
@@ -36,7 +36,7 @@ class SimpleCNN(nn.Module):
     classes: List[str] = []
 
     def __init__(self, classes: List[str]) -> None:
-        super(SimpleCNN, self).__init__()
+        super(Ouroboros, self).__init__()
 
         self.classes = classes
         numClasses = len(classes)

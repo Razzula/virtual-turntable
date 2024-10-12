@@ -10,7 +10,7 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 from PIL import Image
 
-from SimpleCNN import SimpleCNN, transform
+from server.modelling.models.Ouroboros import Ouroboros, transform
 
 def train(model: nn.Module, trainLoader: DataLoader, criterion: nn.CrossEntropyLoss, optimiser: optim.Optimizer, epochs: int = 5) -> None:
     """_summary_
@@ -61,7 +61,7 @@ def train(model: nn.Module, trainLoader: DataLoader, criterion: nn.CrossEntropyL
         print(f'(Epoch {epoch+1}) Loss: {runningLoss/len(trainLoader)}\t Accuracy: {correct/total}')
 
 # CONFIG
-MODEL_NAME: Final = 'simpleCNN'
+MODEL_NAME: Final = 'Ouroboros'
 
 # LOAD DATASET
 rootDir = os.path.dirname(os.path.abspath(__file__))
@@ -72,7 +72,7 @@ dataSet = ImageFolder(root=dataDir, transform=transform) # load each subdirector
 trainLoader = DataLoader(dataSet, batch_size=8, shuffle=True)
 
 # CREATE MODEL
-model = SimpleCNN(classes=dataSet.classes)
+model = Ouroboros(classes=dataSet.classes)
 
 # LOSS FUNCTION
 # used to compute the error between the model's predictions and the true labels

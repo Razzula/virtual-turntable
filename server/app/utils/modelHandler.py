@@ -8,25 +8,37 @@ import torch
 import torch.nn as nn
 from PIL import Image
 
-from modelling.models.SimpleCNN import SimpleCNN, transform
+from modelling.models.Ouroboros import Ouroboros, transform
+from modelling.models.ModelType import ModelType
 
 class ModelHandler:
     """Handler class for the model."""
 
-    def __init__(self, rootPath: str, modelPath: str | None = None) -> None:
+    def __init__(self, rootPath: str, modelsPath: str) -> None:
         """Initialise the model handler."""
         self.ROOT_DIR: Final = rootPath
+        self.MODELS_PATH: Final = modelsPath
+
         self.model: nn.Module | None = None
         self.classes: dict[str, dict[str, str]] = {}
 
-        if (modelPath is not None):
-            self.loadModel(modelPath)
 
-
-    def loadModel(self, modelPath: str) -> None:
+    def loadModel(self, modelType: ModelType, modelName: str) -> None:
         """Load a pre-trained model."""
+        modelPath = os.path.join(self.MODELS_PATH, modelType.name, modelName)
+        if (not os.path.exists(modelPath)):
+            raise FileNotFoundError(f'Model ({modelPath}) not found.')
+
         checkpoint = torch.load(modelPath)
-        self.model = SimpleCNN(classes=checkpoint['classes']) # artificial IDs
+
+        match (modelType):
+            case ModelType.OUROBOROS:
+                self.model = Ouroboros(classes=checkpoint['classes']) # artificial IDs
+            case _:
+                raise TypeError(f'Model type ({modelType.name}) not found.')
+        if (self.model is None):
+            raise RuntimeError('Model not loaded.')
+
         self.model.load_state_dict(checkpoint['modelStateDict'])
         self.model.eval()
 

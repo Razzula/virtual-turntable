@@ -13,6 +13,7 @@ import requests
 from app.utils.spotifyAuth import SpotifyAuth
 from app.utils.websocketHandler import WebsocketHandler
 from app.utils.modelHandler import ModelHandler
+from modelling.models.ModelType import ModelType
 
 ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
 print(ROOT_DIR)
@@ -37,7 +38,12 @@ class Server:
 
         self.spotifyAuth = SpotifyAuth()
         self.websocketHandler = WebsocketHandler()
-        self.modelHandler = ModelHandler(ROOT_DIR, os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models', 'simpleCNN.pth'))
+        self.modelHandler = ModelHandler(
+            ROOT_DIR,
+            os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),
+        )
+
+        self.modelHandler.loadModel(ModelType.OUROBOROS, 'Ouroboros-alpha.pth')
 
         self.setupRoutes()
 
