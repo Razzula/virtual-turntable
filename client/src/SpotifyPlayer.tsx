@@ -28,6 +28,8 @@ function SpotifyPlayer({ authToken, setDeviceID, isActive, isPlaying, setIsPlayi
 
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
 
+    const BUILD_MODE = import.meta.env.MODE;
+
     useEffect(() => {
 
         // dynamically load Spotify SDK
@@ -61,7 +63,9 @@ function SpotifyPlayer({ authToken, setDeviceID, isActive, isPlaying, setIsPlayi
                 });
 
                 newPlayer.addListener('ready', ({ device_id }: WebPlaybackPlayer ) => {
-                    // console.log('Ready with Device ID', device_id);
+                    if (BUILD_MODE === 'development') {
+                        console.log('Ready with Device ID', device_id);
+                    }
                     setDeviceID(device_id);
                 });
                 newPlayer.addListener('not_ready', ({ device_id }: WebPlaybackPlayer ) => {
@@ -85,6 +89,11 @@ function SpotifyPlayer({ authToken, setDeviceID, isActive, isPlaying, setIsPlayi
                 newPlayer.connect();
 
                 setPlayer(newPlayer);
+            }
+            else {
+                if (BUILD_MODE === 'development') {
+                    console.warn('Player already exists:', player);
+                }
             }
         };
 

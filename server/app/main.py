@@ -50,6 +50,7 @@ class Server:
     def setupRoutes(self) -> None:
         """Setup the FastAPI routes."""
 
+        # CORE
         @self.app.get("/")
         async def root() -> JSONResponse:
             """Health endpoint"""
@@ -65,18 +66,19 @@ class Server:
             """DEV! This endpoint triggers a ping event to the client, from the server."""
             return JSONResponse(await self.websocketHandler.ping())
 
+        # DEV
         @self.app.get("/scan")
-        async def scan() -> JSONResponse:
+        async def scanGet(fileName: str = 'testImage') -> JSONResponse:
             """
                 DEV! This endpoint allows a developer to simulate a playevent
                 (to mimic what the album detection would do).
             """
             # DETECT ALBUM
-            SCAN_RESULT: Final = self.modelHandler.scan(os.path.join(ROOT_DIR, 'data', 'testImage.png'))
+            SCAN_RESULT: Final = self.modelHandler.scan(os.path.join(ROOT_DIR, 'data', fileName))
 
             # FIND SPOTIFY ID
-            if (SCAN_RESULT['predictedProb'] < 0.5):
-                raise HTTPException(status_code=400, detail='No album (sufficiently) detected.')
+            # if (SCAN_RESULT['predictedProb'] < 0.5):
+            #     raise HTTPException(status_code=400, detail='No album (sufficiently) detected.')
             ALBUM: Final = self.modelHandler.classes[SCAN_RESULT['predictedClass']]
 
             # TODO: extract this to API wrapper
@@ -108,6 +110,25 @@ class Server:
 
             return JSONResponse(content={'album': SPOTIFY_ID})
 
+        # CLIENT-DRIVEN IMAGE
+        @self.app.post("/scan")
+        async def scanPost(request: Request) -> JSONResponse:
+            """
+                This endpoint allows a client to send an image to the server for album detection.
+            """
+            # validate body content
+            body = await request.body()
+            if (not body):
+                raise HTTPException(status_code=400, detail='No image data provided.')
+
+            # save image
+            IMAGE_PATH: Final = os.path.join(ROOT_DIR, 'data', 'temp.png')
+            with open(IMAGE_PATH, 'wb') as file:
+                file.write(body)
+
+            return await scanGet('temp.png') # TODO: refactor to use genuine method, when available
+
+        # SPOTIFY AUTH
         @self.app.get("/auth/login")
         async def login() -> RedirectResponse:
             return await self.spotifyAuth.login()
@@ -120,6 +141,7 @@ class Server:
         async def token() -> JSONResponse:
             return JSONResponse(self.spotifyAuth.token())
 
+        # WEBSOCKET
         @self.app.websocket("/ws")
         async def connectWebsocket(websocket: WebSocket) -> None:
             await self.websocketHandler.handleConnectionRequest(websocket)

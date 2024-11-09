@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import SpotifyPlayer from './SpotifyPlayer'
 import WebSocketManagerInstance from './WebSocketManager'
@@ -31,6 +31,8 @@ type Album = {
     release_date: string;
 }
 
+const BUILD_MODE = import.meta.env.MODE;
+
 function App() {
 
     const [authToken, setAuthToken] = useState('');
@@ -42,6 +44,17 @@ function App() {
 
     const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+
+    const handleActivation = useCallback(async () => {
+        if (deviceID !== undefined) {
+            if (BUILD_MODE !== 'development') {
+                SpotifyAPI.setDevice(authToken, deviceID);
+            }
+        }
+        else {
+            console.warn('Cannot activate player without device ID');
+        }
+    }, [authToken, deviceID]);
 
     useEffect(() => {
 
@@ -63,7 +76,7 @@ function App() {
         if (authToken !== '' && deviceID !== undefined) {
             handleActivation();
         }
-    }, [authToken, deviceID]);
+    }, [authToken, deviceID, handleActivation]);
 
     useEffect(() => {
         if (!isActive) {
@@ -79,7 +92,7 @@ function App() {
                     setCurrentAlbum(data);
                 });
         }
-    }, [currentTrack]);
+    }, [currentTrack, authToken]);
 
     function handleWebSocketMessage(e: MessageEvent) {
         const message = JSON.parse(e.data);
@@ -94,13 +107,25 @@ function App() {
         }
     }
 
-    async function handleActivation() {
-        if (deviceID !== undefined) {
-            SpotifyAPI.setDevice(authToken, deviceID);
+    async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.item(0);
+        if (file !== undefined && file !== null) {
+            await uploadFile(file);
         }
-        else {
-            console.warn('Cannot activate player without device ID');
-        }
+    }
+
+    async function uploadFile(file: File) {
+        const arrayBuffer = await file.arrayBuffer();
+        const response = await fetch('/virtual-turntable/server/scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/octet-stream',
+            },
+            body: arrayBuffer
+        });
+
+        const result = await response.json();
+        console.log(result);
     }
 
     if (authToken !== '') {
@@ -136,7 +161,12 @@ function App() {
                     setIsPlaying={setIsPlaying} setIsActive={setIsActive} setCurrentTrack={setCurrentTrack}
                 />
 
-                <button onClick={() => WebSocketManagerInstance.send('PING!')}>PING SERVER</button>
+                <div>
+                    <button onClick={() => WebSocketManagerInstance.send('PING!')}>PING SERVER</button>
+                </div>
+                <div>
+                    <input type="file" accept="image/*" onChange={handleFileUpload} />
+                </div>
             </>
         );
     }

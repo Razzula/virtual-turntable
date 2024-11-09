@@ -17,7 +17,12 @@ export default defineConfig({
                 target: 'http://127.0.0.1:8491',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/virtual-turntable/, '')
-            }
+            },
+            '/virtual-turntable/server': {
+                target: 'http://127.0.0.1:8491',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/virtual-turntable\/server/, '')
+            },
         },
     },
     base: '/virtual-turntable/',
