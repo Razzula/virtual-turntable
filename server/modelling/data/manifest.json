@@ -1,57 +1,172 @@
 {
-    "JeffWayne'sMusicalVersionofTheWaroftheWorlds_JeffWayne_1978": {
-        "name": "Jeff Wayne's Musical Version of The War of the Worlds",
-        "artist": "Jeff Wayne",
-        "year": 1978
+    "(What'sTheStory)MorningGlory_Oasis_1995": {
+        "name": "(What's The Story) Morning Glory?",
+        "artist": "Oasis",
+        "year": 1995
     },
-    "OKComputer_Radiohead_1997": {
-        "name": "OK Computer",
-        "artist": "Radiohead",
-        "year": 1997
+    "Illmatic_Nas_1994": {
+        "name": "Illmatic",
+        "artist": "Nas",
+        "year": 1994
     },
-    "TheDarkSideOfTheMoon_PinkFloyd_1973": {
-        "name": "The Dark Side Of The Moon",
-        "artist": "Pink Floyd",
-        "year": 1973
+    "Carrie&Lowell_SufjanStevens_2015": {
+        "name": "Carrie & Lowell",
+        "artist": "Sufjan Stevens",
+        "year": 2015
     },
-    "AbbeyRoad_TheBeatles_1969": {
-        "name": "Abbey Road",
-        "artist": "The Beatles",
-        "year": 1969
+    "AstralWeeks_VanMorrison_1968": {
+        "name": "Astral Weeks",
+        "artist": "Van Morrison",
+        "year": 1968
     },
-    "Revolver_TheBeatles_1966": {
-        "name": "Revolver",
-        "artist": "The Beatles",
-        "year": 1966
+    "WhateverPeopleSayIAm,That'sWhatI'mNot_ArcticMonkeys_2006": {
+        "name": "Whatever People Say I Am, That's What I'm Not",
+        "artist": "Arctic Monkeys",
+        "year": 2006
     },
-    "InRainbows_Radiohead_2007": {
-        "name": "In Rainbows",
-        "artist": "Radiohead",
-        "year": 2007
+    "Dummy_Portishead_1994": {
+        "name": "Dummy",
+        "artist": "Portishead",
+        "year": 1994
     },
-    "KidA_Radiohead_2000": {
-        "name": "Kid A",
-        "artist": "Radiohead",
-        "year": 2000
+    "Blue_JoniMitchell_1971": {
+        "name": "Blue",
+        "artist": "Joni Mitchell",
+        "year": 1971
     },
-    "WishYouWereHere_PinkFloyd_1975": {
-        "name": "Wish You Were Here",
-        "artist": "Pink Floyd",
+    "BornToRun_BruceSpringsteen_1975": {
+        "name": "Born To Run",
+        "artist": "Bruce Springsteen",
         "year": 1975
     },
-    "Sgt.Pepper'sLonelyHeartsClubBand_TheBeatles_1967": {
-        "name": "Sgt. Pepper's Lonely Hearts Club Band",
+    "Thriller_MichaelJackson_1982": {
+        "name": "Thriller",
+        "artist": "Michael Jackson",
+        "year": 1982
+    },
+    "DaydreamNation_SonicYouth_1988": {
+        "name": "Daydream Nation",
+        "artist": "Sonic Youth",
+        "year": 1988
+    },
+    "ALoveSupreme_JohnColtrane_1965": {
+        "name": "A Love Supreme",
+        "artist": "John Coltrane",
+        "year": 1965
+    },
+    "ForeverChanges_Love_1967": {
+        "name": "Forever Changes",
+        "artist": "Love",
+        "year": 1967
+    },
+    "ÁgætisByrjun_SigurRós_1999": {
+        "name": "Ágætis Byrjun",
+        "artist": "Sigur Rós",
+        "year": 1999
+    },
+    "AMoonShapedPool_Radiohead_2016": {
+        "name": "A Moon Shaped Pool",
+        "artist": "Radiohead",
+        "year": 2016
+    },
+    "Closer_JoyDivision_1980": {
+        "name": "Closer",
+        "artist": "Joy Division",
+        "year": 1980
+    },
+    "PurpleRain_PrinceAndTheRevolution_1984": {
+        "name": "Purple Rain",
+        "artist": "Prince And The Revolution",
+        "year": 1984
+    },
+    "Lonerism_TameImpala_2012": {
+        "name": "Lonerism",
+        "artist": "Tame Impala",
+        "year": 2012
+    },
+    "AfterTheGoldRush_NeilYoung_1970": {
+        "name": "After The Gold Rush",
+        "artist": "Neil Young",
+        "year": 1970
+    },
+    "SongsInTheKeyOfLife_StevieWonder_1976": {
+        "name": "Songs In The Key Of Life",
+        "artist": "Stevie Wonder",
+        "year": 1976
+    },
+    "MellonCollieAndTheInfiniteSadness_TheSmashingPumpkins_1995": {
+        "name": "Mellon Collie And The Infinite Sadness",
+        "artist": "The Smashing Pumpkins",
+        "year": 1995
+    },
+    "Madvillainy_Madvillain_2004": {
+        "name": "Madvillainy",
+        "artist": "Madvillain",
+        "year": 2004
+    },
+    "MagicalMysteryTour_TheBeatles_1967": {
+        "name": "Magical Mystery Tour",
         "artist": "The Beatles",
         "year": 1967
     },
-    "TheRiseAndFallOfZiggyStardustAndTheSpidersFromMars_DavidBowie_1972": {
-        "name": "The Rise And Fall Of Ziggy Stardust And The Spiders From Mars",
-        "artist": "David Bowie",
+    "OdesseyAndOracle_TheZombies_1968": {
+        "name": "Odessey And Oracle",
+        "artist": "The Zombies",
+        "year": 1968
+    },
+    "CloseToTheEdge_Yes_1972": {
+        "name": "Close To The Edge",
+        "artist": "Yes",
         "year": 1972
     },
-    "TheVelvetUnderground&Nico_TheVelvetUnderground&Nico_1967": {
-        "name": "The Velvet Underground & Nico",
-        "artist": "The Velvet Underground & Nico",
-        "year": 1967
+    "TurnOnTheBrightLights_Interpol_2002": {
+        "name": "Turn On The Bright Lights",
+        "artist": "Interpol",
+        "year": 2002
+    },
+    "TheBlackSaintAndTheSinnerLady_CharlesMingus_1963": {
+        "name": "The Black Saint And The Sinner Lady",
+        "artist": "Charles Mingus",
+        "year": 1963
+    },
+    "Homogenic_Björk_1997": {
+        "name": "Homogenic",
+        "artist": "Björk",
+        "year": 1997
+    },
+    "TheVelvetUnderground_TheVelvetUnderground_1969": {
+        "name": "The Velvet Underground",
+        "artist": "The Velvet Underground",
+        "year": 1969
+    },
+    "Spiderland_Slint_1991": {
+        "name": "Spiderland",
+        "artist": "Slint",
+        "year": 1991
+    },
+    "EnterTheWu-Tang(36Chambers)_Wu-TangClan_1993": {
+        "name": "Enter The Wu-Tang (36 Chambers)",
+        "artist": "Wu-Tang Clan",
+        "year": 1993
+    },
+    "Innervisions_StevieWonder_1973": {
+        "name": "Innervisions",
+        "artist": "Stevie Wonder",
+        "year": 1973
+    },
+    "StationToStation_DavidBowie_1976": {
+        "name": "Station To Station",
+        "artist": "David Bowie",
+        "year": 1976
+    },
+    "AllThingsMustPass_GeorgeHarrison_1970": {
+        "name": "All Things Must Pass",
+        "artist": "George Harrison",
+        "year": 1970
+    },
+    "MasterOfPuppets_Metallica_1986": {
+        "name": "Master Of Puppets",
+        "artist": "Metallica",
+        "year": 1986
     }
 }

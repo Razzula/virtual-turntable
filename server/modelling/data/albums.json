@@ -53,5 +53,455 @@
         "name": "The Velvet Underground & Nico",
         "artist": "The Velvet Underground & Nico",
         "year": 1967
+    },
+    {
+        "name": "Pet Sounds",
+        "artist": "The Beach Boys",
+        "year": 1966
+    },
+    {
+        "name": "Untitled (Led Zeppelin IV)",
+        "artist": "Led Zeppelin",
+        "year": 1971
+    },
+    {
+        "name": "The Beatles (The White Album)",
+        "artist": "The Beatles",
+        "year": 1968
+    },
+    {
+        "name": "Nevermind",
+        "artist": "Nirvana",
+        "year": 1991
+    },
+    {
+        "name": "Funeral",
+        "artist": "Arcade Fire",
+        "year": 2004
+    },
+    {
+        "name": "In The Aeroplane Over The Sea",
+        "artist": "Neutral Milk Hotel",
+        "year": 1998
+    },
+    {
+        "name": "The Queen Is Dead",
+        "artist": "The Smiths",
+        "year": 1986
+    },
+    {
+        "name": "To Pimp A Butterfly",
+        "artist": "Kendrick Lamar",
+        "year": 2015
+    },
+    {
+        "name": "Doolittle",
+        "artist": "Pixies",
+        "year": 1989
+    },
+    {
+        "name": "London Calling",
+        "artist": "The Clash",
+        "year": 1979
+    },
+    {
+        "name": "Rumours",
+        "artist": "Fleetwood Mac",
+        "year": 1977
+    },
+    {
+        "name": "Loveless",
+        "artist": "My Bloody Valentine",
+        "year": 1991
+    },
+    {
+        "name": "The Bends",
+        "artist": "Radiohead",
+        "year": 1995
+    },
+    {
+        "name": "Is This It",
+        "artist": "The Strokes",
+        "year": 2001
+    },
+    {
+        "name": "In The Court Of The Crimson King (An Observation By King Crimson)",
+        "artist": "King Crimson",
+        "year": 1969
+    },
+    {
+        "name": "Remain In Light",
+        "artist": "Talking Heads",
+        "year": 1980
+    },
+    {
+        "name": "Highway 61 Revisited",
+        "artist": "Bob Dylan",
+        "year": 1965
+    },
+    {
+        "name": "Rubber Soul",
+        "artist": "The Beatles",
+        "year": 1965
+    },
+    {
+        "name": "The Wall",
+        "artist": "Pink Floyd",
+        "year": 1979
+    },
+    {
+        "name": "The Doors",
+        "artist": "The Doors",
+        "year": 1967
+    },
+    {
+        "name": "Disintegration",
+        "artist": "The Cure",
+        "year": 1989
+    },
+    {
+        "name": "Blonde On Blonde",
+        "artist": "Bob Dylan",
+        "year": 1966
+    },
+    {
+        "name": "My Beautiful Dark Twisted Fantasy",
+        "artist": "Kanye West",
+        "year": 2010
+    },
+    {
+        "name": "The Stone Roses",
+        "artist": "The Stone Roses",
+        "year": 1989
+    },
+    {
+        "name": "Animals",
+        "artist": "Pink Floyd",
+        "year": 1977
+    },
+    {
+        "name": "Good Kid, M.A.A.D City",
+        "artist": "Kendrick Lamar",
+        "year": 2012
+    },
+    {
+        "name": "Kind Of Blue",
+        "artist": "Miles Davis",
+        "year": 1959
+    },
+    {
+        "name": "Unknown Pleasures",
+        "artist": "Joy Division",
+        "year": 1979
+    },
+    {
+        "name": "Are You Experienced",
+        "artist": "The Jimi Hendrix Experience",
+        "year": 1967
+    },
+    {
+        "name": "Who's Next",
+        "artist": "The Who",
+        "year": 1971
+    },
+    {
+        "name": "Blood On The Tracks",
+        "artist": "Bob Dylan",
+        "year": 1975
+    },
+    {
+        "name": "Led Zeppelin II",
+        "artist": "Led Zeppelin",
+        "year": 1969
+    },
+    {
+        "name": "Illinois",
+        "artist": "Sufjan Stevens",
+        "year": 2005
+    },
+    {
+        "name": "Exile On Main St.",
+        "artist": "The Rolling Stones",
+        "year": 1972
+    },
+    {
+        "name": "Marquee Moon",
+        "artist": "Television",
+        "year": 1977
+    },
+    {
+        "name": "Hunky Dory",
+        "artist": "David Bowie",
+        "year": 1971
+    },
+    {
+        "name": "The Suburbs",
+        "artist": "Arcade Fire",
+        "year": 2010
+    },
+    {
+        "name": "Automatic For The People",
+        "artist": "R.E.M.",
+        "year": 1992
+    },
+    {
+        "name": "What's Going On",
+        "artist": "Marvin Gaye",
+        "year": 1971
+    },
+    {
+        "name": "Ten",
+        "artist": "Pearl Jam",
+        "year": 1991
+    },
+    {
+        "name": "Pink Moon",
+        "artist": "Nick Drake",
+        "year": 1972
+    },
+    {
+        "name": "Paranoid",
+        "artist": "Black Sabbath",
+        "year": 1970
+    },
+    {
+        "name": "The Joshua Tree",
+        "artist": "U2",
+        "year": 1987
+    },
+    {
+        "name": "Yankee Hotel Foxtrot",
+        "artist": "Wilco",
+        "year": 2002
+    },
+    {
+        "name": "Siamese Dream",
+        "artist": "The Smashing Pumpkins",
+        "year": 1993
+    },
+    {
+        "name": "Hounds Of Love",
+        "artist": "Kate Bush",
+        "year": 1985
+    },
+    {
+        "name": "Low",
+        "artist": "David Bowie",
+        "year": 1977
+    },
+    {
+        "name": "Electric Ladyland",
+        "artist": "The Jimi Hendrix Experience",
+        "year": 1968
+    },
+    {
+        "name": "Grace",
+        "artist": "Jeff Buckley",
+        "year": 1994
+    },
+    {
+        "name": "In Utero",
+        "artist": "Nirvana",
+        "year": 1993
+    },
+    {
+        "name": "Sticky Fingers",
+        "artist": "The Rolling Stones",
+        "year": 1971
+    },
+    {
+        "name": "Let It Bleed",
+        "artist": "The Rolling Stones",
+        "year": 1969
+    },
+    {
+        "name": "Led Zeppelin",
+        "artist": "Led Zeppelin",
+        "year": 1969
+    },
+    {
+        "name": "(What's The Story) Morning Glory?",
+        "artist": "Oasis",
+        "year": 1995
+    },
+    {
+        "name": "Illmatic",
+        "artist": "Nas",
+        "year": 1994
+    },
+    {
+        "name": "Carrie & Lowell",
+        "artist": "Sufjan Stevens",
+        "year": 2015
+    },
+    {
+        "name": "Astral Weeks",
+        "artist": "Van Morrison",
+        "year": 1968
+    },
+    {
+        "name": "Whatever People Say I Am, That's What I'm Not",
+        "artist": "Arctic Monkeys",
+        "year": 2006
+    },
+    {
+        "name": "Dummy",
+        "artist": "Portishead",
+        "year": 1994
+    },
+    {
+        "name": "Blue",
+        "artist": "Joni Mitchell",
+        "year": 1971
+    },
+    {
+        "name": "Born To Run",
+        "artist": "Bruce Springsteen",
+        "year": 1975
+    },
+    {
+        "name": "Thriller",
+        "artist": "Michael Jackson",
+        "year": 1982
+    },
+    {
+        "name": "Daydream Nation",
+        "artist": "Sonic Youth",
+        "year": 1988
+    },
+    {
+        "name": "A Love Supreme",
+        "artist": "John Coltrane",
+        "year": 1965
+    },
+    {
+        "name": "Forever Changes",
+        "artist": "Love",
+        "year": 1967
+    },
+    {
+        "name": "Ágætis Byrjun",
+        "artist": "Sigur Rós",
+        "year": 1999
+    },
+    {
+        "name": "A Moon Shaped Pool",
+        "artist": "Radiohead",
+        "year": 2016
+    },
+    {
+        "name": "Closer",
+        "artist": "Joy Division",
+        "year": 1980
+    },
+    {
+        "name": "Weezer (Blue Album)",
+        "artist": "Weezer",
+        "year": 1994
+    },
+    {
+        "name": "Purple Rain",
+        "artist": "Prince And The Revolution",
+        "year": 1984
+    },
+    {
+        "name": "Lonerism",
+        "artist": "Tame Impala",
+        "year": 2012
+    },
+    {
+        "name": "After The Gold Rush",
+        "artist": "Neil Young",
+        "year": 1970
+    },
+    {
+        "name": "Songs In The Key Of Life",
+        "artist": "Stevie Wonder",
+        "year": 1976
+    },
+    {
+        "name": "Mellon Collie And The Infinite Sadness",
+        "artist": "The Smashing Pumpkins",
+        "year": 1995
+    },
+    {
+        "name": "Madvillainy",
+        "artist": "Madvillain",
+        "year": 2004
+    },
+    {
+        "name": "Magical Mystery Tour",
+        "artist": "The Beatles",
+        "year": 1967
+    },
+    {
+        "name": "Odessey And Oracle",
+        "artist": "The Zombies",
+        "year": 1968
+    },
+    {
+        "name": "Close To The Edge",
+        "artist": "Yes",
+        "year": 1972
+    },
+    {
+        "name": "Turn On The Bright Lights",
+        "artist": "Interpol",
+        "year": 2002
+    },
+    {
+        "name": "Lift Your Skinny Fists Like Antennas To Heaven",
+        "artist": "Godspeed You! Black Emperor",
+        "year": 2000
+    },
+    {
+        "name": "Blond",
+        "artist": "Frank Ocean",
+        "year": 2016
+    },
+    {
+        "name": "The Black Saint And The Sinner Lady",
+        "artist": "Charles Mingus",
+        "year": 1963
+    },
+    {
+        "name": "Homogenic",
+        "artist": "Björk",
+        "year": 1997
+    },
+    {
+        "name": "The Velvet Underground",
+        "artist": "The Velvet Underground",
+        "year": 1969
+    },
+    {
+        "name": "Spiderland",
+        "artist": "Slint",
+        "year": 1991
+    },
+    {
+        "name": "Enter The Wu-Tang (36 Chambers)",
+        "artist": "Wu-Tang Clan",
+        "year": 1993
+    },
+    {
+        "name": "Innervisions",
+        "artist": "Stevie Wonder",
+        "year": 1973
+    },
+    {
+        "name": "Station To Station",
+        "artist": "David Bowie",
+        "year": 1976
+    },
+    {
+        "name": "All Things Must Pass",
+        "artist": "George Harrison",
+        "year": 1970
+    },
+    {
+        "name": "Master Of Puppets",
+        "artist": "Metallica",
+        "year": 1986
     }
 ]
