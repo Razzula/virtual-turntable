@@ -75,6 +75,7 @@ def main() -> None:
         if (EXPRESS and os.path.exists(os.path.join(root, 'data/art/', albumID))):
             if (VERBOSITY > 2):
                 print(album.get('name'), album.get('artist'), album.get('year'))
+            index[albumID] = album
             continue # skip albums that have already been processed
         else:
             print(album.get('name'), album.get('artist'), album.get('year'))
