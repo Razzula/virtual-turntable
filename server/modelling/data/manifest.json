@@ -1,4 +1,304 @@
 {
+    "JeffWayne'sMusicalVersionofTheWaroftheWorlds_JeffWayne_1978": {
+        "name": "Jeff Wayne's Musical Version of The War of the Worlds",
+        "artist": "Jeff Wayne",
+        "year": 1978
+    },
+    "OKComputer_Radiohead_1997": {
+        "name": "OK Computer",
+        "artist": "Radiohead",
+        "year": 1997
+    },
+    "TheDarkSideOfTheMoon_PinkFloyd_1973": {
+        "name": "The Dark Side Of The Moon",
+        "artist": "Pink Floyd",
+        "year": 1973
+    },
+    "AbbeyRoad_TheBeatles_1969": {
+        "name": "Abbey Road",
+        "artist": "The Beatles",
+        "year": 1969
+    },
+    "Revolver_TheBeatles_1966": {
+        "name": "Revolver",
+        "artist": "The Beatles",
+        "year": 1966
+    },
+    "InRainbows_Radiohead_2007": {
+        "name": "In Rainbows",
+        "artist": "Radiohead",
+        "year": 2007
+    },
+    "KidA_Radiohead_2000": {
+        "name": "Kid A",
+        "artist": "Radiohead",
+        "year": 2000
+    },
+    "WishYouWereHere_PinkFloyd_1975": {
+        "name": "Wish You Were Here",
+        "artist": "Pink Floyd",
+        "year": 1975
+    },
+    "Sgt.Pepper'sLonelyHeartsClubBand_TheBeatles_1967": {
+        "name": "Sgt. Pepper's Lonely Hearts Club Band",
+        "artist": "The Beatles",
+        "year": 1967
+    },
+    "TheRiseAndFallOfZiggyStardustAndTheSpidersFromMars_DavidBowie_1972": {
+        "name": "The Rise And Fall Of Ziggy Stardust And The Spiders From Mars",
+        "artist": "David Bowie",
+        "year": 1972
+    },
+    "TheVelvetUnderground&Nico_TheVelvetUnderground&Nico_1967": {
+        "name": "The Velvet Underground & Nico",
+        "artist": "The Velvet Underground & Nico",
+        "year": 1967
+    },
+    "PetSounds_TheBeachBoys_1966": {
+        "name": "Pet Sounds",
+        "artist": "The Beach Boys",
+        "year": 1966
+    },
+    "Nevermind_Nirvana_1991": {
+        "name": "Nevermind",
+        "artist": "Nirvana",
+        "year": 1991
+    },
+    "Funeral_ArcadeFire_2004": {
+        "name": "Funeral",
+        "artist": "Arcade Fire",
+        "year": 2004
+    },
+    "InTheAeroplaneOverTheSea_NeutralMilkHotel_1998": {
+        "name": "In The Aeroplane Over The Sea",
+        "artist": "Neutral Milk Hotel",
+        "year": 1998
+    },
+    "TheQueenIsDead_TheSmiths_1986": {
+        "name": "The Queen Is Dead",
+        "artist": "The Smiths",
+        "year": 1986
+    },
+    "ToPimpAButterfly_KendrickLamar_2015": {
+        "name": "To Pimp A Butterfly",
+        "artist": "Kendrick Lamar",
+        "year": 2015
+    },
+    "Doolittle_Pixies_1989": {
+        "name": "Doolittle",
+        "artist": "Pixies",
+        "year": 1989
+    },
+    "LondonCalling_TheClash_1979": {
+        "name": "London Calling",
+        "artist": "The Clash",
+        "year": 1979
+    },
+    "Rumours_FleetwoodMac_1977": {
+        "name": "Rumours",
+        "artist": "Fleetwood Mac",
+        "year": 1977
+    },
+    "Loveless_MyBloodyValentine_1991": {
+        "name": "Loveless",
+        "artist": "My Bloody Valentine",
+        "year": 1991
+    },
+    "TheBends_Radiohead_1995": {
+        "name": "The Bends",
+        "artist": "Radiohead",
+        "year": 1995
+    },
+    "IsThisIt_TheStrokes_2001": {
+        "name": "Is This It",
+        "artist": "The Strokes",
+        "year": 2001
+    },
+    "RemainInLight_TalkingHeads_1980": {
+        "name": "Remain In Light",
+        "artist": "Talking Heads",
+        "year": 1980
+    },
+    "Highway61Revisited_BobDylan_1965": {
+        "name": "Highway 61 Revisited",
+        "artist": "Bob Dylan",
+        "year": 1965
+    },
+    "RubberSoul_TheBeatles_1965": {
+        "name": "Rubber Soul",
+        "artist": "The Beatles",
+        "year": 1965
+    },
+    "TheWall_PinkFloyd_1979": {
+        "name": "The Wall",
+        "artist": "Pink Floyd",
+        "year": 1979
+    },
+    "TheDoors_TheDoors_1967": {
+        "name": "The Doors",
+        "artist": "The Doors",
+        "year": 1967
+    },
+    "Disintegration_TheCure_1989": {
+        "name": "Disintegration",
+        "artist": "The Cure",
+        "year": 1989
+    },
+    "BlondeOnBlonde_BobDylan_1966": {
+        "name": "Blonde On Blonde",
+        "artist": "Bob Dylan",
+        "year": 1966
+    },
+    "MyBeautifulDarkTwistedFantasy_KanyeWest_2010": {
+        "name": "My Beautiful Dark Twisted Fantasy",
+        "artist": "Kanye West",
+        "year": 2010
+    },
+    "TheStoneRoses_TheStoneRoses_1989": {
+        "name": "The Stone Roses",
+        "artist": "The Stone Roses",
+        "year": 1989
+    },
+    "Animals_PinkFloyd_1977": {
+        "name": "Animals",
+        "artist": "Pink Floyd",
+        "year": 1977
+    },
+    "GoodKid,M.A.A.DCity_KendrickLamar_2012": {
+        "name": "Good Kid, M.A.A.D City",
+        "artist": "Kendrick Lamar",
+        "year": 2012
+    },
+    "KindOfBlue_MilesDavis_1959": {
+        "name": "Kind Of Blue",
+        "artist": "Miles Davis",
+        "year": 1959
+    },
+    "UnknownPleasures_JoyDivision_1979": {
+        "name": "Unknown Pleasures",
+        "artist": "Joy Division",
+        "year": 1979
+    },
+    "AreYouExperienced_TheJimiHendrixExperience_1967": {
+        "name": "Are You Experienced",
+        "artist": "The Jimi Hendrix Experience",
+        "year": 1967
+    },
+    "Who'sNext_TheWho_1971": {
+        "name": "Who's Next",
+        "artist": "The Who",
+        "year": 1971
+    },
+    "BloodOnTheTracks_BobDylan_1975": {
+        "name": "Blood On The Tracks",
+        "artist": "Bob Dylan",
+        "year": 1975
+    },
+    "LedZeppelinII_LedZeppelin_1969": {
+        "name": "Led Zeppelin II",
+        "artist": "Led Zeppelin",
+        "year": 1969
+    },
+    "Illinois_SufjanStevens_2005": {
+        "name": "Illinois",
+        "artist": "Sufjan Stevens",
+        "year": 2005
+    },
+    "ExileOnMainSt._TheRollingStones_1972": {
+        "name": "Exile On Main St.",
+        "artist": "The Rolling Stones",
+        "year": 1972
+    },
+    "MarqueeMoon_Television_1977": {
+        "name": "Marquee Moon",
+        "artist": "Television",
+        "year": 1977
+    },
+    "HunkyDory_DavidBowie_1971": {
+        "name": "Hunky Dory",
+        "artist": "David Bowie",
+        "year": 1971
+    },
+    "TheSuburbs_ArcadeFire_2010": {
+        "name": "The Suburbs",
+        "artist": "Arcade Fire",
+        "year": 2010
+    },
+    "AutomaticForThePeople_R.E.M._1992": {
+        "name": "Automatic For The People",
+        "artist": "R.E.M.",
+        "year": 1992
+    },
+    "What'sGoingOn_MarvinGaye_1971": {
+        "name": "What's Going On",
+        "artist": "Marvin Gaye",
+        "year": 1971
+    },
+    "Ten_PearlJam_1991": {
+        "name": "Ten",
+        "artist": "Pearl Jam",
+        "year": 1991
+    },
+    "PinkMoon_NickDrake_1972": {
+        "name": "Pink Moon",
+        "artist": "Nick Drake",
+        "year": 1972
+    },
+    "Paranoid_BlackSabbath_1970": {
+        "name": "Paranoid",
+        "artist": "Black Sabbath",
+        "year": 1970
+    },
+    "TheJoshuaTree_U2_1987": {
+        "name": "The Joshua Tree",
+        "artist": "U2",
+        "year": 1987
+    },
+    "YankeeHotelFoxtrot_Wilco_2002": {
+        "name": "Yankee Hotel Foxtrot",
+        "artist": "Wilco",
+        "year": 2002
+    },
+    "HoundsOfLove_KateBush_1985": {
+        "name": "Hounds Of Love",
+        "artist": "Kate Bush",
+        "year": 1985
+    },
+    "Low_DavidBowie_1977": {
+        "name": "Low",
+        "artist": "David Bowie",
+        "year": 1977
+    },
+    "ElectricLadyland_TheJimiHendrixExperience_1968": {
+        "name": "Electric Ladyland",
+        "artist": "The Jimi Hendrix Experience",
+        "year": 1968
+    },
+    "Grace_JeffBuckley_1994": {
+        "name": "Grace",
+        "artist": "Jeff Buckley",
+        "year": 1994
+    },
+    "InUtero_Nirvana_1993": {
+        "name": "In Utero",
+        "artist": "Nirvana",
+        "year": 1993
+    },
+    "StickyFingers_TheRollingStones_1971": {
+        "name": "Sticky Fingers",
+        "artist": "The Rolling Stones",
+        "year": 1971
+    },
+    "LetItBleed_TheRollingStones_1969": {
+        "name": "Let It Bleed",
+        "artist": "The Rolling Stones",
+        "year": 1969
+    },
+    "LedZeppelin_LedZeppelin_1969": {
+        "name": "Led Zeppelin",
+        "artist": "Led Zeppelin",
+        "year": 1969
+    },
     "(What'sTheStory)MorningGlory_Oasis_1995": {
         "name": "(What's The Story) Morning Glory?",
         "artist": "Oasis",
