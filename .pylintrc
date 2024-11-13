@@ -1,3 +1,9 @@
 [SECTION MANDATORY BUT IGNORED]
 
 disable=C0103, C0325  # invalid-name, superfluous-parens
+
+[TYPECHECK]
+ignored-modules=cv2
+
+[MESSAGES CONTROL]
+disable=no-member

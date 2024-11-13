@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 from fastapi import FastAPI, HTTPException, WebSocket, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.websockets import WebSocketState
 from dotenv import load_dotenv
 import requests
@@ -13,6 +13,7 @@ import requests
 from app.utils.spotifyAuth import SpotifyAuth
 from app.utils.websocketHandler import WebsocketHandler
 from app.utils.modelHandler import ModelHandler
+from app.utils.centreLabelHandler import CentreLabelHandler
 from modelling.models.ModelType import ModelType
 
 ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +43,7 @@ class Server:
             ROOT_DIR,
             os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),
         )
+        self.centreLabelhandler = CentreLabelHandler(os.path.join(ROOT_DIR, 'data'))
 
         self.modelHandler.loadModel(ModelType.OUROBOROS, 'Ouroboros-alpha.pth')
 
@@ -122,11 +124,28 @@ class Server:
                 raise HTTPException(status_code=400, detail='No image data provided.')
 
             # save image
-            IMAGE_PATH: Final = os.path.join(ROOT_DIR, 'data', 'temp.png')
+            IMAGE_PATH: Final = os.path.join(ROOT_DIR, 'data', 'upload.png')
             with open(IMAGE_PATH, 'wb') as file:
                 file.write(body)
 
-            return await scanGet('temp.png') # TODO: refactor to use genuine method, when available
+            return await scanGet('upload.png') # TODO: refactor to use genuine method, when available
+
+        # CENTRE LABEL
+        @self.app.get("/centreLabel/{album}")
+        async def centreLabelGet(album: str) -> FileResponse:
+            """
+                This endpoint serves the centre label for the given album.
+            """
+            if (album == 'undefined'):
+                raise HTTPException(status_code=400, detail='No album provided.')
+
+            labelPath = os.path.join(ROOT_DIR, 'data', 'centreLabels', f'{album}.png')
+            if (not os.path.exists(labelPath)):
+                self.centreLabelhandler.serveCentreLabel(album)
+                if (not os.path.exists(labelPath)):
+                    raise HTTPException(status_code=404, detail='No centre label found.')
+            return FileResponse(labelPath, media_type='image/png')
+
 
         # SPOTIFY AUTH
         @self.app.get("/auth/login")

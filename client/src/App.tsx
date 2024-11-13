@@ -17,6 +17,7 @@ export type Track = {
 }
 
 type Album = {
+    id: string;
     album_type: string;
     artists: {
         name: string;
@@ -151,8 +152,32 @@ function App() {
                 }
                 <h2>{currentTrack?.name}</h2>
 
-                <div>
-                    <img src='/virtual-turntable/vinyl.svg' className={dicsClasses.join(' ')} alt='Vinyl' />
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    // height: '100vh' // or any height you need
+                }}>
+                    <div className={dicsClasses.join(' ')}
+                        style={{
+                            position: 'relative'
+                        }}
+                    >
+                        <img src='/virtual-turntable/vinyl.svg' alt='Vinyl' />
+                        { currentAlbum?.id !== undefined &&
+                            <img src={`/virtual-turntable/server/centreLabel/${currentAlbum?.id}`}
+                                style={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    borderRadius: '50%',
+                                    zIndex: 1,
+                                    width: 180,
+                                }}
+                            />
+                        }
+                    </div>
                 </div>
 
                 <SpotifyPlayer

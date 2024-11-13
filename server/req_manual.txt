@@ -1,0 +1,10 @@
+opencv-python
+torch
+uvicorn
+fastapi
+python-dotenv
+requests
+torch
+pillow
+torchvision
+websockets
