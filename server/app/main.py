@@ -37,6 +37,7 @@ class Server:
             allow_headers=['*'],
         )
 
+        # setup components
         self.spotifyAuth = SpotifyAuth()
         self.websocketHandler = WebsocketHandler()
         self.modelHandler = ModelHandler(
@@ -45,8 +46,14 @@ class Server:
         )
         self.centreLabelhandler = CentreLabelHandler(os.path.join(ROOT_DIR, 'data'))
 
+        # setup filestructure
+        if (not os.path.exists(os.path.join(ROOT_DIR, 'data'))):
+            os.makedirs(os.path.join(ROOT_DIR, 'data'))
+
+        # load model
         self.modelHandler.loadModel(ModelType.OUROBOROS, 'Ouroboros-alpha.pth')
 
+        # configure endpoints
         self.setupRoutes()
 
     def setupRoutes(self) -> None:

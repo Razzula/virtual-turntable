@@ -23,6 +23,7 @@ Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/
 
 - bun
 - Python
+- mp4a.40.2 codec (included in Windows)
 
 ### Server
 
@@ -41,6 +42,20 @@ $ cd ./client
 $ bun install
 ```
 
+#### Note for Linux users!
+The Spotify Web Playback SDK (used in the client application) requires a mp4a.40.2 audio codec to function. This is not included by default in many Linux dsitros (such as Ubuntu).
+
+You will see the following warning in the browser console, and be unable to play audio:
+```
+Cannot play media. No decoders for requested formats: audio/mp4; codecs="mp4a.40.2", audio/mp4; codecs="mp4a.40.2"
+```
+
+To fix this:
+```bash
+$ sudo apt update
+$ sudo apt install ubuntu-restricted-extras
+```
+
 ## Usage
 
 ```bash
@@ -52,7 +67,7 @@ note: use `dev.bat` for Windows, _although_, this project is designed for use pr
 
 ```bash
 $ cd ./server
-$ source ./venv/virtual-turntable/bin/activate
+$ source ./.venv/virtual-turntable/bin/activate
 $ python3 ./runner.py
 ```
 

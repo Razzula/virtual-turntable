@@ -50,6 +50,10 @@ class CentreLabelHandler:
         """Initialise the centre labels."""
         self.DATA_DIR: Final = dataPath
 
+        for subDir in ['centreLabels', 'centreLabelCandidates']:
+            if (not os.path.exists(os.path.join(dataPath, subDir))):
+                os.makedirs(os.path.join(dataPath, subDir))
+
     def getCandidates(self, album: str) -> None:
         """Get the candidate centre labels."""
         pass # TODO: using Discogs API
