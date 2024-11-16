@@ -46,6 +46,8 @@ function App() {
     const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
 
+    const [centreLabelSource, setCentreLabelSource] = useState<string | null>(null);
+
     const handleActivation = useCallback(async () => {
         if (deviceID !== undefined) {
             if (BUILD_MODE !== 'development') {
@@ -94,6 +96,50 @@ function App() {
                 });
         }
     }, [currentTrack, authToken]);
+
+    useEffect(() => {
+        // FETCH CENTRE LABEL ON ALBUM CHANGE
+        const fetchLabel = async () => {
+            if (!currentAlbum?.id) return;
+
+            try {
+                // HANDLED BY SERVER
+                const response = await fetch('/virtual-turntable/server/centreLabel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        albumID: currentAlbum.id,
+                        albumName: currentAlbum.name,
+                        artistName: currentAlbum.artists[0].name,
+                        year: currentAlbum.release_date.split('-')[0],
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch centre label');
+                }
+
+                // store image as blob URL, to display in <img>
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                setCentreLabelSource(url);
+            } catch (error) {
+                console.error('Error fetching label:', error);
+                setCentreLabelSource(null); // prevent stale image
+            }
+        };
+
+        setCentreLabelSource(null); // clear previous label
+        fetchLabel();
+
+        return () => {
+            if (centreLabelSource) {
+                URL.revokeObjectURL(centreLabelSource); // Clean up blob URL
+            }
+        };
+    }, [currentAlbum?.id]);
 
     function handleWebSocketMessage(e: MessageEvent) {
         const message = JSON.parse(e.data);
@@ -156,16 +202,19 @@ function App() {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    // height: '100vh' // or any height you need
                 }}>
+                    {/* SPINNING VINYL RENDER */}
                     <div className={dicsClasses.join(' ')}
                         style={{
-                            position: 'relative'
+                            position: 'relative',
                         }}
                     >
+                        {/* PLAIN VINYL */}
                         <img src='/virtual-turntable/vinyl.svg' alt='Vinyl' />
-                        { currentAlbum?.id !== undefined &&
-                            <img src={`/virtual-turntable/server/centreLabel/${currentAlbum?.id}`}
+
+                        {/* CENTRE LABEL */}
+                        { centreLabelSource &&
+                            <img src={centreLabelSource}
                                 style={{
                                     position: 'absolute',
                                     top: '50%',
@@ -174,6 +223,7 @@ function App() {
                                     borderRadius: '50%',
                                     zIndex: 1,
                                     width: 180,
+                                    height: 180,
                                 }}
                             />
                         }

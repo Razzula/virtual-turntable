@@ -23,7 +23,11 @@ Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/
 
 - bun
 - Python
-- mp4a.40.2 codec (included in Windows)
+- mp4a.40.2 codec (included by default in Windows)
+
+- [Spotify Developer Application](https://developer.spotify.com/dashboard) (required for Spotify Web Playback SDK)
+  - Spotify Premium account (also required)
+- [Discogs API v2 Application](https://www.discogs.com/settings/developers) (optional)
 
 ### Server
 
@@ -55,6 +59,20 @@ To fix this:
 $ sudo apt update
 $ sudo apt install ubuntu-restricted-extras
 ```
+
+### APIs
+This project makes use of multiple APIs, including:
+- [Spotify Web Playback SDK](https://developer.spotify.com/documentation/web-playback-sdk/) and [Spotify Web API](https://developer.spotify.com/documentation/web-api/)
+  - Finding and playing music
+  - *Essential!*
+- [Discogs API v2](https://www.discogs.com/developers)
+  - Finding additional data (such as centre labels) of albums
+  - *Optional!*
+- [Cover Art Archive](https://musicbrainz.org/doc/Cover_Art_Archive/API)
+  - Training data for the album-detection model
+  - *Only needed for training models*
+
+The keys required by these APIs can be found in the `./server/.env` and `./client/.env` files. Enter your keys here.
 
 ## Usage
 

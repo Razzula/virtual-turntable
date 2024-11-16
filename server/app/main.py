@@ -14,6 +14,7 @@ from app.utils.spotifyAuth import SpotifyAuth
 from app.utils.websocketHandler import WebsocketHandler
 from app.utils.modelHandler import ModelHandler
 from app.utils.centreLabelHandler import CentreLabelHandler
+from app.utils.discogsAPI import DiscogsAPI
 from modelling.models.ModelType import ModelType
 
 ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +28,12 @@ class Server:
 
         load_dotenv('.env')
         self.app = FastAPI()
+
+        DISCOGS_API_KEY: Final = os.getenv('DISCOGS_API_KEY')
+        DISCOGS_API_SECRET: Final = os.getenv('DISCOGS_API_SECRET')
+
+        APP_VERSION: Final = os.getenv('VERSION')
+        APP_CONTACT: Final = os.getenv('CONTACT')
 
         origins = ['*']
         self.app.add_middleware(
@@ -44,7 +51,8 @@ class Server:
             ROOT_DIR,
             os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),
         )
-        self.centreLabelhandler = CentreLabelHandler(os.path.join(ROOT_DIR, 'data'))
+        self.discogsAPI = DiscogsAPI(DISCOGS_API_KEY, DISCOGS_API_SECRET, APP_VERSION, APP_CONTACT)
+        self.centreLabelhandler = CentreLabelHandler(os.path.join(ROOT_DIR, 'data'), self.discogsAPI)
 
         # setup filestructure
         if (not os.path.exists(os.path.join(ROOT_DIR, 'data'))):
@@ -138,21 +146,38 @@ class Server:
             return await scanGet('upload.png') # TODO: refactor to use genuine method, when available
 
         # CENTRE LABEL
-        @self.app.get("/centreLabel/{album}")
-        async def centreLabelGet(album: str) -> FileResponse:
+        @self.app.post("/centreLabel")
+        async def centreLabelGet(request: Request) -> FileResponse:
             """
                 This endpoint serves the centre label for the given album.
             """
-            if (album == 'undefined'):
+            # validate body content
+            body = await request.json()
+            if (not body):
+                raise HTTPException(status_code=400, detail='No data provided.')
+
+            albumID = body.get('albumID', 'undefined')
+            if (albumID == 'undefined'):
                 raise HTTPException(status_code=400, detail='No album provided.')
 
-            labelPath = os.path.join(ROOT_DIR, 'data', 'centreLabels', f'{album}.png')
+            labelPath = os.path.join(ROOT_DIR, 'data', 'centreLabels', f'{albumID}.png')
             if (not os.path.exists(labelPath)):
-                self.centreLabelhandler.serveCentreLabel(album)
-                if (not os.path.exists(labelPath)):
+                # if label not cached, attempt to find it
+
+                # get data for Discogs API
+                albumName = body.get('albumName')
+                if (albumName is None):
+                    raise HTTPException(status_code=400, detail='No album name provided.')
+                artistName = body.get('artistName')
+                year = body.get('year')
+
+                # attempt to find a centre label
+                centreLabel = self.centreLabelhandler.serveCentreLabel(albumID, albumName, artistName, year)
+
+                if (not centreLabel or not os.path.exists(labelPath)):
+                    # failed to find a centre label
                     raise HTTPException(status_code=404, detail='No centre label found.')
             return FileResponse(labelPath, media_type='image/png')
-
 
         # SPOTIFY AUTH
         @self.app.get("/auth/login")
