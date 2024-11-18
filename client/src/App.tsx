@@ -36,7 +36,7 @@ const BUILD_MODE = import.meta.env.MODE;
 
 function App() {
 
-    const [authToken, setAuthToken] = useState('');
+    const [authToken, setAuthToken] = useState<string | undefined | null>(undefined);
 
     const [deviceID, setDeviceID] = useState<string | undefined>(undefined);
 
@@ -50,15 +50,23 @@ function App() {
     const [vinylDetails, setVinylDetails] = useState<any>(null);
 
     const handleActivation = useCallback(async () => {
-        if (deviceID !== undefined) {
-            if (BUILD_MODE !== 'development') {
-                SpotifyAPI.setDevice(authToken, deviceID);
+        if (authToken) {
+            if (deviceID !== undefined) {
+                if (BUILD_MODE !== 'development') {
+                    SpotifyAPI.setDevice(authToken, deviceID);
+                }
+            }
+            else {
+                console.warn('Cannot activate player without device ID');
             }
         }
-        else {
-            console.warn('Cannot activate player without device ID');
-        }
     }, [authToken, deviceID]);
+
+    useEffect(() => {
+        if (authToken === null) {
+            self.location.href = '/virtual-turntable/auth/login';
+        }
+    }, [authToken]);
 
     useEffect(() => {
 
@@ -67,6 +75,9 @@ function App() {
             if (response.ok) {
                 const json = await response.json();
                 setAuthToken(json.access_token);
+            }
+            else {
+                setAuthToken(null);
             }
         }
 
@@ -90,7 +101,7 @@ function App() {
     }, [isActive]);
 
     useEffect(() => {
-        if (currentTrack !== null) {
+        if (authToken && currentTrack !== null) {
             SpotifyAPI.getAlbum(authToken, currentTrack.album.uri.split(':')[2])
                 .then((data: Album) => {
                     setCurrentAlbum(data);
@@ -264,11 +275,13 @@ function App() {
                     </div>
                 </div>
 
-                <SpotifyPlayer
-                    authToken={authToken} setDeviceID={setDeviceID}
-                    isActive={isActive} isPlaying={isPlaying}
-                    setIsPlaying={setIsPlaying} setIsActive={setIsActive} setCurrentTrack={setCurrentTrack}
-                />
+                { authToken &&
+                    <SpotifyPlayer
+                        authToken={authToken} setDeviceID={setDeviceID}
+                        isActive={isActive} isPlaying={isPlaying}
+                        setIsPlaying={setIsPlaying} setIsActive={setIsActive} setCurrentTrack={setCurrentTrack}
+                    />
+                }
 
                 <div>
                     <button onClick={() => WebSocketManagerInstance.send('PING!')}>PING SERVER</button>
