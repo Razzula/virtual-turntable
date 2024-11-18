@@ -2,6 +2,7 @@
 import os
 from typing import Final, Optional
 from urllib.parse import urlencode
+import base64
 
 from fastapi import FastAPI, HTTPException, WebSocket, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -147,7 +148,7 @@ class Server:
 
         # CENTRE LABEL
         @self.app.post("/centreLabel")
-        async def centreLabelGet(request: Request) -> FileResponse:
+        async def centreLabelGet(request: Request) -> JSONResponse:
             """
                 This endpoint serves the centre label for the given album.
             """
@@ -159,6 +160,8 @@ class Server:
             albumID = body.get('albumID', 'undefined')
             if (albumID == 'undefined'):
                 raise HTTPException(status_code=400, detail='No album provided.')
+
+            metadata = None
 
             labelPath = os.path.join(ROOT_DIR, 'data', 'centreLabels', f'{albumID}.png')
             if (not os.path.exists(labelPath)):
@@ -172,12 +175,30 @@ class Server:
                 year = body.get('year')
 
                 # attempt to find a centre label
-                centreLabel = self.centreLabelhandler.serveCentreLabel(albumID, albumName, artistName, year)
+                centreLabel = self.centreLabelhandler.serveCentreLabel(albumID, albumName, artistName, year, 'vinyl')
+                if (centreLabel is None):
+                    # re-attmpt with broader search
+                    centreLabel = self.centreLabelhandler.serveCentreLabel(albumID, albumName, None, None, None)
 
-                if (not centreLabel or not os.path.exists(labelPath)):
+                if (centreLabel is None or not os.path.exists(labelPath)):
                     # failed to find a centre label
-                    raise HTTPException(status_code=404, detail='No centre label found.')
-            return FileResponse(labelPath, media_type='image/png')
+                    labelData = None
+                else:
+                    with open(labelPath, "rb") as labelFile:
+                        labelData = base64.b64encode(labelFile.read()).decode('utf-8')
+                    metadata = centreLabel
+            else:
+                # load cached label
+                with open(labelPath, "rb") as labelFile:
+                    labelData = base64.b64encode(labelFile.read()).decode('utf-8')
+
+            response = {
+                "imageData": labelData,
+            }
+            if (metadata is not None):
+                response['metadata'] = metadata
+
+            return JSONResponse(content=response)
 
         # SPOTIFY AUTH
         @self.app.get("/auth/login")

@@ -27,7 +27,7 @@ type Album = {
         height: number;
         width: number;
     }[];
-    label : string;
+    label: string;
     name: string;
     release_date: string;
 }
@@ -47,6 +47,7 @@ function App() {
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
 
     const [centreLabelSource, setCentreLabelSource] = useState<string | null>(null);
+    const [vinylDetails, setVinylDetails] = useState<any>(null);
 
     const handleActivation = useCallback(async () => {
         if (deviceID !== undefined) {
@@ -121,10 +122,23 @@ function App() {
                     throw new Error('Failed to fetch centre label');
                 }
 
+                const result = await response.json();
+
                 // store image as blob URL, to display in <img>
-                const blob = await response.blob();
+                const base64Image = result.imageData;
+                const binary = atob(base64Image);
+                const array = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    array[i] = binary.charCodeAt(i);
+                }
+
+                const blob = new Blob([array], { type: 'image/png' });
                 const url = URL.createObjectURL(blob);
                 setCentreLabelSource(url);
+
+                // optional metadata
+                const metadata = result.metadata;
+                setVinylDetails(metadata);
             } catch (error) {
                 console.error('Error fetching label:', error);
                 setCentreLabelSource(null); // prevent stale image
@@ -188,12 +202,12 @@ function App() {
 
         return (
             <>
-                { !isActive &&
+                {!isActive &&
                     <button onClick={handleActivation}>ACTIVATE</button>
                 }
 
                 <h1>{currentAlbum?.name}</h1>
-                { currentAlbum !== null &&
+                {currentAlbum !== null &&
                     <img className='albumArt' src={currentAlbum.images[0].url} alt='Album Cover' />
                 }
                 <h2>{currentTrack?.name}</h2>
@@ -210,10 +224,30 @@ function App() {
                         }}
                     >
                         {/* PLAIN VINYL */}
-                        <img src='/virtual-turntable/vinyl.svg' alt='Vinyl' />
+                        <Vinyl colour={vinylDetails?.colour || '#000000'} />
+
+                        {/* MARBLE TEXTURE */}
+                        { vinylDetails?.marble &&
+                            <img src='/virtual-turntable/marble.webp'
+                                style={{
+                                    position: "absolute",
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    width: 394,
+                                    height: 394,
+
+                                    objectFit: "cover",
+                                    mixBlendMode: "multiply", // Adjust as needed
+                                    opacity: 0.6, // Adjust transparency
+                                    pointerEvents: "none", // Makes the overlay non-interactive
+                                    borderRadius: '50%',
+                                }}
+                            />
+                        }
 
                         {/* CENTRE LABEL */}
-                        { centreLabelSource &&
+                        {centreLabelSource &&
                             <img src={centreLabelSource}
                                 style={{
                                     position: 'absolute',
@@ -257,5 +291,34 @@ function App() {
     }
 
 }
+
+const Vinyl = ({ colour }: { colour: string }) => (
+    <svg
+        xmlns="http://www.w3.org/1999/xlink" x="0px" y="0px"
+        viewBox="0 0 488.2 488.2"
+        style={{ width: "100%", height: "100%" }}
+    >
+        <circle fill={colour} cx="244.1" cy="244.2" r="244"/>
+        <circle fill='#ffffff' cx="244.1" cy="244.2" r="104.8"/>
+        <circle fill={colour} cx="244.1" cy="244.2" r="29.6"/>
+        <g>
+            <path fill='#ffffff' d="M244.1,448.2c-112.8,0-204-91.2-204-204c0-4,3.2-8,8-8c4,0,8,3.2,8,8c-0.8,104,84,188.8,188,188.8
+                c4,0,8,3.2,8,8C252.1,445,248.1,448.2,244.1,448.2z"
+            />
+            <path fill='#ffffff' d="M440.9,252.2c-4,0-8-3.2-8-8c0-104-84.8-188.8-188.8-188.8c-4,0-8-3.2-8-8c0-4,3.2-8,8-8
+                c112.8,0,204,92,204,204C448.1,248.2,444.9,252.2,440.9,252.2z"
+            />
+            <path fill='#ffffff' d="M244.1,401c-86.4,0-156.8-70.4-156.8-156.8c0-4,3.2-8,8-8c4,0,8,3.2,8,8
+                c0,77.6,63.2,141.6,141.6,141.6c4,0,8,3.2,8,8C252.1,397.8,248.1,401,244.1,401z"
+            />
+            <path fill='#ffffff' d="M392.9,252.2c-4,0-8-3.2-8-8c0-77.6-63.2-141.6-141.6-141.6c-4,0-8-3.2-8-8c0-4,3.2-8,8-8
+                c86.4,0,156.8,70.4,156.8,156.8C400.9,248.2,397.7,252.2,392.9,252.2z"
+            />
+        </g>
+    </svg>
+);
+
+<Vinyl colour="#3498db" />; // Pass the desired colour dynamically
+
 
 export default App
