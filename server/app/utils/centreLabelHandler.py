@@ -59,8 +59,15 @@ class CentreLabelHandler:
             if (not os.path.exists(os.path.join(dataPath, subDir))):
                 os.makedirs(os.path.join(dataPath, subDir))
 
-    def getCandidates(self, albumName: str, artistName: str | None, year: str | None, medium: str | None) -> Any | None:
-        """Get the candidate centre labels."""
+    def findReleaseData(self, albumName: str, artistName: str | None, year: str | None, medium: str | None) -> Any | None:
+        album = self.DISCOGS_API.searchRelease(albumName, artistName, year, medium)
+        if (album is not None):
+            return self.DISCOGS_API.getDataForRelease(album['id'])
+        else:
+            raise HTTPException(status_code=404, detail='Failed to find album on Discogs.')
+
+    def downloadCandidates(self, albumID: str, images: list[Any]) -> None:
+        """TODO"""
 
         candidatesDir = os.path.join(self.DATA_DIR, 'centreLabelCandidates')
 
@@ -68,23 +75,32 @@ class CentreLabelHandler:
         for file in os.listdir(candidatesDir):
             os.remove(os.path.join(candidatesDir, file))
 
+        for (index, image) in enumerate(images):
+            url = image['uri']
+            self.DISCOGS_API.downloadImage(url, os.path.join(candidatesDir, f'{albumID}({index}).png'))
+
+    def getCandidates(self, albumName: str, artistName: str | None, year: str | None, medium: str | None) -> None:
+        """Get the candidate centre labels."""
+
         # download from Discogs
         album = self.DISCOGS_API.searchRelease(albumName, artistName, year, medium)
         if (album is not None):
-            images, metadata = self.DISCOGS_API.getReleaseData(album['id'])
+            images, _ = self.DISCOGS_API.getDataForRelease(album['id'])
             if (images is None or len(images) == 0):
                 raise HTTPException(status_code=404, detail='Failed to find images for album')
-            for (index, image) in enumerate(images):
-                url = image['uri']
-                self.DISCOGS_API.downloadImage(url, os.path.join(candidatesDir, f'{album["id"]}({index}).png'))
-            return metadata
+            self.downloadCandidates(album['id'], images)
         else:
             raise HTTPException(status_code=404, detail='Failed to find album on Discogs.')
 
-    def serveCentreLabel(self, albumID: str, albumName: str, artistName: str | None, year: str | None, medium: str | None) -> Any | None:
+    def serveCentreLabel(self, albumID: str, albumName: str | None = None, artistName: str | None = None, year: str | None = None, medium: str | None = None, images: Any = None) -> bool:
         """Serve the centre label for the given album."""
 
-        metadata = self.getCandidates(albumName, artistName, year, medium)
+        if (images is None):
+            if (albumName is None):
+                raise HTTPException(status_code=400, detail='No album name provided.')
+            self.getCandidates(albumName, artistName, year, medium)
+        else:
+            self.downloadCandidates(albumID, images)
 
         centreLabel = processImages(os.path.join(self.DATA_DIR, 'centreLabelCandidates'))
         if (centreLabel is not None):
@@ -92,5 +108,5 @@ class CentreLabelHandler:
             #   1. to serve to client
             #   2. for persistent caching
             cv2.imwrite(os.path.join(self.DATA_DIR, 'centreLabels', f'{albumID}.png'), centreLabel)
-            return metadata
-        return None # failed
+            return True
+        return False # failed

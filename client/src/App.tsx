@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+// import colornames from 'colornames';
+import { colornames } from 'color-name-list';
 
 import SpotifyPlayer from './SpotifyPlayer'
 import WebSocketManagerInstance from './WebSocketManager'
@@ -149,6 +151,11 @@ function App() {
 
                 // optional metadata
                 const metadata = result.metadata;
+                // debugger;
+                if (metadata?.colour) {
+                    metadata.colour = colornames.find((colour: any) => colour.name.toLowerCase() === metadata.colour.toLowerCase())?.hex;
+                }
+                console.log(metadata);
                 setVinylDetails(metadata);
             } catch (error) {
                 console.error('Error fetching label:', error);
@@ -157,6 +164,7 @@ function App() {
         };
 
         setCentreLabelSource(null); // clear previous label
+        setVinylDetails(null);
         fetchLabel();
 
         return () => {
@@ -250,12 +258,30 @@ function App() {
 
                                     objectFit: "cover",
                                     mixBlendMode: "multiply", // Adjust as needed
-                                    opacity: 0.6, // Adjust transparency
+                                    opacity: 0.5, // Adjust transparency
                                     pointerEvents: "none", // Makes the overlay non-interactive
                                     borderRadius: '50%',
                                 }}
                             />
                         }
+
+                        {/* VINYL TEXTURE */}
+                        <img src='/virtual-turntable/vinyl.png'
+                            style={{
+                                position: "absolute",
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                width: 400,
+                                height: 400,
+
+                                objectFit: "cover",
+                                mixBlendMode: vinylDetails?.colour ? "darken" : "lighten", // Adjust as needed
+                                opacity: 0.4, // Adjust transparency
+                                pointerEvents: "none", // Makes the overlay non-interactive
+                                borderRadius: '50%',
+                            }}
+                        />
 
                         {/* CENTRE LABEL */}
                         {centreLabelSource &&
@@ -314,20 +340,6 @@ const Vinyl = ({ colour }: { colour: string }) => (
         <circle fill={colour} cx="244.1" cy="244.2" r="244"/>
         <circle fill='#ffffff' cx="244.1" cy="244.2" r="104.8"/>
         <circle fill={colour} cx="244.1" cy="244.2" r="29.6"/>
-        <g>
-            <path fill='#ffffff' d="M244.1,448.2c-112.8,0-204-91.2-204-204c0-4,3.2-8,8-8c4,0,8,3.2,8,8c-0.8,104,84,188.8,188,188.8
-                c4,0,8,3.2,8,8C252.1,445,248.1,448.2,244.1,448.2z"
-            />
-            <path fill='#ffffff' d="M440.9,252.2c-4,0-8-3.2-8-8c0-104-84.8-188.8-188.8-188.8c-4,0-8-3.2-8-8c0-4,3.2-8,8-8
-                c112.8,0,204,92,204,204C448.1,248.2,444.9,252.2,440.9,252.2z"
-            />
-            <path fill='#ffffff' d="M244.1,401c-86.4,0-156.8-70.4-156.8-156.8c0-4,3.2-8,8-8c4,0,8,3.2,8,8
-                c0,77.6,63.2,141.6,141.6,141.6c4,0,8,3.2,8,8C252.1,397.8,248.1,401,244.1,401z"
-            />
-            <path fill='#ffffff' d="M392.9,252.2c-4,0-8-3.2-8-8c0-77.6-63.2-141.6-141.6-141.6c-4,0-8-3.2-8-8c0-4,3.2-8,8-8
-                c86.4,0,156.8,70.4,156.8,156.8C400.9,248.2,397.7,252.2,392.9,252.2z"
-            />
-        </g>
     </svg>
 );
 

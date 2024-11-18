@@ -44,7 +44,7 @@ class DiscogsAPI:
             return None  # no results found
         return data['results'][0]  # Return the top result
 
-    def getReleaseData(self, releaseID: str) -> list[dict[str, str | int]] | None:
+    def getDataForRelease(self, releaseID: str) -> list[dict[str, str | int]] | None:
         """Get the images for a given release."""
 
         url = f'https://api.discogs.com/releases/{releaseID}'

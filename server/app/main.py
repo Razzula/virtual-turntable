@@ -161,32 +161,32 @@ class Server:
             if (albumID == 'undefined'):
                 raise HTTPException(status_code=400, detail='No album provided.')
 
-            metadata = None
+            # get data for Discogs API
+            albumName = body.get('albumName')
+            if (albumName is None):
+                raise HTTPException(status_code=400, detail='No album name provided.')
+            artistName = body.get('artistName')
+            year = body.get('year')
+
+            # get data
+            images, metadata = self.centreLabelhandler.findReleaseData(albumName, artistName, year, 'vinyl')
 
             labelPath = os.path.join(ROOT_DIR, 'data', 'centreLabels', f'{albumID}.png')
             if (not os.path.exists(labelPath)):
                 # if label not cached, attempt to find it
 
-                # get data for Discogs API
-                albumName = body.get('albumName')
-                if (albumName is None):
-                    raise HTTPException(status_code=400, detail='No album name provided.')
-                artistName = body.get('artistName')
-                year = body.get('year')
-
                 # attempt to find a centre label
-                centreLabel = self.centreLabelhandler.serveCentreLabel(albumID, albumName, artistName, year, 'vinyl')
-                if (centreLabel is None):
+                foundCentreLabel = self.centreLabelhandler.serveCentreLabel(albumID, images=images)
+                if (foundCentreLabel is None):
                     # re-attmpt with broader search
-                    centreLabel = self.centreLabelhandler.serveCentreLabel(albumID, albumName, None, None, None)
+                    foundCentreLabel = self.centreLabelhandler.serveCentreLabel(albumID, albumName, None, None, None)
 
-                if (centreLabel is None or not os.path.exists(labelPath)):
+                if (not foundCentreLabel or not os.path.exists(labelPath)):
                     # failed to find a centre label
                     labelData = None
                 else:
                     with open(labelPath, "rb") as labelFile:
                         labelData = base64.b64encode(labelFile.read()).decode('utf-8')
-                    metadata = centreLabel
             else:
                 # load cached label
                 with open(labelPath, "rb") as labelFile:
@@ -195,7 +195,7 @@ class Server:
             response = {
                 "imageData": labelData,
             }
-            if (metadata is not None):
+            if (metadata):
                 response['metadata'] = metadata
 
             return JSONResponse(content=response)
