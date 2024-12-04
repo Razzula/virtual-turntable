@@ -11,7 +11,7 @@ from fastapi.websockets import WebSocketState
 from dotenv import load_dotenv
 import requests
 
-from app.utils.spotifyAuth import SpotifyAuth
+from app.utils.spotifyAPI import SpotifyAPI
 from app.utils.websocketHandler import WebsocketHandler
 from app.utils.modelHandler import ModelHandler
 from app.utils.centreLabelHandler import CentreLabelHandler
@@ -46,7 +46,7 @@ class Server:
         )
 
         # setup components
-        self.spotifyAuth = SpotifyAuth()
+        self.spotifyAPI = SpotifyAPI()
         self.websocketHandler = WebsocketHandler()
         self.modelHandler = ModelHandler(
             ROOT_DIR,
@@ -100,7 +100,7 @@ class Server:
             ALBUM: Final = self.modelHandler.classes[SCAN_RESULT['predictedClass']]
 
             # TODO: extract this to API wrapper
-            AUTH_TOKEN: Final = self.spotifyAuth.token().get('access_token')
+            AUTH_TOKEN: Final = self.spotifyAPI.token().get('access_token')
             PARAMS: Final = {
                 'q': f'{ALBUM["name"]} artist:{ALBUM["artist"]} year:{ALBUM["year"]}',
                 'type': 'album',
@@ -120,6 +120,9 @@ class Server:
 
             print(SPOTIFY_ID)
 
+            # ADD TO PLAYLIST
+            self.spotifyAPI.addAlbumToPlaylist(SPOTIFY_ID, self.spotifyAPI.playlist())
+
             # SEND TO CLIENT
             await self.websocketHandler.sendToClient({
                 'command': 'ALBUM',
@@ -127,6 +130,14 @@ class Server:
             }, authToken=AUTH_TOKEN)
 
             return JSONResponse(content={'album': SPOTIFY_ID})
+
+        @self.app.get("/shuffle")
+        async def shuffleGet() -> JSONResponse:
+            """
+                DEV! This endpoint allows a developer to simulate a shuffle event.
+            """
+            self.spotifyAPI.shufflePlaylist(self.spotifyAPI.playlist())
+            return JSONResponse(content={'message': 'Playing'})
 
         # CLIENT-DRIVEN IMAGE
         @self.app.post("/scan")
@@ -203,15 +214,17 @@ class Server:
         # SPOTIFY AUTH
         @self.app.get("/auth/login")
         async def login() -> RedirectResponse:
-            return await self.spotifyAuth.login()
+            return await self.spotifyAPI.login()
 
         @self.app.get("/auth/callback")
         async def callback(request: Request) -> RedirectResponse:
-            return await self.spotifyAuth.callback(request)
+            RESPONSE: Final = await self.spotifyAPI.callback(request)
+            self.spotifyAPI.setupPlaylist('Virtual Turntable')  # async setup playlist on login
+            return RESPONSE
 
         @self.app.get("/auth/token")
         async def token() -> JSONResponse:
-            return JSONResponse(self.spotifyAuth.token())
+            return JSONResponse(self.spotifyAPI.token())
 
         # WEBSOCKET
         @self.app.websocket("/ws")

@@ -32,7 +32,7 @@ with open(os.path.join(root, 'data/albums.json'), 'r', encoding='utf-8') as file
 def makeRequest(url: str) -> requests.Response | None:
     """Make a request to the given URL, with exponential backoff and retries."""
 
-    retries = 3
+    retries = 5
     delay = 15
 
     for attempt in range(retries):
@@ -68,7 +68,8 @@ def main() -> None:
     for album in ALBUMS:
         validAlbum = False
 
-        albumID = f"{album['name'].replace(' ', '')}_{album['artist'].replace(' ', '')}_{album['year']}"
+        artist = album['artist'].replace(' ', '')
+        albumID = f"{album['name'].replace(' ', '')}_{artist}_{album['year']}"
         albumID = re.sub(r'[<>:"/\\|?*]', '', albumID)
         # we artifically create an ID for the album, based on its name, artist, and year
 
@@ -92,7 +93,7 @@ def main() -> None:
         request = requests.get(
             f'https://musicbrainz.org/ws/2/release-group/?query={query}',
             headers = HEADERS,
-            timeout=10,
+            timeout=60,
         )
 
         request.raise_for_status()
@@ -109,14 +110,14 @@ def main() -> None:
             print('\t', mbid)
 
         # FIND ALBUM ART
-        retries = 3
+        retries = 5
         delay = 15
         for i in range(retries):
             try:
                 request = requests.get(
                     f'https://coverartarchive.org/release-group/{mbid}',
                     headers = HEADERS,
-                    timeout=20,
+                    timeout=60,
                 )
             except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError):
                 if (i < retries - 1):
@@ -151,13 +152,13 @@ def main() -> None:
 
         # DOWNLOAD IMAGE(S)
 
-        if (not os.path.exists(os.path.join(root, 'data/art/', albumID))):
-            os.makedirs(os.path.join(root, 'data/art/', albumID))
+        if (not os.path.exists(os.path.join(root, 'data/art/', artist, albumID))):
+            os.makedirs(os.path.join(root, 'data/art/', artist, albumID))
 
         if (frontURL is not None):
             validAlbum = True
             validImageCount += 1
-            path = os.path.join(root, 'data/art/', albumID, 'front.png')
+            path = os.path.join(root, 'data/art/', artist, albumID, 'front.png')
             if (os.path.exists(path)):
                 if (VERBOSITY > 2):
                     print('\t', frontURL, '[x]')
@@ -169,7 +170,7 @@ def main() -> None:
         if (backURL is not None):
             validAlbum = True
             validImageCount += 1
-            path = os.path.join(root, 'data/art/', albumID, 'back.png')
+            path = os.path.join(root, 'data/art/', artist, albumID, 'back.png')
             if (os.path.exists(path)):
                 if (VERBOSITY > 2):
                     print('\t', backURL, '[x]')
