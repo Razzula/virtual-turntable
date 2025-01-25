@@ -211,6 +211,19 @@ class Server:
 
             return JSONResponse(content=response)
 
+        # CENTRE LABEL
+        @self.app.get("/clientIP")
+        async def clientIPGet(request: Request) -> JSONResponse:
+            """
+                This endpoint serves the client's own IP address back to them.
+                This is useful to determine if the client is the host.
+            """
+            proxiedIP = request.headers.get("x-forwarded-for")
+            if (proxiedIP):
+                return JSONResponse(content={ 'clientIP': proxiedIP })
+            else:
+                return JSONResponse(content={ 'clientIP': request.client.host })
+
         # SPOTIFY AUTH
         @self.app.get("/auth/login")
         async def login() -> RedirectResponse:

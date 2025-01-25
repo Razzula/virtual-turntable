@@ -38,6 +38,8 @@ const BUILD_MODE = import.meta.env.MODE;
 
 function App() {
 
+    const [isHostDevice, setIsHostDevice] = useState<boolean>(false);
+
     const [authToken, setAuthToken] = useState<string | undefined | null>(undefined);
 
     const [deviceID, setDeviceID] = useState<string | undefined>(undefined);
@@ -85,7 +87,17 @@ function App() {
 
         getToken();
 
-        WebSocketManagerInstance.connect('ws://localhost:8491/ws', handleWebSocketMessage);
+        const hostURL = process.env.HOST_URL || 'localhost';
+        WebSocketManagerInstance.connect(`ws://${hostURL}:8491/ws`, handleWebSocketMessage);
+        fetch('/virtual-turntable/server/clientIP')
+            .then((response) => {
+                if (response.ok) {
+                    response.json().then((data) => {
+                        setIsHostDevice(window.location.hostname === data.clientIP);
+                    });
+                }
+            }
+        );
 
     }, []);
 
@@ -208,126 +220,137 @@ function App() {
         console.log(result);
     }
 
-    if (authToken !== '') {
-        // WEB PLAYBACK
+    // if (isHostDevice) {
+        if (authToken && authToken !== '') {
+            // WEB PLAYBACK
 
-        const dicsClasses = ['disc'];
-        if (!isActive) {
-            dicsClasses.push('inactive');
-        }
-        if (isPlaying) {
-            dicsClasses.push('spinning');
-        }
+            const dicsClasses = ['disc'];
+            if (!isActive) {
+                dicsClasses.push('inactive');
+            }
+            if (isPlaying) {
+                dicsClasses.push('spinning');
+            }
 
-        return (
-            <>
-                {!isActive &&
-                    <button onClick={handleActivation}>ACTIVATE</button>
-                }
+            console.log('isHostDevice:', isHostDevice);
 
-                <h1>{currentAlbum?.name}</h1>
-                {currentAlbum !== null &&
-                    <img className='albumArt' src={currentAlbum.images[0].url} alt='Album Cover' />
-                }
-                <h2>{currentTrack?.name}</h2>
+            return (
+                <>
+                    {!isActive &&
+                        <button onClick={handleActivation}>ACTIVATE</button>
+                    }
 
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    {/* SPINNING VINYL RENDER */}
-                    <div className={dicsClasses.join(' ')}
-                        style={{
-                            position: 'relative',
-                        }}
-                    >
-                        {/* PLAIN VINYL */}
-                        <Vinyl colour={vinylDetails?.colour || '#000000'} />
+                    <h1>{currentAlbum?.name}</h1>
+                    {currentAlbum !== null &&
+                        <img className='albumArt' src={currentAlbum.images[0].url} alt='Album Cover' />
+                    }
+                    <h2>{currentTrack?.name}</h2>
 
-                        {/* MARBLE TEXTURE */}
-                        { vinylDetails?.marble &&
-                            <img src='/virtual-turntable/marble.webp'
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        {/* SPINNING VINYL RENDER */}
+                        <div className={dicsClasses.join(' ')}
+                            style={{
+                                position: 'relative',
+                            }}
+                        >
+                            {/* PLAIN VINYL */}
+                            <Vinyl colour={vinylDetails?.colour || '#000000'} />
+
+                            {/* MARBLE TEXTURE */}
+                            { vinylDetails?.marble &&
+                                <img src='/virtual-turntable/marble.webp'
+                                    style={{
+                                        position: "absolute",
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        width: 394,
+                                        height: 394,
+
+                                        objectFit: "cover",
+                                        mixBlendMode: "multiply", // Adjust as needed
+                                        opacity: 0.5, // Adjust transparency
+                                        pointerEvents: "none", // Makes the overlay non-interactive
+                                        borderRadius: '50%',
+                                    }}
+                                />
+                            }
+
+                            {/* VINYL TEXTURE */}
+                            <img src='/virtual-turntable/vinyl.png'
                                 style={{
                                     position: "absolute",
                                     top: '50%',
                                     left: '50%',
                                     transform: 'translate(-50%, -50%)',
-                                    width: 394,
-                                    height: 394,
+                                    width: 400,
+                                    height: 400,
 
                                     objectFit: "cover",
-                                    mixBlendMode: "multiply", // Adjust as needed
-                                    opacity: 0.5, // Adjust transparency
+                                    mixBlendMode: vinylDetails?.colour ? "darken" : "lighten", // Adjust as needed
+                                    opacity: 0.4, // Adjust transparency
                                     pointerEvents: "none", // Makes the overlay non-interactive
                                     borderRadius: '50%',
                                 }}
                             />
-                        }
 
-                        {/* VINYL TEXTURE */}
-                        <img src='/virtual-turntable/vinyl.png'
-                            style={{
-                                position: "absolute",
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                width: 400,
-                                height: 400,
-
-                                objectFit: "cover",
-                                mixBlendMode: vinylDetails?.colour ? "darken" : "lighten", // Adjust as needed
-                                opacity: 0.4, // Adjust transparency
-                                pointerEvents: "none", // Makes the overlay non-interactive
-                                borderRadius: '50%',
-                            }}
-                        />
-
-                        {/* CENTRE LABEL */}
-                        {centreLabelSource &&
-                            <img src={centreLabelSource}
-                                style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    transform: 'translate(-50%, -50%)',
-                                    borderRadius: '50%',
-                                    zIndex: 1,
-                                    width: 180,
-                                    height: 180,
-                                }}
-                            />
-                        }
+                            {/* CENTRE LABEL */}
+                            {centreLabelSource &&
+                                <img src={centreLabelSource}
+                                    style={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        borderRadius: '50%',
+                                        zIndex: 1,
+                                        width: 180,
+                                        height: 180,
+                                    }}
+                                />
+                            }
+                        </div>
                     </div>
-                </div>
 
-                { authToken &&
-                    <SpotifyPlayer
-                        authToken={authToken} setDeviceID={setDeviceID}
-                        isActive={isActive} isPlaying={isPlaying}
-                        setIsPlaying={setIsPlaying} setIsActive={setIsActive} setCurrentTrack={setCurrentTrack}
-                    />
-                }
+                    { authToken &&
+                        <SpotifyPlayer
+                            authToken={authToken} setDeviceID={setDeviceID}
+                            isActive={isActive} isPlaying={isPlaying}
+                            setIsPlaying={setIsPlaying} setIsActive={setIsActive} setCurrentTrack={setCurrentTrack}
+                        />
+                    }
 
+                    <div>
+                        <button onClick={() => WebSocketManagerInstance.send('PING!')}>PING SERVER</button>
+                    </div>
+                    <div>
+                        <input type="file" accept="image/*" onChange={handleFileUpload} />
+                    </div>
+                </>
+            );
+        }
+        else {
+            // LOGIN
+            return (
                 <div>
-                    <button onClick={() => WebSocketManagerInstance.send('PING!')}>PING SERVER</button>
+                    <h1>
+                        <a href='/virtual-turntable/auth/login'>Login with Spotify</a>
+                    </h1>
                 </div>
-                <div>
-                    <input type="file" accept="image/*" onChange={handleFileUpload} />
-                </div>
-            </>
-        );
-    }
-    else {
-        // LOGIN
-        return (
-            <div>
-                <h1>
-                    <a href='/virtual-turntable/auth/login'>Login with Spotify</a>
-                </h1>
-            </div>
-        );
-    }
+            );
+        }
+    // }
+    // else {
+    //     return (
+    //         <div>
+    //             <h1>Not the host device</h1>
+    //         </div>
+    //     );
+    // }
 
 }
 
@@ -342,8 +365,5 @@ const Vinyl = ({ colour }: { colour: string }) => (
         <circle fill={colour} cx="244.1" cy="244.2" r="29.6"/>
     </svg>
 );
-
-<Vinyl colour="#3498db" />; // Pass the desired colour dynamically
-
 
 export default App

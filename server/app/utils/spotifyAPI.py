@@ -2,6 +2,7 @@
 import os
 import random
 import string
+import socket
 from typing import Final
 
 from urllib.parse import urlencode
@@ -9,10 +10,22 @@ import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import RedirectResponse
 
+def getLocalIP() -> str:
+    """Retrieve the local IP address of the device."""
+    try:
+        # create a socket and connect to a public address to determine the local IP
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(('8.8.8.8', 80))
+            return s.getsockname()[0]
+    except Exception as e:
+        print(f'Error determining local IP: {e}')
+        return '127.0.0.1'
+
 class SpotifyAPI:
     """Handler class for Spotify authentication flow."""
 
-    REDIRECT_URI: Final = 'http://localhost:1948/virtual-turntable/auth/callback'
+    REDIRECT_URI: Final = f'http://{getLocalIP()}:1948/virtual-turntable/auth/callback'
+    print(REDIRECT_URI)
 
     def __init__(self) -> None:
         """Initialise the Spotify authentication handler."""
@@ -29,11 +42,12 @@ class SpotifyAPI:
         """Redirect the user to the Spotify login page."""
         SCOPE: Final = (
             'streaming '  # Manage playback
-            'user-read-email '  # Access user's email
+            # 'user-read-email '  # Access user's email
             'user-read-private '  # Access private account info
             'user-modify-playback-state '  # Control playback
             'playlist-modify-private '  # Create/edit private playlists
-            'playlist-modify-public'  # Create/edit public playlists
+            # 'playlist-modify-public '  # Create/edit public playlists
+            'playlist-read-private '  # Access private playlists
         )
 
         STATE: Final = self.generateRandomString(16)

@@ -503,5 +503,25 @@
         "name": "Master Of Puppets",
         "artist": "Metallica",
         "year": 1986
+    },
+    {
+        "name": "+",
+        "artist": "Ed Sheeran",
+        "year": 2011
+    },
+    {
+        "name": "×",
+        "artist": "Ed Sheeran",
+        "year": 2014
+    },
+    {
+        "name": "÷",
+        "artist": "Ed Sheeran",
+        "year": 2017
+    },
+    {
+        "name": "=",
+        "artist": "Ed Sheeran",
+        "year": 2021
     }
 ]

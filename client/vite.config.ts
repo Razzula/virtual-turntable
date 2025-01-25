@@ -1,5 +1,21 @@
+import { networkInterfaces } from 'os';
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
+
+function getlocalIP() {
+    const nets = networkInterfaces();
+    for (const name of Object.keys(nets)) {
+        for (const iface of nets[name] || []) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                return iface.address;
+            }
+        }
+    }
+    return 'localhost';
+}
+
+const localIP = getlocalIP();
+console.log(`Running on ${localIP}`);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,16 +30,28 @@ export default defineConfig({
         */
         proxy: {
             '/virtual-turntable/auth': {
-                target: 'http://127.0.0.1:8491',
+                target: `http://${localIP}:8491`,
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/virtual-turntable/, '')
             },
             '/virtual-turntable/server': {
-                target: 'http://127.0.0.1:8491',
+                target: `http://${localIP}:8491`,
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/virtual-turntable\/server/, '')
+                rewrite: (path) => path.replace(/^\/virtual-turntable\/server/, ''),
+                configure: (proxy) => {
+                    console.log('Proxy instance configured');
+                    proxy.on('proxyReq', (proxyReq, req) => {
+                        const rawClientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+                        if (rawClientIP && typeof rawClientIP === 'string') {
+                            const clientIP = rawClientIP?.replace(/^::ffff:/, '');
+                            console.log('Proxying request from IP:', clientIP);
+                            proxyReq.setHeader('X-Forwarded-For', clientIP);
+                        }
+                    });
+                },
             },
         },
+        host: true,
     },
     preview: {
         port: 1948,
@@ -32,16 +60,31 @@ export default defineConfig({
         */
         proxy: {
             '/virtual-turntable/auth': {
-                target: 'http://127.0.0.1:8491',
+                target: `http://${localIP}:8491`,
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/virtual-turntable/, '')
             },
             '/virtual-turntable/server': {
-                target: 'http://127.0.0.1:8491',
+                target: `http://${localIP}:8491`,
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/virtual-turntable\/server/, '')
+                rewrite: (path) => path.replace(/^\/virtual-turntable\/server/, ''),
+                configure: (proxy) => {
+                    console.log('Proxy instance configured');
+                    proxy.on('proxyReq', (proxyReq, req) => {
+                        const rawClientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+                        if (rawClientIP && typeof rawClientIP === 'string') {
+                            const clientIP = rawClientIP?.replace(/^::ffff:/, '');
+                            console.log('Proxying request from IP:', clientIP);
+                            proxyReq.setHeader('X-Forwarded-For', clientIP);
+                        }
+                    });
+                },
             },
         },
+        host: true,
     },
     base: '/virtual-turntable/',
-})
+    define: {
+        'process.env.HOST_URL': JSON.stringify(localIP),
+    },
+});
