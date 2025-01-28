@@ -18,7 +18,6 @@ export class SpotifyPlayer extends MusicPlayer {
     protected constructor(authToken: string, setDeviceID: (player: string) => void, handlePlayerStateChange: (state: Spotify.PlaybackState) => void) {
         super();
         console.log('Creating Spotify Player instance');
-        console.log(authToken);
 
         const loadSpotifyPlayer = () => {
             return new Promise<void>((resolve, reject) => {

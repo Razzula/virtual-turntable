@@ -1,14 +1,19 @@
 """Handler class for Spotify authentication flow."""
+import asyncio
 import os
 import random
 import string
 import socket
-from typing import Final
+import threading
+import time
+from typing import Any, Final
 
 from urllib.parse import urlencode
 import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import RedirectResponse
+
+from app.utils.websocketHandler import WebsocketHandler
 
 def getLocalIP() -> str:
     """Retrieve the local IP address of the device."""
@@ -27,12 +32,13 @@ class SpotifyAPI:
     REDIRECT_URI: Final = f'http://{getLocalIP()}:1948/virtual-turntable/auth/callback'
     print(REDIRECT_URI)
 
-    def __init__(self) -> None:
+    def __init__(self, sendToClient: Any) -> None:
         """Initialise the Spotify authentication handler."""
         self.CLIENT_ID: Final = os.getenv('SPOTIFY_CLIENT_ID')
         self.CLIENT_SECRET: Final = os.getenv('SPOTIFY_CLIENT_SECRET')
         self.tokens: dict[str, str] = {}
         self.vttPlaylistID: str | None = None
+        self.sendToClient = sendToClient
 
     def generateRandomString(self, length: int) -> str:
         """Generate a random string of letters and digits with a given length"""
@@ -72,9 +78,9 @@ class SpotifyAPI:
         RESPONSE: Final = requests.post(
             'https://accounts.spotify.com/api/token',
             data = {
+                'grant_type': 'authorization_code',
                 'code': AUTH_CODE,
                 'redirect_uri': self.REDIRECT_URI,
-                'grant_type': 'authorization_code'
             },
             auth=(self.CLIENT_ID, self.CLIENT_SECRET),
             timeout=10
@@ -82,9 +88,48 @@ class SpotifyAPI:
 
         RESPONSE.raise_for_status()
         BODY: Final = RESPONSE.json()
+
+        # store tokens
         self.tokens['access_token'] = BODY.get('access_token')
+        self.tokens['refresh_token'] = BODY.get('refresh_token')
+
+        # start token refresh thread
+        expiration = BODY.get('expires_in', 3600)
+        asyncio.create_task(self.refreshToken(expiration))
 
         return RedirectResponse(url='/')
+
+    async def refreshToken(self, expiration: int) -> None:
+        """Refresh the access token before it expires."""
+        while True:
+            # wait until ~1 minute before expiration
+            await asyncio.sleep(expiration - 60)
+
+            try:
+                RESPONSE = requests.post(
+                    'https://accounts.spotify.com/api/token',
+                    data={
+                        'grant_type': 'refresh_token',
+                        'refresh_token': self.tokens['refresh_token'],
+                    },
+                    headers={'Content-Type': 'application/x-www-form-urlencoded'},
+                    auth=(self.CLIENT_ID, self.CLIENT_SECRET),
+                    timeout=10
+                )
+                RESPONSE.raise_for_status()
+                BODY = RESPONSE.json()
+
+                # update tokens
+                self.tokens['access_token'] = BODY.get('access_token')
+                expiration = BODY.get('expires_in', 3600)
+                print("Spotify access token refreshed.")
+
+                # inform clients to retrieve the new token
+                await self.sendToClient({'command': 'TOKEN'})
+
+            except Exception as e:
+                print(f"Error refreshing Spotify token: {e}")
+                break
 
     def token(self) -> dict[str, str]:
         """Return the Spotify access token."""

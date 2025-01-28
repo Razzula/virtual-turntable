@@ -46,8 +46,8 @@ class Server:
         )
 
         # setup components
-        self.spotifyAPI = SpotifyAPI()
         self.websocketHandler = WebsocketHandler()
+        self.spotifyAPI = SpotifyAPI(self.websocketHandler.sendToClient)
         self.modelHandler = ModelHandler(
             ROOT_DIR,
             os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),
@@ -211,7 +211,6 @@ class Server:
 
             return JSONResponse(content=response)
 
-        # CENTRE LABEL
         @self.app.get("/clientIP")
         async def clientIPGet(request: Request) -> JSONResponse:
             """
@@ -223,6 +222,15 @@ class Server:
                 return JSONResponse(content={ 'clientIP': proxiedIP })
             else:
                 return JSONResponse(content={ 'clientIP': request.client.host })
+
+        @self.app.get("/playlist")
+        async def playlistIDGet() -> JSONResponse:
+            """
+                This endpoint serves the playlist ID back to the client.
+            """
+            if (self.spotifyAPI.vttPlaylistID is not None):
+                return JSONResponse(content={ 'playlistID': self.spotifyAPI.vttPlaylistID })
+            return JSONResponse(content={ 'playlistID': self.spotifyAPI.getPlaylistByName('Virtual Turntable') })
 
         # SPOTIFY AUTH
         @self.app.get("/auth/login")

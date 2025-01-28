@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { ColorName, colornames } from 'color-name-list';
 
 import SpotifyPlayer from './Spotify/SpotifyPlayer.ts'
-import { Album, Track } from './types/Spotify'
+import { Album, Track, User } from './types/Spotify'
 
 import './styles/App.css'
 import SpotifyAPI from './Spotify/SpotifyAPI.ts';
 
 type VirtualTurntableProps = {
     authToken: string;
+    userProfile: User | null;
     isPlaying: boolean;
     setIsPlaying: (playing: boolean) => void;
     currentAlbum: Album | null;
@@ -19,6 +20,7 @@ type VirtualTurntableProps = {
 
 function VirtualTurntable({
     authToken,
+    userProfile,
     isPlaying, currentAlbum,
     setIsPlaying, setCurrentAlbum, setCurrentTrack,
 }: VirtualTurntableProps): JSX.Element {
@@ -30,6 +32,57 @@ function VirtualTurntable({
 
     const [centreLabelSource, setCentreLabelSource] = useState<string | null>(null);
     const [vinylDetails, setVinylDetails] = useState<any>(null);
+
+    const [mouseActive, setMouseActive] = useState(false);
+    const [plateZoom, setPlateZoom] = useState(50);
+
+    const baseplateWidth = 28.5;
+    const baseplateHeight = 13;
+    const vinylDiamater = 30; // 17.5;
+    const vinylCentre = 9 / baseplateWidth;
+
+    useEffect(() => {
+        document.body.className = 'projected';
+    }, []);
+
+    useEffect(() => {
+        // MOUSE MOVEMENT LISTENER
+        let timeout: NodeJS.Timeout;
+
+        const handleMouseMove = () => {
+            setMouseActive(true);
+
+            // reset the timer to hide buttons after 3 seconds of no movement
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                setMouseActive(false);
+            }, 5000);
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+            clearTimeout(timeout);
+        };
+    }, []);
+
+    useEffect(() => {
+        // CTRL+SCROLL ZOOM LISTENER
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault(); // prevent default page zoom
+            setPlateZoom((prevZoom) => {
+                const newZoom = prevZoom - Math.sign(e.deltaY) * 5; // delta 5%
+                return Math.min(100, Math.max(0, newZoom)); // clamping to prevent overflow
+            });
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: false });
+
+        return () => {
+            window.removeEventListener('wheel', handleWheel);
+        };
+    }, []);
 
     useEffect(() => {
         function handlePlayerStateChange(state: Spotify.PlaybackState) {
@@ -150,77 +203,160 @@ function VirtualTurntable({
         }
 
         return (
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-                onClick={handleActivation}
-            >
-                {/* SPINNING VINYL RENDER */}
-                <div className={dicsClasses.join(' ')}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                width: '100vw',
+                overflow: 'hidden',
+            }}>
+                <div className={`plate ${mouseActive ? 'showOutline' : ''}`}
                     style={{
-                        position: 'relative',
+                        width: `${plateZoom}vw`,
+                        height: `${plateZoom / baseplateWidth * baseplateHeight}vw`,
                     }}
                 >
-                    {/* PLAIN VINYL */}
-                    <Vinyl colour={vinylDetails?.colour || '#000000'} />
-
-                    {/* MARBLE TEXTURE */}
-                    { vinylDetails?.marble &&
-                        <img src='/virtual-turntable/marble.webp'
-                            style={{
-                                position: "absolute",
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                width: 394,
-                                height: 394,
-
-                                objectFit: "cover",
-                                mixBlendMode: "multiply", // Adjust as needed
-                                opacity: 0.5, // Adjust transparency
-                                pointerEvents: "none", // Makes the overlay non-interactive
-                                borderRadius: '50%',
-                            }}
-                        />
-                    }
-
-                    {/* VINYL TEXTURE */}
-                    <img src='/virtual-turntable/vinyl.png'
+                    <div className='vinyl'
                         style={{
-                            position: "absolute",
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: 400,
-                            height: 400,
+                            position: 'relative',
+                            left: `${(-0.5 + vinylCentre) * 100}%`,
 
-                            objectFit: "cover",
-                            mixBlendMode: vinylDetails?.colour ? "darken" : "lighten", // Adjust as needed
-                            opacity: 0.4, // Adjust transparency
-                            pointerEvents: "none", // Makes the overlay non-interactive
-                            borderRadius: '50%',
+                            height: `${plateZoom / baseplateWidth * vinylDiamater}vw`,
+                            width: `${plateZoom / baseplateWidth * vinylDiamater}vw`,
+                            flexShrink: 0,
+
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            // border: '1px solid #ff00ff',
                         }}
-                    />
-
-                    {/* CENTRE LABEL */}
-                    {centreLabelSource &&
-                        <img src={centreLabelSource}
+                        onClick={handleActivation}
+                    >
+                        {/* SPINNING VINYL RENDER */}
+                        <div className={dicsClasses.join(' ')}
                             style={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                borderRadius: '50%',
-                                zIndex: 1,
-                                width: 180,
-                                height: 180,
+                                position: 'relative',
+                                width: '100%',
+                                height: '100%',
                             }}
+                        >
+                            {/* PLAIN VINYL */}
+                            <Vinyl colour={vinylDetails?.colour || '#000000'} />
+
+                            {/* MARBLE TEXTURE */}
+                            { vinylDetails?.marble &&
+                                <img src='/virtual-turntable/marble.webp'
+                                    style={{
+                                        position: "absolute",
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        width: '100%',
+                                        height: '100%',
+
+                                        objectFit: "cover",
+                                        mixBlendMode: "multiply", // Adjust as needed
+                                        opacity: 0.5, // Adjust transparency
+                                        pointerEvents: "none", // Makes the overlay non-interactive
+                                        borderRadius: '50%',
+                                    }}
+                                />
+                            }
+
+                            {/* VINYL TEXTURE */}
+                            <img src='/virtual-turntable/vinyl.png'
+                                style={{
+                                    position: "absolute",
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    width: '100%',
+                                    height: '100%',
+
+                                    objectFit: "cover",
+                                    mixBlendMode: vinylDetails?.colour ? "darken" : "lighten", // Adjust as needed
+                                    opacity: 0.4, // Adjust transparency
+                                    pointerEvents: "none", // Makes the overlay non-interactive
+                                    borderRadius: '50%',
+                                }}
+                            />
+
+                            {/* CENTRE LABEL */}
+                            {centreLabelSource &&
+                                <img src={centreLabelSource}
+                                    style={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        borderRadius: '50%',
+                                        zIndex: 1,
+                                        width: '43%',
+                                        height: '43%',
+                                    }}
+                                />
+                            }
+                        </div>
+                    </div>
+
+                    <div className='topRight'>
+                        <img className='userImage'
+                            style={{
+                                width: `${92 * (plateZoom / 100)}px`,
+                                height: `${92 * (plateZoom / 100)}px`,
+                            }}
+                            src={userProfile?.images?.[0].url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt='User Profile'
+                            width={64}
                         />
-                    }
+                    </div>
+
+                    <div className='bottomRight column'>
+                        <p
+                            style={{
+                                fontSize: `${24 * (plateZoom / 100)}px`,
+                            }}
+                        >
+                            Powered by
+                        </p>
+                        <a href='https://www.spotify.com/' target='_blank' rel='noreferrer'>
+                            <img className='brandImage'
+                                src='https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Full_Logo_RGB_Green.png' alt='Spotify Logo'
+                                style={{
+                                    width: `${200 * (plateZoom / 100)}px`,
+                                }}
+                            />
+                        </a>
+                        <a href='https://www.discogs.com/' target='_blank' rel='noreferrer'>
+                            <img className='brandImage'
+                                src='https://www.discogs.com/images/discogs-white.png' alt='Discogs Logo'
+                                style={{
+                                    width: `${200 * (plateZoom / 100)}px`,
+                                }}
+                            />
+                        </a>
+                    </div>
+
                 </div>
+
+                { mouseActive &&
+                    <div className='floating'>
+                        <div className='row container'>
+                            <img src='/virtual-turntable/icons/zoomOut.svg' alt='-' />
+                            <input type='range' min='0' max='100'
+                                value={plateZoom}
+                                onChange={(e) => setPlateZoom(parseInt(e.target.value))}
+                            />
+                            <img src='/virtual-turntable/icons/zoomIn.svg' alt='+' />
+
+                            <button>
+                                <img src='/virtual-turntable/icons/settings.svg' alt='Settings' />
+                            </button>
+                        </div>
+                    </div>
+                }
+
             </div>
         );
     }

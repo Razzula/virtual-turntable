@@ -70,6 +70,13 @@ class WebsocketHandler:
     async def sendToClient(self, data: dict[str, str], authToken: Optional[str] = None) -> None:
         """Send a message to the client."""
 
+        # send to main socket
+        if (self.activeMainSocket is not None):
+            if (authToken):
+                data['token'] = authToken
+            await self.activeMainSocket.send_json(data)
+
+        # broadcast to side sockets
         for websocket in self.activeSideSockets:
             if (authToken):
                 data['token'] = authToken

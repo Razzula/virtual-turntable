@@ -22,4 +22,17 @@ export type Album = {
     label: string;
     name: string;
     release_date: string;
+    external_urls: { spotify: string };
+};
+
+export type User = {
+    display_name: string;
+    images: [{
+        url: string;
+        height: number;
+        width: number;
+    }],
+    product: string;
+    type: string;
+    external_urls: { spotify: string };
 };

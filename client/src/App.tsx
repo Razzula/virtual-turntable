@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import WebSocketManagerInstance from './WebSocketManager';
-import { Album, Track } from './types/Spotify'
+import { Album, Track, User } from './types/Spotify'
 
 import './styles/App.css'
 import SpotifyAPI from './Spotify/SpotifyAPI';
@@ -9,19 +9,22 @@ import VirtualTurntable from './VirtualTurntable';
 import RemoteController from './RemoteController';
 import SpotifyPlayer from './Spotify/SpotifyPlayer';
 
+const BUILD_MODE = import.meta.env.MODE;
+
 function App() {
 
     const [isHostDevice, setIsHostDevice] = useState<boolean>(false);
     const isHostDeviceRef = useRef(isHostDevice);
 
     const [authToken, setAuthToken] = useState<string | undefined | null>(undefined);
+    const [userProfile, setUserProfile] = useState<User | null>(null);
 
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
     const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
 
-    useEffect(() => {
+    const fetchAuthToken = useCallback(async () => {
         // get auth token
         fetch('/virtual-turntable/auth/token')
             .then((response) => {
@@ -35,7 +38,14 @@ function App() {
                 }
             }
         );
+    }, []);
 
+    useEffect(() => {
+        fetchAuthToken();
+    }, [fetchAuthToken]);
+
+    useEffect(() => {
+        // resolve host device status
         fetch('/virtual-turntable/server/clientIP')
             .then((response) => {
                 if (response.ok) {
@@ -53,10 +63,40 @@ function App() {
     }, []);
 
     useEffect(() => {
+        if (BUILD_MODE === 'development') {
+            // toggle host device status with Ctrl + #
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.ctrlKey && e.key === '#') {
+                    setIsHostDevice((prev) => !prev);
+                }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+            return () => {
+                window.removeEventListener('keydown', handleKeyDown);
+            };
+        }
+    }, []);
+
+    useEffect(() => {
         if (authToken === null) {
             self.location.href = '/virtual-turntable/auth/login';
         }
+        else if (authToken !== undefined) {
+            SpotifyAPI.getUserProfile(authToken)
+                .then((data) => {
+                    setUserProfile(data);
+                }
+            );
+        }
     }, [authToken]);
+
+    useEffect(() => {
+        if (userProfile) {
+            if (userProfile.product !== 'premium') {
+                console.error('Spotify Premium account required');
+            }
+        }
+    }, [userProfile]);
 
     useEffect(() => {
         // store isHostDevice in ref, so it can be accessed in WebSocket message handler
@@ -90,6 +130,11 @@ function App() {
         try {
             const message = JSON.parse(e.data);
             console.log('SERVER:', message);
+
+            if (message.command === 'TOKEN') {
+                fetchAuthToken();
+                return;
+            }
 
             if (isHostDeviceRef.current) {
                 // MAIN
@@ -157,29 +202,25 @@ function App() {
 
         if (isHostDevice) {
             return (
-                <div>
-                    <VirtualTurntable
-                        authToken={authToken}
-                        isPlaying={isPlaying} setIsPlaying={setIsPlaying}
-                        currentAlbum={currentAlbum} setCurrentAlbum={setCurrentAlbum}
-                        currentTrack={currentTrack} setCurrentTrack={setCurrentTrack}
-                    />
-                    {/* <button onClick={() => WebSocketManagerInstance.send('PING!')}>PING SERVER</button> */}
-                </div>
+                <VirtualTurntable
+                    authToken={authToken} userProfile={userProfile}
+                    isPlaying={isPlaying} setIsPlaying={setIsPlaying}
+                    currentAlbum={currentAlbum} setCurrentAlbum={setCurrentAlbum}
+                    currentTrack={currentTrack} setCurrentTrack={setCurrentTrack}
+                />
             );
         }
         else {
             return (
-                <div>
-                    <RemoteController
-                        authToken={authToken}
-                        isPlaying={isPlaying}
-                        currentAlbum={currentAlbum}
-                        currentTrack={currentTrack}
-                        handleFileUpload={handleFileUpload}
-                        // webSocketManagerInstance={WebSocketManagerInstance}
-                    />
-                </div>
+                <RemoteController
+                    authToken={authToken}
+                    userProfile={userProfile}
+                    isPlaying={isPlaying}
+                    currentAlbum={currentAlbum}
+                    currentTrack={currentTrack}
+                    handleFileUpload={handleFileUpload}
+                    // webSocketManagerInstance={WebSocketManagerInstance}
+                />
             );
         }
 
