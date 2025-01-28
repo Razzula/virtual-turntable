@@ -18,17 +18,20 @@ class WebSocketManager {
             console.error('WebSocket connection already established');
             return;
         }
-        this.webSocket = new WebSocket(url);
+        const webSocket = new WebSocket(url);
 
-        this.webSocket.onopen= () => {
+        webSocket.onopen = () => {
             console.log(`Connected to WebSocket server (${url})`);
+            this.webSocket = webSocket;
         };
-
-        this.webSocket.onclose = () => {
+        webSocket.onclose = () => {
             this.webSocket = null;
         };
 
-        this.webSocket.onmessage = onMessage;
+        webSocket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+        webSocket.onmessage = onMessage;
     }
 
     public disconnect(): void {
@@ -53,5 +56,4 @@ class WebSocketManager {
 }
 
 const WebSocketManagerInstance = WebSocketManager.Instance;
-
 export default WebSocketManagerInstance;

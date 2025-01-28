@@ -1,6 +1,9 @@
-class SpotifyAPI {
+import IMusicAPI from '../IMusicAPI';
+import { Album } from '../types/Spotify';
 
-    public static async setDevice(authToken: string, deviceID: string): Promise<void> {
+class SpotifyAPI implements IMusicAPI {
+
+    public async connect(authToken: string, deviceID: string): Promise<void> {
         fetch('https://api.spotify.com/v1/me/player', {
             method: 'PUT',
             headers: {
@@ -11,18 +14,17 @@ class SpotifyAPI {
         });
     }
 
-    public static async getAlbum(authToken: string, albumID: string): Promise<any> {
+    public async getAlbum(authToken: string, albumID: string): Promise<Album> {
         return fetch(`https://api.spotify.com/v1/albums/${albumID}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`,
             }
-        })
-        .then(response => response.json());
+        }).then(response => response.json());
     }
 
-    public static async playAlbum(authToken: string, albumID: string, offset: number = 0, position_ms: number = 0): Promise<void> {
+    public async playAlbum(authToken: string, albumID: string, offset: number = 0, position_ms: number = 0): Promise<void> {
         fetch('https://api.spotify.com/v1/me/player/play', {
             method: 'PUT',
             headers: {
@@ -39,4 +41,4 @@ class SpotifyAPI {
 
 }
 
-export default SpotifyAPI;
+export default new SpotifyAPI();

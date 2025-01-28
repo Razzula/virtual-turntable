@@ -240,9 +240,13 @@ class Server:
             return JSONResponse(self.spotifyAPI.token())
 
         # WEBSOCKET
-        @self.app.websocket("/ws")
-        async def connectWebsocket(websocket: WebSocket) -> None:
-            await self.websocketHandler.handleConnectionRequest(websocket)
+        @self.app.websocket("/ws/main")
+        async def connectMainWebsocket(websocket: WebSocket) -> None:
+            await self.websocketHandler.handleConnectionRequest(websocket, isMain=True)
+
+        @self.app.websocket("/ws/side")
+        async def connectSideWebsocket(websocket: WebSocket) -> None:
+            await self.websocketHandler.handleConnectionRequest(websocket, isMain=False)
 
     def get(self) -> FastAPI:
         """Return the FastAPI application singleton."""

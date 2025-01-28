@@ -44,7 +44,6 @@ export default defineConfig({
                         const rawClientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
                         if (rawClientIP && typeof rawClientIP === 'string') {
                             const clientIP = rawClientIP?.replace(/^::ffff:/, '');
-                            console.log('Proxying request from IP:', clientIP);
                             proxyReq.setHeader('X-Forwarded-For', clientIP);
                         }
                     });
@@ -69,12 +68,10 @@ export default defineConfig({
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/virtual-turntable\/server/, ''),
                 configure: (proxy) => {
-                    console.log('Proxy instance configured');
                     proxy.on('proxyReq', (proxyReq, req) => {
                         const rawClientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
                         if (rawClientIP && typeof rawClientIP === 'string') {
                             const clientIP = rawClientIP?.replace(/^::ffff:/, '');
-                            console.log('Proxying request from IP:', clientIP);
                             proxyReq.setHeader('X-Forwarded-For', clientIP);
                         }
                     });

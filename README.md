@@ -25,8 +25,9 @@ Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/
 - Python
 - mp4a.40.2 codec (included by default in Windows)
 
-- [Spotify Developer Application](https://developer.spotify.com/dashboard) (required for Spotify Web Playback SDK)
-  - Spotify Premium account (also required)
+- [Spotify Developer Application](https://developer.spotify.com/dashboard)
+  - Spotify Premium account required to use the Web Playback SDK
+  - Non-local redirect URI should be setup for nettwork hosting
 - [Discogs API v2 Application](https://www.discogs.com/settings/developers) (optional)
 
 ### Server
@@ -47,7 +48,7 @@ $ bun install
 ```
 
 #### Note for Linux users!
-The Spotify Web Playback SDK (used in the client application) requires a mp4a.40.2 audio codec to function. This is not included by default in many Linux dsitros (such as Ubuntu).
+The Spotify Web Playback SDK (used in the client application) requires a mp4a.40.2 audio codec to function (in Firefox, at least). This is not included by default in many Linux dsitros (such as Ubuntu).
 
 You will see the following warning in the browser console, and be unable to play audio:
 ```
@@ -64,7 +65,7 @@ $ sudo apt install ubuntu-restricted-extras
 This project makes use of multiple APIs, including:
 - [Spotify Web Playback SDK](https://developer.spotify.com/documentation/web-playback-sdk/) and [Spotify Web API](https://developer.spotify.com/documentation/web-api/)
   - Finding and playing music
-  - *Essential!*
+  - **Essential!**
 - [Discogs API v2](https://www.discogs.com/developers)
   - Finding additional data (such as centre labels) of albums
   - *Optional!*
