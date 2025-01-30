@@ -86,7 +86,7 @@ function RemoteController({
 
                 <div className='panel'>
                     {/* SIDEBAR */}
-                    { true &&
+                    { currentAlbum !== null &&
                         <div className='sidebar'
                         >
                             {/* <h2>Your Collection</h2> */}

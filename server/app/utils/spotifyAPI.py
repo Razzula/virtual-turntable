@@ -36,7 +36,7 @@ class SpotifyAPI:
         """Initialise the Spotify authentication handler."""
         self.CLIENT_ID: Final = os.getenv('SPOTIFY_CLIENT_ID')
         self.CLIENT_SECRET: Final = os.getenv('SPOTIFY_CLIENT_SECRET')
-        self.tokens: dict[str, str] = {}
+        self.sessions: dict[str, dict[str, str]] = {}
         self.vttPlaylistID: str | None = None
         self.sendToClient = sendToClient
 
@@ -44,7 +44,7 @@ class SpotifyAPI:
         """Generate a random string of letters and digits with a given length"""
         return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 
-    async def login(self) -> RedirectResponse:
+    async def login(self, isHost: bool) -> RedirectResponse:
         """Redirect the user to the Spotify login page."""
         SCOPE: Final = (
             'streaming '  # Manage playback
@@ -56,19 +56,22 @@ class SpotifyAPI:
             'playlist-read-private '  # Access private playlists
         )
 
-        STATE: Final = self.generateRandomString(16)
+        sessionID = self.generateRandomString(16)
+        while (self.sessions.get('sessionID')):
+            sessionID = self.generateRandomString(16)
+        self.sessions[sessionID] = { 'isHost': isHost }
 
         AUTH_QUERY_PARAMS: Final = {
             'response_type': "code",
             'client_id': self.CLIENT_ID,
             'scope': SCOPE,
             'redirect_uri': self.REDIRECT_URI,
-            'state': STATE
+            'state': sessionID,
         }
         url = f'https://accounts.spotify.com/authorize/?{urlencode(AUTH_QUERY_PARAMS)}'
         return RedirectResponse(url)
 
-    async def callback(self, request: Request) -> RedirectResponse:
+    async def callback(self, request: Request, sessionID: string) -> RedirectResponse:
         """Handle the Spotify auth callback."""
 
         AUTH_CODE: Final = request.query_params.get('code')
@@ -89,17 +92,32 @@ class SpotifyAPI:
         RESPONSE.raise_for_status()
         BODY: Final = RESPONSE.json()
 
+        accessToken = BODY.get('access_token')
+
         # store tokens
-        self.tokens['access_token'] = BODY.get('access_token')
-        self.tokens['refresh_token'] = BODY.get('refresh_token')
+        self.sessions[sessionID]['accessToken'] = accessToken
+        self.sessions[sessionID]['refresh_token'] = BODY.get('refresh_token')
 
         # start token refresh thread
         expiration = BODY.get('expires_in', 3600)
-        asyncio.create_task(self.refreshToken(expiration))
+        asyncio.create_task(self.refreshToken(sessionID, expiration))
 
-        return RedirectResponse(url='/')
+        # handle setup, for host only
+        if (self.sessions[sessionID]['isHost']):
+            self.setupPlaylist(sessionID, 'Virtual Turntable')
 
-    async def refreshToken(self, expiration: int) -> None:
+        # return to the main page
+        response = RedirectResponse(url='/')
+        response.set_cookie(
+            key='sessionID',
+            value=sessionID,
+            httponly=True,
+            secure=False, # allow HTTP
+            samesite='lax'
+        )
+        return response
+
+    async def refreshToken(self, sessionID: str, expiration: int) -> None:
         """Refresh the access token before it expires."""
         while True:
             # wait until ~1 minute before expiration
@@ -110,7 +128,7 @@ class SpotifyAPI:
                     'https://accounts.spotify.com/api/token',
                     data={
                         'grant_type': 'refresh_token',
-                        'refresh_token': self.tokens['refresh_token'],
+                        'refresh_token': self.sessions[sessionID]['refresh_token'],
                     },
                     headers={'Content-Type': 'application/x-www-form-urlencoded'},
                     auth=(self.CLIENT_ID, self.CLIENT_SECRET),
@@ -120,7 +138,7 @@ class SpotifyAPI:
                 BODY = RESPONSE.json()
 
                 # update tokens
-                self.tokens['access_token'] = BODY.get('access_token')
+                self.sessions[sessionID]['accessToken'] = BODY.get('accessToken')
                 expiration = BODY.get('expires_in', 3600)
                 print("Spotify access token refreshed.")
 
@@ -131,13 +149,18 @@ class SpotifyAPI:
                 print(f"Error refreshing Spotify token: {e}")
                 break
 
-    def token(self) -> dict[str, str]:
+    def token(self, sessionID: str) -> dict[str, str]:
         """Return the Spotify access token."""
-
-        ACCESS_TOKEN: Final = self.tokens.get('access_token')
-        if (not ACCESS_TOKEN):
-            raise HTTPException(status_code=404, detail='Access token not found.')
-        return {'access_token': ACCESS_TOKEN}
+        SESSION: Final = self.sessions.get(sessionID)
+        if (SESSION):
+            ACCESS_TOKEN: Final = SESSION.get('accessToken')
+            if (not ACCESS_TOKEN):
+                print(f"Access token not found for session '{sessionID}'")
+                raise HTTPException(status_code=404, detail='Access token not found.')
+            return {'accessToken': ACCESS_TOKEN}
+        else:
+            print(f"Session '{sessionID}' not found.")
+            raise HTTPException(status_code=401, detail='Invalid session.')
 
     def playlist(self) -> str:
         """Return the Virtual Turntable playlist ID."""
@@ -146,17 +169,17 @@ class SpotifyAPI:
             raise HTTPException(status_code=404, detail='Playlist ID not found.')
         return PLAYLIST_ID
 
-    def setupPlaylist(self, playlistName: str) -> None:
+    def setupPlaylist(self, sessionID: str, playlistName: str) -> None:
         """Fetch/create playlist on Spotify, and cache ID."""
-        playlistID = self.getPlaylistByName(playlistName)
+        playlistID = self.getPlaylistByName(sessionID, playlistName)
         if (not playlistID):
-            playlistID = self.createPlaylist(playlistName)
+            playlistID = self.createPlaylist(sessionID, playlistName)
         self.vttPlaylistID = playlistID
 
-    def getPlaylistByName(self, playlistName: str) -> str | None:
+    def getPlaylistByName(self, sessionID: str, playlistName: str) -> str | None:
         """Get the Spotify playlist ID by name."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.tokens.get("access_token")}'
+            'Authorization': f'Bearer {self.sessions[sessionID].get("accessToken")}'
         }
         url = 'https://api.spotify.com/v1/me/playlists'
         while (url):
@@ -173,10 +196,10 @@ class SpotifyAPI:
 
         return None
 
-    def createPlaylist(self, playlistName: str) -> str:
+    def createPlaylist(self, sessionID: str, playlistName: str) -> str:
         """Create a new Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.tokens.get("access_token")}',
+            'Authorization': f'Bearer {self.sessions[sessionID].get("accessToken")}',
             'Content-Type': 'application/json'
         }
 
@@ -199,7 +222,7 @@ class SpotifyAPI:
     def addAlbumToPlaylist(self, albumID: str, playlistID: str) -> None:
         """Add an album to a Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.tokens.get("access_token")}',
+            'Authorization': f'Bearer {self.sessions.get("accessToken")}',
             'Content-Type': 'application/json'
         }
 
@@ -225,7 +248,7 @@ class SpotifyAPI:
     def playPlaylist(self, playlistID: str) -> None:
         """Start playback of the specified Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.tokens.get("access_token")}',
+            'Authorization': f'Bearer {self.sessions.get("accessToken")}',
             'Content-Type': 'application/json'
         }
 

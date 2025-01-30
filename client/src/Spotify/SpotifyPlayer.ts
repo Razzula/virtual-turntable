@@ -44,7 +44,7 @@ export class SpotifyPlayer extends MusicPlayer {
             const newPlayer = new Spotify.Player({
                 name: 'Virtual Turntable',
                 getOAuthToken: (cb: (authToken: string) => void) => { cb(authToken); },
-                volume: 0.3
+                volume: 0.5
             });
 
             // state management

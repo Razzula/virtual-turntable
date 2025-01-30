@@ -38,14 +38,18 @@ function App() {
 
     const fetchAuthToken = useCallback(async () => {
         // get auth token
-        fetch('/virtual-turntable/auth/token')
+        fetch('/virtual-turntable/auth/token', {
+            method: 'GET',
+            credentials: 'include',
+        })
             .then((response) => {
                 if (response.ok) {
                     response.json().then((data) => {
-                        setAuthToken(data.access_token);
+                        setAuthToken(data.accessToken);
                     });
                 }
                 else {
+                    console.error('Failed to get auth token');
                     setAuthToken(null);
                 }
             }

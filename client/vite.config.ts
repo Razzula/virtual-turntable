@@ -32,7 +32,17 @@ export default defineConfig({
             '/virtual-turntable/auth': {
                 target: `http://${localIP}:8491`,
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/virtual-turntable/, '')
+                rewrite: (path) => path.replace(/^\/virtual-turntable/, ''),
+                configure: (proxy) => {
+                    console.log('Proxy instance configured');
+                    proxy.on('proxyReq', (proxyReq, req) => {
+                        const rawClientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+                        if (rawClientIP && typeof rawClientIP === 'string') {
+                            const clientIP = rawClientIP?.replace(/^::ffff:/, '');
+                            proxyReq.setHeader('X-Forwarded-For', clientIP);
+                        }
+                    });
+                },
             },
             '/virtual-turntable/server': {
                 target: `http://${localIP}:8491`,
@@ -61,7 +71,16 @@ export default defineConfig({
             '/virtual-turntable/auth': {
                 target: `http://${localIP}:8491`,
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/virtual-turntable/, '')
+                rewrite: (path) => path.replace(/^\/virtual-turntable/, ''),
+                configure: (proxy) => {
+                    proxy.on('proxyReq', (proxyReq, req) => {
+                        const rawClientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+                        if (rawClientIP && typeof rawClientIP === 'string') {
+                            const clientIP = rawClientIP?.replace(/^::ffff:/, '');
+                            proxyReq.setHeader('X-Forwarded-For', clientIP);
+                        }
+                    });
+                },
             },
             '/virtual-turntable/server': {
                 target: `http://${localIP}:8491`,

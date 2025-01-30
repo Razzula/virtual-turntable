@@ -4,14 +4,14 @@ from typing import Final, Optional
 from urllib.parse import urlencode
 import base64
 
-from fastapi import FastAPI, HTTPException, WebSocket, Request
+from fastapi import FastAPI, HTTPException, WebSocket, Request, Cookie
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.websockets import WebSocketState
 from dotenv import load_dotenv
 import requests
 
-from app.utils.spotifyAPI import SpotifyAPI
+from app.utils.spotifyAPI import SpotifyAPI, getLocalIP
 from app.utils.websocketHandler import WebsocketHandler
 from app.utils.modelHandler import ModelHandler
 from app.utils.centreLabelHandler import CentreLabelHandler
@@ -224,28 +224,36 @@ class Server:
                 return JSONResponse(content={ 'clientIP': request.client.host })
 
         @self.app.get("/playlist")
-        async def playlistIDGet() -> JSONResponse:
+        async def playlistIDGet(sessionID: str = Cookie(None)) -> JSONResponse:
             """
                 This endpoint serves the playlist ID back to the client.
             """
             if (self.spotifyAPI.vttPlaylistID is not None):
                 return JSONResponse(content={ 'playlistID': self.spotifyAPI.vttPlaylistID })
-            return JSONResponse(content={ 'playlistID': self.spotifyAPI.getPlaylistByName('Virtual Turntable') })
+            return JSONResponse(content={ 'playlistID': self.spotifyAPI.getPlaylistByName(sessionID, 'Virtual Turntable') })
 
         # SPOTIFY AUTH
         @self.app.get("/auth/login")
-        async def login() -> RedirectResponse:
-            return await self.spotifyAPI.login()
+        async def login(request: Request) -> RedirectResponse:
+            if (request.headers.get("x-forwarded-for")):
+                clientIP = request.headers.get("x-forwarded-for")
+            else:
+                clientIP = request.client.host
+
+            isHost = clientIP == getLocalIP() # if client is host machine
+            return await self.spotifyAPI.login(isHost)
 
         @self.app.get("/auth/callback")
         async def callback(request: Request) -> RedirectResponse:
-            RESPONSE: Final = await self.spotifyAPI.callback(request)
-            self.spotifyAPI.setupPlaylist('Virtual Turntable')  # async setup playlist on login
+            SESSION_ID: Final = request.query_params.get('state')
+            RESPONSE: Final = await self.spotifyAPI.callback(request, SESSION_ID)
             return RESPONSE
 
         @self.app.get("/auth/token")
-        async def token() -> JSONResponse:
-            return JSONResponse(self.spotifyAPI.token())
+        async def token(sessionID: str = Cookie(None)) -> JSONResponse:
+            if (not sessionID):
+                raise HTTPException(status_code=400, detail='No session ID provided.')
+            return JSONResponse(self.spotifyAPI.token(sessionID))
 
         # WEBSOCKET
         @self.app.websocket("/ws/main")
