@@ -9,6 +9,12 @@ import VirtualTurntable from './VirtualTurntable';
 import RemoteController from './RemoteController';
 import SpotifyPlayer from './Spotify/SpotifyPlayer';
 
+export type Settings = {
+    enableMotor: boolean;
+    enableRemote: boolean;
+    enforceSignature: boolean;
+}
+
 const BUILD_MODE = import.meta.env.MODE;
 
 function App() {
@@ -23,6 +29,12 @@ function App() {
 
     const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+
+    const [settings, setSettings] = useState<Settings>({
+        enableMotor: true,
+        enableRemote: true,
+        enforceSignature: false,
+    });
 
     const fetchAuthToken = useCallback(async () => {
         // get auth token
@@ -144,6 +156,9 @@ function App() {
                 if (message.command === 'ALBUM') {
                     SpotifyAPI.playAlbum(message.token, message.value);
                 }
+                else if (message.command === 'SETTINGS') {
+                    console.log(message.value);
+                }
 
                 // side controller commands
                 else if (player) {
@@ -207,6 +222,7 @@ function App() {
                     isPlaying={isPlaying} setIsPlaying={setIsPlaying}
                     currentAlbum={currentAlbum} setCurrentAlbum={setCurrentAlbum}
                     currentTrack={currentTrack} setCurrentTrack={setCurrentTrack}
+                    settings={settings} setSettings={setSettings}
                 />
             );
         }

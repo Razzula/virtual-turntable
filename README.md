@@ -1,18 +1,18 @@
 # A Virtual Turntable
 
-Univeristy of Manchester - Third Year Project (COMP30040)
+University of Manchester - Third Year Project (COMP30040)
 
 ## Brief
 
 Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/project/projectbookdetails.php?projectid=55259
 
 > Vinyl is back! According to the [NME](https://www.nme.com/news/music/uk-vinyl-sales-2023-reach-highest-level-since-1990-3563676), UK sales of vinyl in 2023 were the highest seen since 1990. Vinyl has always remained popular among niche genres, but we are also seeing mainstream artists like Taylor Swift and Lana Del Ray releasing, and selling large volumes of albums on the format. Vinyl records have also recently been added in to the ONS "Basket of Goods and Services": a carefully selected set of items representative of the goods and services that UK consumers typically spend their money on ([ONS](https://www.ons.gov.uk/news/news/arecordrevivalthatscookingupastormvinylmusicandairfryersspintheirwayintothebasketofgoods)).
-> 
+>
 > Fans of the format claim better sound reproduction, with a fuller frequency range and a "warmth" lacking in digital formats such as CD. Playing vinyl requires specialist equipment: while the ritual of putting a disc on the turntable and dropping the needle is, for some, part of the experience, it can also be seen as an inconvenience.
-> 
+>
 > The aim of this project will be to develop an application that supports a blending of the physical and digital worlds. A physical artefact such as an LP is scanned using a camera. The information on the label or cover is then used to identify the release which can be played. This content could be retrieved from a streaming service such as Spotify or Apple Music, an artist site such as Bandcamp [Bandcamp](https://bandcamp.com/), or the user's own personal media library. This would then allow a user to "play" their records without a turntable. Although the audio quality may not match that of vinyl, such an application would appeal to those who like to collect vinyl for its own sake, or who appreciate the larger format artwork that comes with an old school LP. The application could run on a mobile phone or specialist hardware such as a Raspberry Pi equipped with a camera.
 > Example methods that could be used for identification of the release include bar codes, QR codes or OCR acting on label text.
-> 
+>
 > For a stretch goal, the application could be extended to cover other media: the cassette tape ([Guardian](https://www.theguardian.com/music/2023/apr/20/fun-way-consume-music-why-sales-of-cassette-tapes-soaring)) is also experiencing a come back, although the [eight-track](https://en.wikipedia.org/wiki/8-track_cartridge) is unlikely to be retrieved from the dustbin of history.
 > The project should be considered as challenging. It will require integration of several technologies and some creativity.
 
@@ -27,8 +27,9 @@ Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/
 
 - [Spotify Developer Application](https://developer.spotify.com/dashboard)
   - Spotify Premium account required to use the Web Playback SDK
-  - Non-local redirect URI should be setup for nettwork hosting
+  - Non-local redirect URI should be setup for network hosting
 - [Discogs API v2 Application](https://www.discogs.com/settings/developers) (optional)
+- a web browser with DRM support
 
 ### Server
 
@@ -38,7 +39,7 @@ $ python3 -m venv ./.venv/virtual-turntable/
 $ source ./.venv/virtual-turntable/bin/activate
 $ pip install -r requirements.txt
 ```
-note: use `python` for Windows systems.
+**Note:** Use `python`, instead of `python3`, for Windows systems.
 
 ### Client
 
@@ -47,8 +48,16 @@ $ cd ./client
 $ bun install
 ```
 
+#### Note for Raspberry Pi Users!
+
+The Raspberry Pi uses an ARM-based architecture, meaning **official Widevine builds** are not available for browsers like Firefox. This affects the ability to play DRM-protected content such as Spotify's SDK, as used in this project.
+
+Widevine is a **proprietary DRM technology** developed by **Google**, and no official support exists for ARM64 Linux systems. While Widevine is not officially available for ARM64 Linux, some users have successfully adapted aarch64 builds from ChromeOS images using tools like **[Asahi Linux's Widevine Installer](https://github.com/AsahiLinux/widevine-installer)**.
+
+**Note:** This information is provided for awareness only. Users should ensure they comply with all relevant terms and conditions of the services they use.
+
 #### Note for Linux users!
-The Spotify Web Playback SDK (used in the client application) requires a mp4a.40.2 audio codec to function (in Firefox, at least). This is not included by default in many Linux dsitros (such as Ubuntu).
+The Spotify Web Playback SDK (used in the client application) requires a mp4a.40.2 audio codec to function (in Firefox, at least). This is not included by default in many Linux distros (such as Ubuntu).
 
 You will see the following warning in the browser console, and be unable to play audio:
 ```
@@ -80,7 +89,7 @@ The keys required by these APIs can be found in the `./server/.env` and `./clien
 ```bash
 $ ./dev.sh
 ```
-note: use `dev.bat` for Windows, _although_, this project is designed for use primary with a Raspberry Pi (especially the server module), and hence it is recommended to use Linux.
+note: use `dev.bat` for Windows, _although_, this project is designed for use primarily with a Raspberry Pi (especially the server module), and hence it is recommended to use Linux.
 
 **or**
 

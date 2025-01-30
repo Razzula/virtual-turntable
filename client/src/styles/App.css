@@ -78,11 +78,9 @@
 
 .floating {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
+    display: inline-block;
+    top: 0%;
+    left: 0%;
 }
 
 .container {
@@ -111,6 +109,48 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+input[type="number"] {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+
+    background-color: #1a1a1a;
+    color: rgba(255, 255, 255, 0.87);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.5em 0.8em;
+    width: 60px;
+    transition: border-color 0.25s, background-color 0.25s;
+}
+
+input[type="number"]:hover {
+    border-color: #646cff;
+}
+
+input[type="number"]:focus {
+    outline: none;
+    border-color: #535bf2;
+    background-color: #222;
+}
+
+.toggle {
+    &.active {
+        background-color: #0f8710;
+        &:hover {
+            outline: 3px solid #bc1e2e;
+            border-color: transparent;
+        }
+    }
+    &.inactive {
+        background-color: #bc1e2e;
+        &:hover {
+            outline: 3px solid #0f8710;
+            border-color: transparent;
+        }
+    }
 }
 
 /* CONTROLLER */

@@ -47,6 +47,7 @@ export class SpotifyPlayer extends MusicPlayer {
                 volume: 0.3
             });
 
+            // state management
             newPlayer.addListener('ready', ({ device_id }: WebPlaybackPlayer ) => {
                 if (BUILD_MODE === 'development') {
                     console.log('Ready with Device ID', device_id);
@@ -61,14 +62,18 @@ export class SpotifyPlayer extends MusicPlayer {
                 handlePlayerStateChange(state);
             });
 
+            // error handlers
+            newPlayer.addListener('autoplay_failed', () => {
+                console.error('Autoplay failed. This may be due to DRM issues or autoplay restrictions.');
+            });
             newPlayer.addListener('initialization_error', ({ message }: WebPlaybackError) => {
-                console.error(message);
+                console.error('Initialisation error:', message);
             });
             newPlayer.addListener('authentication_error', ({ message }: WebPlaybackError) => {
-                console.error(message);
+                console.error('Authentication error:', message);
             });
             newPlayer.addListener('account_error', ({ message }: WebPlaybackError) => {
-                console.error(message);
+                console.error('Account error:', message);
             });
 
             newPlayer.connect();

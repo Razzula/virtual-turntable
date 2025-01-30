@@ -11,7 +11,6 @@ type RemoteControllerProps = {
     isPlaying: boolean;
     currentAlbum: Album | null;
     currentTrack: Track | null;
-    libraryPlaylistID: string;
     handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
     // webSocketManagerInstance: typeof WebSocketManagerInstance;
 };

@@ -6,6 +6,8 @@ import { Album, Track, User } from './types/Spotify'
 
 import './styles/App.css'
 import SpotifyAPI from './Spotify/SpotifyAPI.ts';
+import WebSocketManagerInstance from './WebSocketManager.ts';
+import { Settings } from './App.tsx';
 
 type VirtualTurntableProps = {
     authToken: string;
@@ -16,13 +18,18 @@ type VirtualTurntableProps = {
     setCurrentAlbum: (album: Album | null) => void;
     currentTrack: Track | null;
     setCurrentTrack: (track: Track | null) => void;
+    settings: Settings;
+    setSettings: (settings: Settings) => void;
 };
+
+const BUILD_MODE = import.meta.env.MODE;
 
 function VirtualTurntable({
     authToken,
     userProfile,
     isPlaying, currentAlbum,
     setIsPlaying, setCurrentAlbum, setCurrentTrack,
+    settings, setSettings,
 }: VirtualTurntableProps): JSX.Element {
 
     const [deviceID, setDeviceID] = useState<string | undefined>(undefined);
@@ -34,12 +41,15 @@ function VirtualTurntable({
     const [vinylDetails, setVinylDetails] = useState<any>(null);
 
     const [mouseActive, setMouseActive] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const [plateZoom, setPlateZoom] = useState(50);
 
-    const baseplateWidth = 28.5;
-    const baseplateHeight = 13;
-    const vinylDiamater = 30; // 17.5;
-    const vinylCentre = 9 / baseplateWidth;
+    const [baseplateWidth, setBaseplateWidth] = useState(28.5);
+    const [baseplateHeight, setBaseplateHeight] = useState(13);
+    const [vinylDiamater, setVinylDiamater] = useState(30); // 17.5;
+    const [vinylOffset, setVinylOffset] = useState(9);
+
+    const vinylCentre = vinylOffset / baseplateWidth;
 
     useEffect(() => {
         document.body.className = 'projected';
@@ -73,7 +83,7 @@ function VirtualTurntable({
             e.preventDefault(); // prevent default page zoom
             setPlateZoom((prevZoom) => {
                 const newZoom = prevZoom - Math.sign(e.deltaY) * 5; // delta 5%
-                return Math.min(100, Math.max(0, newZoom)); // clamping to prevent overflow
+                return Math.min(100, Math.max(5, newZoom)); // clamping to prevent overflow
             });
         };
 
@@ -117,9 +127,9 @@ function VirtualTurntable({
 
     useEffect(() => {
         if (authToken !== '' && deviceID !== undefined) {
-            // if (BUILD_MODE !== 'development') {
+            if (BUILD_MODE !== 'development') {
                 handleActivation();
-            // }
+            }
         }
     }, [authToken, deviceID, handleActivation]);
 
@@ -129,6 +139,10 @@ function VirtualTurntable({
             setCurrentTrack(null);
         }
     }, [isActive, setCurrentAlbum, setCurrentTrack]);
+
+    useEffect(() => {
+        WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
+    }, [settings]);
 
     useEffect(() => {
         // FETCH CENTRE LABEL ON ALBUM CHANGE
@@ -191,6 +205,20 @@ function VirtualTurntable({
         };
     }, [currentAlbum?.id]);
 
+    function toggleSettingsDisplay(event: React.MouseEvent<HTMLButtonElement>) {
+        event.stopPropagation();
+        setShowSettings(!showSettings);
+    }
+
+    function updateSettings(setting: string, value: any) {
+        setSettings((prevSettings) => ({
+            ...prevSettings,
+            [setting]: value,
+        }));
+    }
+
+    const showInteractive = mouseActive || showSettings;
+
     if (authToken && authToken !== '') {
         // WEB PLAYBACK
 
@@ -210,8 +238,10 @@ function VirtualTurntable({
                 height: '100vh',
                 width: '100vw',
                 overflow: 'hidden',
-            }}>
-                <div className={`plate ${mouseActive ? 'showOutline' : ''}`}
+            }}
+                onClick={() => setShowSettings(false)}
+            >
+                <div className={`plate ${showInteractive ? 'showOutline' : ''}`}
                     style={{
                         width: `${plateZoom}vw`,
                         height: `${plateZoom / baseplateWidth * baseplateHeight}vw`,
@@ -302,14 +332,12 @@ function VirtualTurntable({
                     </div>
 
                     <div className='topRight'>
-                        <img className='userImage'
-                            style={{
-                                width: `${92 * (plateZoom / 100)}px`,
-                                height: `${92 * (plateZoom / 100)}px`,
-                            }}
-                            src={userProfile?.images?.[0].url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt='User Profile'
-                            width={64}
-                        />
+                    <a href={userProfile?.external_urls.spotify} target='_blank' rel='noreferrer'>
+                            <img className='userImage'
+                                src={userProfile?.images?.[0].url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt='User Profile'
+                                width={64}
+                            />
+                        </a>
                     </div>
 
                     <div className='bottomRight column'>
@@ -340,20 +368,65 @@ function VirtualTurntable({
 
                 </div>
 
-                { mouseActive &&
+                { showInteractive &&
                     <div className='floating'>
-                        <div className='row container'>
-                            <img src='/virtual-turntable/icons/zoomOut.svg' alt='-' />
-                            <input type='range' min='0' max='100'
-                                value={plateZoom}
-                                onChange={(e) => setPlateZoom(parseInt(e.target.value))}
-                            />
-                            <img src='/virtual-turntable/icons/zoomIn.svg' alt='+' />
+                            <div className='row container' onClick={(e) => e.stopPropagation()}>
+                                <img src='/virtual-turntable/icons/zoomOut.svg' alt='-' />
+                                <input type='range' min='0' max='100'
+                                    value={plateZoom}
+                                    onChange={(e) => setPlateZoom(parseInt(e.target.value))}
+                                />
+                                <img src='/virtual-turntable/icons/zoomIn.svg' alt='+' />
 
-                            <button>
-                                <img src='/virtual-turntable/icons/settings.svg' alt='Settings' />
-                            </button>
+                                <button onClick={toggleSettingsDisplay}>
+                                    <img src='/virtual-turntable/icons/settings.svg' alt='Settings' />
+                                </button>
                         </div>
+
+                        { showSettings &&
+                            <div className='container' onClick={(e) => e.stopPropagation()}>
+                                <div className='row'>
+                                    Baseplate
+                                    <input type='number' value={baseplateWidth} onChange={(e) => setBaseplateWidth(parseFloat(e.target.value))} />
+                                    x
+                                    <input type='number' value={baseplateHeight} onChange={(e) => setBaseplateHeight(parseFloat(e.target.value))} />
+                                </div>
+                                <div className='row'>
+                                    Vinyl Diameter
+                                    <input type='number' value={vinylDiamater} onChange={(e) => setVinylDiamater(parseFloat(e.target.value))} />
+                                </div>
+                                <div className='row'>
+                                    Vinyl Position
+                                    <input type='number' value={vinylOffset}
+                                        onChange={(e) => setVinylOffset(Math.min(baseplateWidth, Math.max(0, parseFloat(e.target.value))))}
+                                    />
+                                </div>
+                            </div>
+                        }
+                        { showSettings &&
+                            <div className='container' onClick={(e) => e.stopPropagation()}>
+                                <div className='row'>
+                                    <button className={`toggle ${settings.enableMotor ? 'active' : 'inactive'}`}
+                                        onClick={() => updateSettings('enableMotor', !settings.enableMotor)}
+                                    >
+                                        <img src='/virtual-turntable/icons/motor.svg' alt='Motor' />
+                                    </button>
+                                    <button className={`toggle ${settings.enableRemote ? 'active' : 'inactive'}`}
+                                        onClick={() => updateSettings('enableRemote', !settings.enableRemote)}
+                                    >
+                                        <img src='/virtual-turntable/icons/remote.svg' alt='Remote Control' />
+                                    </button>
+                                    <button className={`toggle ${settings.enforceSignature ? 'active' : 'inactive'}`}
+                                        onClick={() => updateSettings('enforceSignature', !settings.enforceSignature)}
+                                    >
+                                        <img src='/virtual-turntable/icons/signature.svg' alt='Remote Control' />
+                                    </button>
+                                    <button onClick={() => setVinylDetails({ colour: 'red' })}>
+                                        <img src='/virtual-turntable/icons/logout.svg' alt='Signout' />
+                                    </button>
+                                </div>
+                            </div>
+                        }
                     </div>
                 }
 
