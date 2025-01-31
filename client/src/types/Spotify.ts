@@ -26,6 +26,7 @@ export type Album = {
 };
 
 export type User = {
+    id: string,
     display_name: string;
     images: [{
         url: string;

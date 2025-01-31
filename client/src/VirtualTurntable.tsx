@@ -18,9 +18,17 @@ type VirtualTurntableProps = {
     setCurrentAlbum: (album: Album | null) => void;
     currentTrack: Track | null;
     setCurrentTrack: (track: Track | null) => void;
-    settings: Settings;
-    setSettings: (settings: Settings) => void;
+    hostSettings: Settings;
+    setHostSettings: (settings: Settings) => void;
 };
+
+type ClientSettings = {
+    baseplateWidth: number;
+    baseplateHeight: number;
+    vinylDiamater: number;
+    vinylOffset: number;
+    plateZoom: number;
+}
 
 const BUILD_MODE = import.meta.env.MODE;
 
@@ -29,7 +37,7 @@ function VirtualTurntable({
     userProfile,
     isPlaying, currentAlbum,
     setIsPlaying, setCurrentAlbum, setCurrentTrack,
-    settings, setSettings,
+    hostSettings, setHostSettings,
 }: VirtualTurntableProps): JSX.Element {
 
     const [deviceID, setDeviceID] = useState<string | undefined>(undefined);
@@ -42,14 +50,16 @@ function VirtualTurntable({
 
     const [mouseActive, setMouseActive] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
-    const [plateZoom, setPlateZoom] = useState(50);
 
-    const [baseplateWidth, setBaseplateWidth] = useState(28.5);
-    const [baseplateHeight, setBaseplateHeight] = useState(13);
-    const [vinylDiamater, setVinylDiamater] = useState(30); // 17.5;
-    const [vinylOffset, setVinylOffset] = useState(9);
+    const [clientSettings, setClientSettings] = useState<ClientSettings>({
+        plateZoom: 50,
+        baseplateWidth: 28.5,
+        baseplateHeight: 13,
+        vinylDiamater: 30,
+        vinylOffset: 10,
+    });
 
-    const vinylCentre = vinylOffset / baseplateWidth;
+    const vinylCentre = clientSettings.vinylOffset / clientSettings.baseplateWidth;
 
     useEffect(() => {
         document.body.className = 'projected';
@@ -81,10 +91,13 @@ function VirtualTurntable({
         // CTRL+SCROLL ZOOM LISTENER
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault(); // prevent default page zoom
-            setPlateZoom((prevZoom) => {
-                const newZoom = prevZoom - Math.sign(e.deltaY) * 5; // delta 5%
-                return Math.min(100, Math.max(5, newZoom)); // clamping to prevent overflow
-            });
+
+            const prevZoom = clientSettings.plateZoom;
+            const newZoom = prevZoom - Math.sign(e.deltaY) * 5; // delta 5%
+            setClientSettings((prev) => ({
+                ...prev,
+                plateZoom: Math.min(100, Math.max(5, newZoom)) // clamping to prevent overflow
+            }));
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
@@ -141,8 +154,8 @@ function VirtualTurntable({
     }, [isActive, setCurrentAlbum, setCurrentTrack]);
 
     useEffect(() => {
-        WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
-    }, [settings]);
+        WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: hostSettings }));
+    }, [hostSettings]);
 
     useEffect(() => {
         // FETCH CENTRE LABEL ON ALBUM CHANGE
@@ -210,8 +223,15 @@ function VirtualTurntable({
         setShowSettings(!showSettings);
     }
 
-    function updateSettings(setting: string, value: any) {
-        setSettings((prevSettings) => ({
+    function updateHostSettings(setting: string, value: any) {
+        setHostSettings((prevSettings) => ({
+            ...prevSettings,
+            [setting]: value,
+        }));
+    }
+
+    function updateClientSettings(setting: string, value: any) {
+        setClientSettings((prevSettings) => ({
             ...prevSettings,
             [setting]: value,
         }));
@@ -243,8 +263,8 @@ function VirtualTurntable({
             >
                 <div className={`plate ${showInteractive ? 'showOutline' : ''}`}
                     style={{
-                        width: `${plateZoom}vw`,
-                        height: `${plateZoom / baseplateWidth * baseplateHeight}vw`,
+                        width: `${clientSettings.plateZoom}vw`,
+                        height: `${clientSettings.plateZoom / clientSettings.baseplateWidth * clientSettings.baseplateHeight}vw`,
                     }}
                 >
                     <div className='vinyl'
@@ -252,8 +272,8 @@ function VirtualTurntable({
                             position: 'relative',
                             left: `${(-0.5 + vinylCentre) * 100}%`,
 
-                            height: `${plateZoom / baseplateWidth * vinylDiamater}vw`,
-                            width: `${plateZoom / baseplateWidth * vinylDiamater}vw`,
+                            height: `${clientSettings.plateZoom / clientSettings.baseplateWidth * clientSettings.vinylDiamater}vw`,
+                            width: `${clientSettings.plateZoom / clientSettings.baseplateWidth * clientSettings.vinylDiamater}vw`,
                             flexShrink: 0,
 
                             display: 'flex',
@@ -343,7 +363,7 @@ function VirtualTurntable({
                     <div className='bottomRight column'>
                         <p
                             style={{
-                                fontSize: `${24 * (plateZoom / 100)}px`,
+                                fontSize: `${24 * (clientSettings.plateZoom / 100)}px`,
                             }}
                         >
                             Powered by
@@ -352,7 +372,7 @@ function VirtualTurntable({
                             <img className='brandImage'
                                 src='https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Full_Logo_RGB_Green.png' alt='Spotify Logo'
                                 style={{
-                                    width: `${200 * (plateZoom / 100)}px`,
+                                    width: `${200 * (clientSettings.plateZoom / 100)}px`,
                                 }}
                             />
                         </a>
@@ -360,7 +380,7 @@ function VirtualTurntable({
                             <img className='brandImage'
                                 src='https://www.discogs.com/images/discogs-white.png' alt='Discogs Logo'
                                 style={{
-                                    width: `${200 * (plateZoom / 100)}px`,
+                                    width: `${200 * (clientSettings.plateZoom / 100)}px`,
                                 }}
                             />
                         </a>
@@ -373,8 +393,8 @@ function VirtualTurntable({
                             <div className='row container' onClick={(e) => e.stopPropagation()}>
                                 <img src='/virtual-turntable/icons/zoomOut.svg' alt='-' />
                                 <input type='range' min='0' max='100'
-                                    value={plateZoom}
-                                    onChange={(e) => setPlateZoom(parseInt(e.target.value))}
+                                    value={clientSettings.plateZoom}
+                                    onChange={(e) => updateClientSettings('plateZoom', parseInt(e.target.value))}
                                 />
                                 <img src='/virtual-turntable/icons/zoomIn.svg' alt='+' />
 
@@ -387,18 +407,18 @@ function VirtualTurntable({
                             <div className='container' onClick={(e) => e.stopPropagation()}>
                                 <div className='row'>
                                     Baseplate
-                                    <input type='number' value={baseplateWidth} onChange={(e) => setBaseplateWidth(parseFloat(e.target.value))} />
+                                    <input type='number' value={clientSettings.baseplateWidth} onChange={(e) => updateClientSettings('baseplateWidth', parseFloat(e.target.value))} />
                                     x
-                                    <input type='number' value={baseplateHeight} onChange={(e) => setBaseplateHeight(parseFloat(e.target.value))} />
+                                    <input type='number' value={clientSettings.baseplateHeight} onChange={(e) => updateClientSettings('baseplateHeight', parseFloat(e.target.value))} />
                                 </div>
                                 <div className='row'>
                                     Vinyl Diameter
-                                    <input type='number' value={vinylDiamater} onChange={(e) => setVinylDiamater(parseFloat(e.target.value))} />
+                                    <input type='number' value={clientSettings.vinylDiamater} onChange={(e) => updateClientSettings('vinylDiamater', parseFloat(e.target.value))} />
                                 </div>
                                 <div className='row'>
                                     Vinyl Position
-                                    <input type='number' value={vinylOffset}
-                                        onChange={(e) => setVinylOffset(Math.min(baseplateWidth, Math.max(0, parseFloat(e.target.value))))}
+                                    <input type='number' value={clientSettings.vinylOffset}
+                                        onChange={(e) => updateClientSettings('vinylOffset', Math.min(clientSettings.baseplateWidth, Math.max(0, parseFloat(e.target.value))))}
                                     />
                                 </div>
                             </div>
@@ -406,24 +426,27 @@ function VirtualTurntable({
                         { showSettings &&
                             <div className='container' onClick={(e) => e.stopPropagation()}>
                                 <div className='row'>
-                                    <button className={`toggle ${settings.enableMotor ? 'active' : 'inactive'}`}
-                                        onClick={() => updateSettings('enableMotor', !settings.enableMotor)}
+                                    <button className={`toggle ${hostSettings.enableMotor ? 'active' : 'inactive'}`}
+                                        onClick={() => updateHostSettings('enableMotor', !hostSettings.enableMotor)}
                                     >
                                         <img src='/virtual-turntable/icons/motor.svg' alt='Motor' />
                                     </button>
-                                    <button className={`toggle ${settings.enableRemote ? 'active' : 'inactive'}`}
-                                        onClick={() => updateSettings('enableRemote', !settings.enableRemote)}
+                                    <button className={`toggle ${hostSettings.enableRemote ? 'active' : 'inactive'}`}
+                                        onClick={() => updateHostSettings('enableRemote', !hostSettings.enableRemote)}
                                     >
                                         <img src='/virtual-turntable/icons/remote.svg' alt='Remote Control' />
                                     </button>
-                                    <button className={`toggle ${settings.enforceSignature ? 'active' : 'inactive'}`}
-                                        onClick={() => updateSettings('enforceSignature', !settings.enforceSignature)}
+                                    <button className={`toggle ${hostSettings.enforceSignature ? 'active' : 'inactive'}`}
+                                        onClick={() => updateHostSettings('enforceSignature', !hostSettings.enforceSignature)}
+                                        disabled={!hostSettings.enableRemote}
                                     >
                                         <img src='/virtual-turntable/icons/signature.svg' alt='Remote Control' />
                                     </button>
-                                    <button onClick={() => setVinylDetails({ colour: 'red' })}>
-                                        <img src='/virtual-turntable/icons/logout.svg' alt='Signout' />
-                                    </button>
+                                    <a href='/virtual-turntable/auth/logout'>
+                                        <button>
+                                            <img src='/virtual-turntable/icons/logout.svg' alt='Signout' />
+                                        </button>
+                                    </a>
                                 </div>
                             </div>
                         }

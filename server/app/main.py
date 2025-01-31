@@ -232,6 +232,15 @@ class Server:
                 return JSONResponse(content={ 'playlistID': self.spotifyAPI.vttPlaylistID })
             return JSONResponse(content={ 'playlistID': self.spotifyAPI.getPlaylistByName(sessionID, 'Virtual Turntable') })
 
+        @self.app.get("/host")
+        async def hostUserGet() -> JSONResponse:
+            """
+                This endpoint serves the host user's ID back to the client.
+            """
+            if (self.spotifyAPI.hostUserID is None):
+                raise HTTPException(404, 'Host user not found')
+            return JSONResponse(content={ 'hostUserID': self.spotifyAPI.hostUserID })
+
         # SPOTIFY AUTH
         @self.app.get("/auth/login")
         async def login(request: Request) -> RedirectResponse:
@@ -254,6 +263,12 @@ class Server:
             if (not sessionID):
                 raise HTTPException(status_code=400, detail='No session ID provided.')
             return JSONResponse(self.spotifyAPI.token(sessionID))
+
+        @self.app.get("/auth/logout")
+        async def logout(sessionID: str = Cookie(None)) -> RedirectResponse:
+            if (sessionID and sessionID in self.spotifyAPI.sessions):
+                self.spotifyAPI.sessions[sessionID] = None
+            return RedirectResponse(url='/')
 
         # WEBSOCKET
         @self.app.websocket("/ws/main")

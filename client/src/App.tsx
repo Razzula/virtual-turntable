@@ -98,7 +98,7 @@ function App() {
             self.location.href = '/virtual-turntable/auth/login';
         }
         else if (authToken !== undefined) {
-            SpotifyAPI.getUserProfile(authToken)
+            SpotifyAPI.getOwnProfile(authToken)
                 .then((data) => {
                     setUserProfile(data);
                 }
@@ -226,7 +226,7 @@ function App() {
                     isPlaying={isPlaying} setIsPlaying={setIsPlaying}
                     currentAlbum={currentAlbum} setCurrentAlbum={setCurrentAlbum}
                     currentTrack={currentTrack} setCurrentTrack={setCurrentTrack}
-                    settings={settings} setSettings={setSettings}
+                    hostSettings={settings} setHostSettings={setSettings}
                 />
             );
         }

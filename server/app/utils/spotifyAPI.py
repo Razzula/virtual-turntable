@@ -36,9 +36,13 @@ class SpotifyAPI:
         """Initialise the Spotify authentication handler."""
         self.CLIENT_ID: Final = os.getenv('SPOTIFY_CLIENT_ID')
         self.CLIENT_SECRET: Final = os.getenv('SPOTIFY_CLIENT_SECRET')
+
+        self.sendToClient = sendToClient
+
+        # TODO move these up to main level
         self.sessions: dict[str, dict[str, str]] = {}
         self.vttPlaylistID: str | None = None
-        self.sendToClient = sendToClient
+        self.hostUserID: str | None = None
 
     def generateRandomString(self, length: int) -> str:
         """Generate a random string of letters and digits with a given length"""
@@ -54,7 +58,7 @@ class SpotifyAPI:
             'playlist-modify-private '  # Create/edit private playlists
             # 'playlist-modify-public '  # Create/edit public playlists
             'playlist-read-private '  # Access private playlists
-        )
+        ) if isHost else 'playlist-read-private'
 
         sessionID = self.generateRandomString(16)
         while (self.sessions.get('sessionID')):
@@ -62,16 +66,17 @@ class SpotifyAPI:
         self.sessions[sessionID] = { 'isHost': isHost }
 
         AUTH_QUERY_PARAMS: Final = {
-            'response_type': "code",
+            'response_type': 'code',
             'client_id': self.CLIENT_ID,
             'scope': SCOPE,
             'redirect_uri': self.REDIRECT_URI,
             'state': sessionID,
+            'show_dialog': True,
         }
         url = f'https://accounts.spotify.com/authorize/?{urlencode(AUTH_QUERY_PARAMS)}'
         return RedirectResponse(url)
 
-    async def callback(self, request: Request, sessionID: string) -> RedirectResponse:
+    async def callback(self, request: Request, sessionID: str) -> RedirectResponse:
         """Handle the Spotify auth callback."""
 
         AUTH_CODE: Final = request.query_params.get('code')
@@ -105,6 +110,7 @@ class SpotifyAPI:
         # handle setup, for host only
         if (self.sessions[sessionID]['isHost']):
             self.setupPlaylist(sessionID, 'Virtual Turntable')
+            self.hostUserID = self.getUser(sessionID)
 
         # return to the main page
         response = RedirectResponse(url='/')
@@ -208,7 +214,7 @@ class SpotifyAPI:
         payload = {
             'name': playlistName,
             'description': 'Created with https://github.com/Razzula/virtual-turntable',
-            'public': False,
+            # 'public': False,
         }
 
         # create
@@ -218,6 +224,24 @@ class SpotifyAPI:
 
         # return ID
         return str(playlistData['id'])
+
+    def getUser(self, sessionID: str) -> str:
+        """Get user."""
+        HEADERS: Final = {
+            'Authorization': f'Bearer {self.sessions[sessionID].get("accessToken")}',
+            'Content-Type': 'application/json'
+        }
+
+        # define
+        url = 'https://api.spotify.com/v1/me'
+
+        # create
+        response = requests.get(url, headers=HEADERS, timeout=10)
+        response.raise_for_status()
+        userData = response.json()
+
+        # return ID
+        return str(userData['id'])
 
     def addAlbumToPlaylist(self, albumID: str, playlistID: str) -> None:
         """Add an album to a Spotify playlist."""

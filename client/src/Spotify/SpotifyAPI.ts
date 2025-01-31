@@ -1,5 +1,5 @@
 import IMusicAPI from '../IMusicAPI';
-import { Album, Track } from '../types/Spotify';
+import { Album, Track, User } from '../types/Spotify';
 
 class SpotifyAPI implements IMusicAPI {
 
@@ -29,7 +29,7 @@ class SpotifyAPI implements IMusicAPI {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
+                'Authorization': `Bearer ${authToken}`,
             },
             body: JSON.stringify({
                 context_uri: `spotify:album:${albumID}`,
@@ -39,12 +39,22 @@ class SpotifyAPI implements IMusicAPI {
         });
     }
 
-    public async getUserProfile(authToken: string): Promise<any> {
+    public async getOwnProfile(authToken: string): Promise<User> {
         return fetch('https://api.spotify.com/v1/me', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`
+            },
+        }).then(response => response.json());
+    }
+
+    public async getUserProfile(authToken: string, userID: string): Promise<User> {
+        return fetch(`https://api.spotify.com/v1/users/${userID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
             },
         }).then(response => response.json());
     }

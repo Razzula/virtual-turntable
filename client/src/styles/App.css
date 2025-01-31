@@ -137,6 +137,12 @@ input[type="number"]:focus {
 }
 
 .toggle {
+    &:disabled {
+        background-color: #1a1a1a !important;
+        opacity: 20%;
+        border-color: transparent !important;
+        outline: none !important;
+    }
     &.active {
         background-color: #0f8710;
         &:hover {
