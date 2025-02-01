@@ -1,6 +1,6 @@
 """Handler class for WebSocket connections."""
 import json
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from fastapi import WebSocket, HTTPException
 from fastapi.websockets import WebSocketState
@@ -8,11 +8,13 @@ from fastapi.websockets import WebSocketState
 class WebsocketHandler:
     """Handler class for WebSocket connections."""
 
-    def __init__(self) -> None:
+    def __init__(self, getState: Any, updateState: Any) -> None:
         """Initialise the WebSocket handler."""
         self.activeMainSocket: Optional[WebSocket] = None
         self.activeSideSockets: List[WebSocket] = []
-        self.cache = {}
+
+        self.getState = getState
+        self.updateState = updateState
 
     async def handleConnectionRequest(self, websocket: WebSocket, isMain: bool) -> None:
         """Handle a WebSocket connection request."""
@@ -29,8 +31,10 @@ class WebsocketHandler:
         print('Client connected.')
 
         # initial information batch
-        for key, value in self.cache.items():
-            await websocket.send_text(json.dumps({'command': key, 'value': value}))
+        currentState = self.getState()
+        if (currentState):
+            for key, value in currentState.items():
+                await websocket.send_text(json.dumps({'command': key, 'value': value}))
 
         try:
             # monitor the connection
@@ -41,7 +45,9 @@ class WebsocketHandler:
                     # cache data
                     try:
                         data = json.loads(request)
-                        self.cache[data['command']] = data['value']
+                        command = data.get('command')
+                        if (command in ['playState', 'currentTrack']):
+                            self.updateState(data['command'], data['value'])
                     except Exception:
                         data = request
 
@@ -89,6 +95,3 @@ class WebsocketHandler:
 
         await self.sendToClient({'message': 'ping'})
         return {'message': 'ping'}
-    
-    def clearCache(self):
-        self.cache = {}

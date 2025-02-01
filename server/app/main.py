@@ -1,6 +1,6 @@
 """FastAPI server application."""
 import os
-from typing import Final, Optional
+from typing import Any, Final, Optional
 from urllib.parse import urlencode
 import base64
 
@@ -16,6 +16,7 @@ from app.utils.websocketHandler import WebsocketHandler
 from app.utils.modelHandler import ModelHandler
 from app.utils.centreLabelHandler import CentreLabelHandler
 from app.utils.discogsAPI import DiscogsAPI
+from app.utils.piController import PiController
 from modelling.models.ModelType import ModelType
 
 ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
@@ -46,14 +47,17 @@ class Server:
         )
 
         # setup components
-        self.websocketHandler = WebsocketHandler()
-        self.spotifyAPI = SpotifyAPI(self.websocketHandler.sendToClient, self.websocketHandler.clearCache)
+        self.websocketHandler = WebsocketHandler(self.getState, self.updateState)
+        self.spotifyAPI = SpotifyAPI(self.websocketHandler.sendToClient, self.resetState)
         self.modelHandler = ModelHandler(
             ROOT_DIR,
             os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),
         )
         self.discogsAPI = DiscogsAPI(DISCOGS_API_KEY, DISCOGS_API_SECRET, APP_VERSION, APP_CONTACT)
         self.centreLabelhandler = CentreLabelHandler(os.path.join(ROOT_DIR, 'data'), self.discogsAPI)
+        self.piController = PiController()
+        
+        self.state = {}
 
         # setup filestructure
         if (not os.path.exists(os.path.join(ROOT_DIR, 'data'))):
@@ -282,5 +286,18 @@ class Server:
     def get(self) -> FastAPI:
         """Return the FastAPI application singleton."""
         return self.app
+    
+    def getState(self) -> dict:
+        return self.state
+    
+    def updateState(self, key: str, value: Any) -> None:
+        self.state[key] = value
+        
+        # react to state
+        if (key == 'playState'): # TODO make these enums
+            self.piController.setMotorState(value)
+    
+    def resetState(self) -> None:
+        self.state = {}
 
 serverInstance = Server()

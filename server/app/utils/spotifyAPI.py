@@ -59,7 +59,10 @@ class SpotifyAPI:
             'playlist-modify-private '  # Create/edit private playlists
             'playlist-modify-public '  # Create/edit public playlists
             'playlist-read-private '  # Access private playlists
-        ) if isHost else 'playlist-read-private'
+        ) if isHost else (
+            'playlist-read-private'
+            'user-modify-playback-state '
+        )
 
         sessionID = self.generateRandomString(16)
         while (self.sessions.get('sessionID')):
