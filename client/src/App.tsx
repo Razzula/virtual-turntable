@@ -24,6 +24,7 @@ function App() {
 
     const [authToken, setAuthToken] = useState<string | undefined | null>(undefined);
     const [userProfile, setUserProfile] = useState<User | null>(null);
+    const [hostUserID, setHostUserID] = useState<string | null>(null);
 
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
@@ -76,6 +77,9 @@ function App() {
                 }
             }
         );
+
+        // get host ID
+        refreshCurrentHostID();
     }, []);
 
     useEffect(() => {
@@ -142,6 +146,18 @@ function App() {
         }
     }, [currentTrack, authToken]);
 
+    function refreshCurrentHostID() {
+        fetch('/virtual-turntable/server/host')
+            .then((response) => {
+                if (response.ok) {
+                    response.json().then((data) => {
+                        setHostUserID(data.hostUserID);
+                    });
+                }
+            }
+        );
+    }
+
     function handleWebSocketMessage(e: MessageEvent) {
         try {
             const message = JSON.parse(e.data);
@@ -150,6 +166,9 @@ function App() {
             if (message.command === 'TOKEN') {
                 fetchAuthToken();
                 return;
+            }
+            else if (message.command === 'REFRESH_HOST') {
+                refreshCurrentHostID();
             }
 
             if (isHostDeviceRef.current) {
@@ -227,6 +246,7 @@ function App() {
                     currentAlbum={currentAlbum} setCurrentAlbum={setCurrentAlbum}
                     currentTrack={currentTrack} setCurrentTrack={setCurrentTrack}
                     hostSettings={settings} setHostSettings={setSettings}
+                    hostUserID={hostUserID}
                 />
             );
         }
@@ -239,7 +259,7 @@ function App() {
                     currentAlbum={currentAlbum}
                     currentTrack={currentTrack}
                     handleFileUpload={handleFileUpload}
-                    // webSocketManagerInstance={WebSocketManagerInstance}
+                    hostUserID={hostUserID}
                 />
             );
         }

@@ -22,8 +22,11 @@ Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/
 ### Prerequisites
 
 - bun
+```bash
+$ curl -fsSL https://bun.sh/install | bash
+```
 - Python
-- mp4a.40.2 codec (included by default in Windows)
+- mp4a.40.2 codec (already included by default in Windows)
 
 - [Spotify Developer Application](https://developer.spotify.com/dashboard)
   - Spotify Premium account required to use the Web Playback SDK

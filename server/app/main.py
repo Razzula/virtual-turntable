@@ -47,7 +47,7 @@ class Server:
 
         # setup components
         self.websocketHandler = WebsocketHandler()
-        self.spotifyAPI = SpotifyAPI(self.websocketHandler.sendToClient)
+        self.spotifyAPI = SpotifyAPI(self.websocketHandler.sendToClient, self.websocketHandler.clearCache)
         self.modelHandler = ModelHandler(
             ROOT_DIR,
             os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),

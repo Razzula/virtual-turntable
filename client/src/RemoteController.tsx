@@ -12,7 +12,7 @@ type RemoteControllerProps = {
     currentAlbum: Album | null;
     currentTrack: Track | null;
     handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    // webSocketManagerInstance: typeof WebSocketManagerInstance;
+    hostUserID: string | null;
 };
 
 function RemoteController({
@@ -20,13 +20,12 @@ function RemoteController({
     userProfile,
     isPlaying, currentAlbum, currentTrack,
     handleFileUpload,
-    // webSocketManagerInstance,
+    hostUserID,
 }: RemoteControllerProps): JSX.Element {
 
     const [libraryPlaylistID, setLibraryPlaylistID] = useState<string | null>(null);
     const [library, setLibrary] = useState<Album[]>([]);
 
-    const [hostUserID, setHostUserID] = useState<string | null>(null);
     const [hostUserProfile, setHostUserProfile] = useState<User | null>(null);
 
     useEffect(() => {
@@ -34,21 +33,8 @@ function RemoteController({
     }, []);
 
     useEffect(() => {
-        // get host user
-        fetch('/virtual-turntable/server/host')
-            .then((response) => {
-                if (response.ok) {
-                    response.json().then((data) => {
-                        setHostUserID(data.hostUserID);
-                    });
-                }
-            }
-        );
-    }, []);
-
-    useEffect(() => {
         if (authToken && authToken !== '') {
-            // get VTT playlist
+            // update playlist
             fetch('/virtual-turntable/server/playlist')
                 .then((response) => {
                     if (response.ok) {
@@ -58,17 +44,16 @@ function RemoteController({
                     }
                 }
             );
-        }
-    }, [authToken]);
 
-    useEffect(() => {
-        if (hostUserID && authToken) {
-            SpotifyAPI.getUserProfile(authToken, hostUserID)
-                .then((user) => {
-                    setHostUserProfile(user);
-                    console.log(user);
-                }
-            );
+            // update user profile
+            if (hostUserID) {
+                SpotifyAPI.getUserProfile(authToken, hostUserID)
+                    .then((user) => {
+                        setHostUserProfile(user);
+                        console.log(user);
+                    }
+                );
+            }
         }
     }, [hostUserID, authToken]);
 
@@ -94,21 +79,24 @@ function RemoteController({
                     <div className='row anchorLeft'>
                         <a href={userProfile?.external_urls.spotify} target='_blank' rel='noreferrer'>
                             <img className='userImage'
-                                src={userProfile?.images?.[0].url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt='Your Profile'
+                                src={userProfile?.images?.[0]?.url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt='Your Profile'
                                 width={64}
                             />
                         </a>
 
                         { !isHost && hostUserProfile &&
-                            <a href={hostUserProfile?.external_urls?.spotify} target='_blank' rel='noreferrer'>
-                                <img className='userImage'
-                                    src={hostUserProfile?.images?.[0].url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt="Host's Profile"
-                                    width={64}
-                                />
-                            </a>
+                            <>
+                                <img src='/virtual-turntable/icons/arrowRight.svg' alt='Using' width={32} />
+                                <a href={hostUserProfile?.external_urls?.spotify} target='_blank' rel='noreferrer'>
+                                    <img className='userImage'
+                                        src={hostUserProfile?.images?.[0]?.url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt="Host's Profile"
+                                        width={64}
+                                    />
+                                </a>
+                            </>
                         }
 
-                        <a href={userProfile?.external_urls?.spotify} target='_blank' rel='noreferrer'>
+                        <a href={libraryPlaylistID !== null ? `https://open.spotify.com/playlist/${libraryPlaylistID}` : ''} target='_blank' rel='noreferrer'>
                             <h1>{displayName} Virtual Turntable</h1>
                         </a>
                     </div>

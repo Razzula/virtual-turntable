@@ -32,12 +32,13 @@ class SpotifyAPI:
     REDIRECT_URI: Final = f'http://{getLocalIP()}:1948/virtual-turntable/auth/callback'
     print(REDIRECT_URI)
 
-    def __init__(self, sendToClient: Any) -> None:
+    def __init__(self, sendToClient: Any, clearCache: Any) -> None:
         """Initialise the Spotify authentication handler."""
         self.CLIENT_ID: Final = os.getenv('SPOTIFY_CLIENT_ID')
         self.CLIENT_SECRET: Final = os.getenv('SPOTIFY_CLIENT_SECRET')
 
         self.sendToClient = sendToClient
+        self.clearCache = clearCache
 
         # TODO move these up to main level
         self.sessions: dict[str, dict[str, str]] = {}
@@ -56,7 +57,7 @@ class SpotifyAPI:
             'user-read-private '  # Access private account info
             'user-modify-playback-state '  # Control playback
             'playlist-modify-private '  # Create/edit private playlists
-            # 'playlist-modify-public '  # Create/edit public playlists
+            'playlist-modify-public '  # Create/edit public playlists
             'playlist-read-private '  # Access private playlists
         ) if isHost else 'playlist-read-private'
 
@@ -109,6 +110,16 @@ class SpotifyAPI:
 
         # handle setup, for host only
         if (self.sessions[sessionID]['isHost']):
+            print('New host connected')
+            # terminate existing host sessions
+            await self.sendToClient({ 'command': 'REFRESH_HOST' })
+            for existingSessionID, session in self.sessions.items():
+                if (session is not None):
+                    if (session.get('isHost') and sessionID != existingSessionID):
+                        self.sessions[existingSessionID] = None
+            self.vttPlaylistID = None
+            self.clearCache()
+            # setup new host
             self.setupPlaylist(sessionID, 'Virtual Turntable')
             self.hostUserID = self.getUser(sessionID)
 

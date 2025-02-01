@@ -89,3 +89,6 @@ class WebsocketHandler:
 
         await self.sendToClient({'message': 'ping'})
         return {'message': 'ping'}
+    
+    def clearCache(self):
+        self.cache = {}

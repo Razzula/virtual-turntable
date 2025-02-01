@@ -20,6 +20,7 @@ type VirtualTurntableProps = {
     setCurrentTrack: (track: Track | null) => void;
     hostSettings: Settings;
     setHostSettings: (settings: Settings) => void;
+    hostUserID: string | null;
 };
 
 type ClientSettings = {
@@ -38,6 +39,7 @@ function VirtualTurntable({
     isPlaying, currentAlbum,
     setIsPlaying, setCurrentAlbum, setCurrentTrack,
     hostSettings, setHostSettings,
+    hostUserID,
 }: VirtualTurntableProps): JSX.Element {
 
     const [deviceID, setDeviceID] = useState<string | undefined>(undefined);
@@ -137,6 +139,15 @@ function VirtualTurntable({
             }
         }
     }, [authToken, deviceID]);
+
+    useEffect(() => {
+        if (hostUserID && userProfile?.id) {
+            if (hostUserID !== userProfile.id) {
+                console.log('erere');
+                setIsActive(false);
+            }
+        }
+    }, [hostUserID, userProfile?.id])
 
     useEffect(() => {
         if (authToken !== '' && deviceID !== undefined) {
@@ -239,7 +250,45 @@ function VirtualTurntable({
 
     const showInteractive = mouseActive || showSettings;
 
-    if (authToken && authToken !== '') {
+    if (userProfile !== null && userProfile?.product !== 'premium') {
+        return (
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                width: '100vw',
+                overflow: 'hidden',
+            }}
+            >
+                <div className='plate'
+                    style={{
+                        width: `${clientSettings.plateZoom}vw`,
+                        height: `${clientSettings.plateZoom / clientSettings.baseplateWidth * clientSettings.baseplateHeight}vw`,
+                    }}
+                >
+                    <div className='error'
+                        style={{
+                            margin: 0,
+                            padding: 0,
+                            width: '100%',
+                            height: '100%',
+                        }}
+                    >
+                            <h1>Uh, oh!</h1>
+                            <img className='errorImg' src='/virtual-turntable/vinyl-smashed.png' alt='Error' height={150} />
+                            <h2>Spotify Premium required.</h2>
+                            <p>Your account does not have a Premium subscription, which is required to use playback in this service.</p>
+                            <p>
+                                Spotify Premium lets you play any track, podcast episode or audiobook, ad-free and with better audio quality.
+                                Go to <a href='https://www.spotify.com/premium'>spotify.com/premium</a> to try it for free.
+                            </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    else if (authToken && authToken !== '') {
         // WEB PLAYBACK
 
         const dicsClasses = ['disc'];
