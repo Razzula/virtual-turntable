@@ -60,7 +60,7 @@ class SpotifyAPI:
             'playlist-modify-public '  # Create/edit public playlists
             'playlist-read-private '  # Access private playlists
         ) if isHost else (
-            'playlist-read-private'
+            'playlist-read-private '
             'user-modify-playback-state '
         )
 

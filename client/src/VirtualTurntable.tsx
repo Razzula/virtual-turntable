@@ -63,6 +63,8 @@ function VirtualTurntable({
 
     const vinylCentre = clientSettings.vinylOffset / clientSettings.baseplateWidth;
 
+    const plateZoomBounds = { min: 10, max: 100 };
+
     useEffect(() => {
         document.body.className = 'projected';
     }, []);
@@ -81,10 +83,10 @@ function VirtualTurntable({
             }, 5000);
         };
 
-        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener('mousemove', handleMouseMove);
 
         return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener('mousemove', handleMouseMove);
             clearTimeout(timeout);
         };
     }, []);
@@ -94,11 +96,15 @@ function VirtualTurntable({
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault(); // prevent default page zoom
 
-            const prevZoom = clientSettings.plateZoom;
-            const newZoom = prevZoom - Math.sign(e.deltaY) * 5; // delta 5%
             setClientSettings((prev) => ({
                 ...prev,
-                plateZoom: Math.min(100, Math.max(5, newZoom)) // clamping to prevent overflow
+                plateZoom: Math.min( // overflow clamp
+                    plateZoomBounds.max,
+                    Math.max( // underflow clamp
+                        plateZoomBounds.min,
+                        prev.plateZoom - Math.sign(e.deltaY) * 5 // delta 5%
+                    )
+                )
             }));
         };
 
@@ -404,7 +410,10 @@ function VirtualTurntable({
                     <a href={userProfile?.external_urls.spotify} target='_blank' rel='noreferrer'>
                             <img className='userImage'
                                 src={userProfile?.images?.[0].url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt='User Profile'
-                                width={64}
+                                style={{
+                                    width: `${128 * (clientSettings.plateZoom / 100)}px`,
+                                    height: `${128 * (clientSettings.plateZoom / 100)}px`,
+                                }}
                             />
                         </a>
                     </div>
@@ -441,7 +450,7 @@ function VirtualTurntable({
                     <div className='floating'>
                             <div className='row container' onClick={(e) => e.stopPropagation()}>
                                 <img src='/virtual-turntable/icons/zoomOut.svg' alt='-' />
-                                <input type='range' min='0' max='100'
+                                <input type='range' min={plateZoomBounds.min} max={plateZoomBounds.max}
                                     value={clientSettings.plateZoom}
                                     onChange={(e) => updateClientSettings('plateZoom', parseInt(e.target.value))}
                                 />

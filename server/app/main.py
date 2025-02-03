@@ -22,6 +22,8 @@ from modelling.models.ModelType import ModelType
 ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
 print(ROOT_DIR)
 
+GPIO_ACCESS: Final = os.getenv('GPIO_ACCESS')
+
 class Server:
     """FastAPI server application."""
 
@@ -36,6 +38,7 @@ class Server:
 
         APP_VERSION: Final = os.getenv('VERSION')
         APP_CONTACT: Final = os.getenv('CONTACT')
+
 
         origins = ['*']
         self.app.add_middleware(
@@ -55,8 +58,9 @@ class Server:
         )
         self.discogsAPI = DiscogsAPI(DISCOGS_API_KEY, DISCOGS_API_SECRET, APP_VERSION, APP_CONTACT)
         self.centreLabelhandler = CentreLabelHandler(os.path.join(ROOT_DIR, 'data'), self.discogsAPI)
-        self.piController = PiController()
-        
+        if (GPIO_ACCESS == 'on'):
+            self.piController = PiController()
+
         self.state = {}
 
         # setup filestructure
@@ -286,18 +290,22 @@ class Server:
     def get(self) -> FastAPI:
         """Return the FastAPI application singleton."""
         return self.app
-    
+
     def getState(self) -> dict:
+        """TODO"""
         return self.state
-    
+
     def updateState(self, key: str, value: Any) -> None:
+        """TODO"""
         self.state[key] = value
-        
+
         # react to state
-        if (key == 'playState'): # TODO make these enums
-            self.piController.setMotorState(value)
-    
+        if (GPIO_ACCESS == 'on'):
+            if (key == 'playState'): # TODO make these enums
+                self.piController.setMotorState(value)
+
     def resetState(self) -> None:
+        """TODO"""
         self.state = {}
 
 serverInstance = Server()

@@ -9,3 +9,4 @@ pillow
 torchvision
 websockets
 matplotlib
+lgpio
