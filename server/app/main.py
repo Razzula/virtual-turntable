@@ -1,4 +1,5 @@
 """FastAPI server application."""
+import asyncio
 import os
 from typing import Any, Final, Optional
 from urllib.parse import urlencode
@@ -18,6 +19,7 @@ from app.utils.centreLabelHandler import CentreLabelHandler
 from app.utils.discogsAPI import DiscogsAPI
 from app.utils.piController import PiController
 from modelling.models.ModelType import ModelType
+from app.enums.StateKeys import Commands, StateKeys
 
 ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
 print(ROOT_DIR)
@@ -29,7 +31,7 @@ class Server:
 
     def __init__(self) -> None:
         """Initialise the FastAPI application."""
-
+        # SETUP
         load_dotenv('.env')
         self.app = FastAPI()
 
@@ -49,19 +51,37 @@ class Server:
             allow_headers=['*'],
         )
 
-        # setup components
-        self.websocketHandler = WebsocketHandler(self.getState, self.updateState)
-        self.spotifyAPI = SpotifyAPI(self.websocketHandler.sendToClient, self.resetState)
+        # setup modules
+        self.websocketHandler = WebsocketHandler(self.getState, self.handleCommand)
+        self.spotifyAPI = SpotifyAPI(self.websocketHandler.broadcast, self.resetState)
         self.modelHandler = ModelHandler(
             ROOT_DIR,
             os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),
         )
         self.discogsAPI = DiscogsAPI(DISCOGS_API_KEY, DISCOGS_API_SECRET, APP_VERSION, APP_CONTACT)
         self.centreLabelhandler = CentreLabelHandler(os.path.join(ROOT_DIR, 'data'), self.discogsAPI)
-        if (GPIO_ACCESS == 'on'):
+        if (GPIO_ACCESS is None and GPIO_ACCESS != 'off'):
             self.piController = PiController()
+            print('Hardware controller configured.')
+        else:
+            self.piController = None
 
-        self.state = {}
+        # setup components
+        self.__state = {
+            'playState': False,
+            'settings': { 'enableMotor': True, 'enableRemote': True, 'enforceSignature': True  },
+        }
+        
+        # setup hardware listeners
+        if (self.piController is not None):
+            asyncio.create_task(self.piController.reactToHinge(
+                onClosed=lambda: self.updateState(StateKeys.PLAY_STATE, False),
+                onOpen=lambda: self.updateState(StateKeys.PLAY_STATE, True),
+            ))
+            
+            asyncio.create_task(self.piController.reactToButton(
+                onDown=lambda: print('Button Pressed!'),
+            ))
 
         # setup filestructure
         if (not os.path.exists(os.path.join(ROOT_DIR, 'data'))):
@@ -72,28 +92,115 @@ class Server:
 
         # configure endpoints
         self.setupRoutes()
+        self.app.add_event_handler('shutdown', self.shutdown)
+    
+    def get(self) -> FastAPI:
+        """Return the FastAPI application singleton."""
+        return self.app
 
+    # STATE MANAGEMENT
+    def getState(self) -> dict:
+        """TODO"""
+        return self.__state
+
+    async def updateState(self, key: StateKeys, value: Any) -> None:
+        """TODO"""
+        if (self.__state.get(key.value) == value):
+            # non-update, can be ignored
+            return
+        self.__state[key.value] = value
+
+        # react to state change
+        # manage hardware broadcasts
+        if (self.piController is not None):
+            if (key == StateKeys.SETTINGS):
+                if (value.get('enableMotor', False)):
+                    self.piController.setMotorSpeed(100)
+                else:
+                    self.piController.setMotorSpeed(0)
+
+            if (key == StateKeys.PLAY_STATE):
+                self.piController.setMotorState(1 if value else 0)
+            elif (key == Commands.FAST_FORWARD):
+                self.piController.setMotorState(1)
+            elif (key == Commands.REWIND):
+                self.piController.setMotorState(-1)
+
+        # manage software broadcasts
+        if (key in [StateKeys.PLAY_STATE, StateKeys.CURRENT_TRACK, StateKeys.SETTINGS]):
+            await self.websocketHandler.broadcast({ 'command': key.value, 'value': value })
+
+    def resetState(self) -> None:
+        """TODO"""
+        self.__state = {
+            'playState': False,
+            'settings': { 'enableMotor': True, 'enableRemote': True, 'enforceSignature': True  },
+        }
+    
+    async def handleCommand(self, sessionID: str, command: str, value: Any) -> None:
+        """TODO"""
+        requestFromHost = self.spotifyAPI.sessions[sessionID]['isHost']
+        requestFromHostUser = self.spotifyAPI.sessions[sessionID]['userID'] == self.spotifyAPI.hostUserID
+        settings = self.__state.get('settings')
+        if (settings and not requestFromHost):
+            if (not settings.get('enableRemote', False)):
+                print('Remote calls disabled. Call ignored.')
+                return
+            if (settings.get('enforceSignature', True) and not requestFromHostUser):
+                print(sessionID, 'is not host. Call ignored.')
+                return
+
+        # state modifications
+        for key in [StateKeys.PLAY_STATE, StateKeys.CURRENT_TRACK]:
+            if (command == key.value):
+                await self.updateState(key, value)
+                return
+            
+        if (command == StateKeys.SETTINGS.value):
+            if (not requestFromHost): # only allow host to control settings
+                print(sessionID, 'is not host')
+                return
+            await self.updateState(StateKeys.SETTINGS, value)
+            return
+            
+        # to-server commands
+        # for key in [Commands.FAST_FORWARD, Commands.REWIND]:
+        #     if (command == key.value):
+        #         await self.updateState(StateKeys.PLAY_STATE, False)
+        #         if (self.piController is not None):
+        #             self.piController.setMotorState(-1 if (key == Commands.REWIND) else 1)
+        #         return
+        
+        # if (command == Commands.SEEK.value):
+        #     pass
+        
+        # remote-to-host commands
+        if (command in ['NEXT', 'PREVIOUS']):
+            await self.websocketHandler.sendToHost({ 'command': command })
+            return
+
+    # Setup FastAPI endpoints
     def setupRoutes(self) -> None:
         """Setup the FastAPI routes."""
 
         # CORE
-        @self.app.get("/")
+        @self.app.get('/')
         async def root() -> JSONResponse:
             """Health endpoint"""
             return await test()
 
-        @self.app.get("/test")
+        @self.app.get('/test')
         async def test() -> JSONResponse:
             """Health endpoint"""
             return JSONResponse(content={'message': 'Hello, World!'})
 
-        @self.app.get("/ping")
+        @self.app.get('/ping')
         async def ping() -> JSONResponse:
             """DEV! This endpoint triggers a ping event to the client, from the server."""
             return JSONResponse(await self.websocketHandler.ping())
 
         # DEV
-        @self.app.get("/scan")
+        @self.app.get('/scan')
         async def scanGet(fileName: str = 'testImage') -> JSONResponse:
             """
                 DEV! This endpoint allows a developer to simulate a playevent
@@ -132,14 +239,14 @@ class Server:
             self.spotifyAPI.addAlbumToPlaylist(SPOTIFY_ID, self.spotifyAPI.playlist())
 
             # SEND TO CLIENT
-            await self.websocketHandler.sendToClient({
+            await self.websocketHandler.sendToHost({
                 'command': 'ALBUM',
                 'value': SPOTIFY_ID,
             }, authToken=AUTH_TOKEN)
 
             return JSONResponse(content={'album': SPOTIFY_ID})
 
-        @self.app.get("/shuffle")
+        @self.app.get('/shuffle')
         async def shuffleGet() -> JSONResponse:
             """
                 DEV! This endpoint allows a developer to simulate a shuffle event.
@@ -148,7 +255,7 @@ class Server:
             return JSONResponse(content={'message': 'Playing'})
 
         # CLIENT-DRIVEN IMAGE
-        @self.app.post("/scan")
+        @self.app.post('/scan')
         async def scanPost(request: Request) -> JSONResponse:
             """
                 This endpoint allows a client to send an image to the server for album detection.
@@ -166,7 +273,7 @@ class Server:
             return await scanGet('upload.png') # TODO: refactor to use genuine method, when available
 
         # CENTRE LABEL
-        @self.app.post("/centreLabel")
+        @self.app.post('/centreLabel')
         async def centreLabelGet(request: Request) -> JSONResponse:
             """
                 This endpoint serves the centre label for the given album.
@@ -212,14 +319,14 @@ class Server:
                     labelData = base64.b64encode(labelFile.read()).decode('utf-8')
 
             response = {
-                "imageData": labelData,
+                'imageData': labelData,
             }
             if (metadata):
                 response['metadata'] = metadata
 
             return JSONResponse(content=response)
 
-        @self.app.get("/clientIP")
+        @self.app.get('/clientIP')
         async def clientIPGet(request: Request) -> JSONResponse:
             """
                 This endpoint serves the client's own IP address back to them.
@@ -231,7 +338,7 @@ class Server:
             else:
                 return JSONResponse(content={ 'clientIP': request.client.host })
 
-        @self.app.get("/playlist")
+        @self.app.get('/playlist')
         async def playlistIDGet(sessionID: str = Cookie(None)) -> JSONResponse:
             """
                 This endpoint serves the playlist ID back to the client.
@@ -240,7 +347,7 @@ class Server:
                 return JSONResponse(content={ 'playlistID': self.spotifyAPI.vttPlaylistID })
             return JSONResponse(content={ 'playlistID': self.spotifyAPI.getPlaylistByName(sessionID, 'Virtual Turntable') })
 
-        @self.app.get("/host")
+        @self.app.get('/host')
         async def hostUserGet() -> JSONResponse:
             """
                 This endpoint serves the host user's ID back to the client.
@@ -250,7 +357,7 @@ class Server:
             return JSONResponse(content={ 'hostUserID': self.spotifyAPI.hostUserID })
 
         # SPOTIFY AUTH
-        @self.app.get("/auth/login")
+        @self.app.get('/auth/login')
         async def login(request: Request) -> RedirectResponse:
             if (request.headers.get("x-forwarded-for")):
                 clientIP = request.headers.get("x-forwarded-for")
@@ -260,52 +367,39 @@ class Server:
             isHost = clientIP == getLocalIP() # if client is host machine
             return await self.spotifyAPI.login(isHost)
 
-        @self.app.get("/auth/callback")
+        @self.app.get('/auth/callback')
         async def callback(request: Request) -> RedirectResponse:
             SESSION_ID: Final = request.query_params.get('state')
             RESPONSE: Final = await self.spotifyAPI.callback(request, SESSION_ID)
             return RESPONSE
 
-        @self.app.get("/auth/token")
+        @self.app.get('/auth/token')
         async def token(sessionID: str = Cookie(None)) -> JSONResponse:
             if (not sessionID):
                 raise HTTPException(status_code=400, detail='No session ID provided.')
             return JSONResponse(self.spotifyAPI.token(sessionID))
 
-        @self.app.get("/auth/logout")
+        @self.app.get('/auth/logout')
         async def logout(sessionID: str = Cookie(None)) -> RedirectResponse:
             if (sessionID and sessionID in self.spotifyAPI.sessions):
                 self.spotifyAPI.sessions[sessionID] = None
             return RedirectResponse(url='/')
 
         # WEBSOCKET
-        @self.app.websocket("/ws/main")
-        async def connectMainWebsocket(websocket: WebSocket) -> None:
-            await self.websocketHandler.handleConnectionRequest(websocket, isMain=True)
+        @self.app.websocket('/ws')
+        async def connectMainWebsocket(websocket: WebSocket, sessionID: str = Cookie(None)) -> None:
+            if (not sessionID):
+                await websocket.close(code=4001)
+                return
+            session = self.spotifyAPI.sessions.get(sessionID)
+            if (not session):
+                await websocket.close(code=4001)
+                return
+            await self.websocketHandler.handleConnection(websocket, sessionID=sessionID, isMain=session.get('isHost', False))
+    
+    async def shutdown(self) -> None:
+        """Ensure all background tasks are cancelled when stopping."""
+        await asyncio.gather()
 
-        @self.app.websocket("/ws/side")
-        async def connectSideWebsocket(websocket: WebSocket) -> None:
-            await self.websocketHandler.handleConnectionRequest(websocket, isMain=False)
-
-    def get(self) -> FastAPI:
-        """Return the FastAPI application singleton."""
-        return self.app
-
-    def getState(self) -> dict:
-        """TODO"""
-        return self.state
-
-    def updateState(self, key: str, value: Any) -> None:
-        """TODO"""
-        self.state[key] = value
-
-        # react to state
-        if (GPIO_ACCESS == 'on'):
-            if (key == 'playState'): # TODO make these enums
-                self.piController.setMotorState(value)
-
-    def resetState(self) -> None:
-        """TODO"""
-        self.state = {}
 
 serverInstance = Server()

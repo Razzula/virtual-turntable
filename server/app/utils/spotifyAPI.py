@@ -106,6 +106,7 @@ class SpotifyAPI:
         # store tokens
         self.sessions[sessionID]['accessToken'] = accessToken
         self.sessions[sessionID]['refresh_token'] = BODY.get('refresh_token')
+        self.sessions[sessionID]['userID'] = self.getUserID(sessionID)
 
         # start token refresh thread
         expiration = BODY.get('expires_in', 3600)
@@ -124,7 +125,7 @@ class SpotifyAPI:
             self.clearCache()
             # setup new host
             self.setupPlaylist(sessionID, 'Virtual Turntable')
-            self.hostUserID = self.getUser(sessionID)
+            self.hostUserID = self.sessions[sessionID]['userID']
 
         # return to the main page
         response = RedirectResponse(url='/')
@@ -239,7 +240,7 @@ class SpotifyAPI:
         # return ID
         return str(playlistData['id'])
 
-    def getUser(self, sessionID: str) -> str:
+    def getUserID(self, sessionID: str) -> str:
         """Get user."""
         HEADERS: Final = {
             'Authorization': f'Bearer {self.sessions[sessionID].get("accessToken")}',

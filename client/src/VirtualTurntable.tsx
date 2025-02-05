@@ -171,10 +171,6 @@ function VirtualTurntable({
     }, [isActive, setCurrentAlbum, setCurrentTrack]);
 
     useEffect(() => {
-        WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: hostSettings }));
-    }, [hostSettings]);
-
-    useEffect(() => {
         // FETCH CENTRE LABEL ON ALBUM CHANGE
         const fetchLabel = async () => {
             if (!currentAlbum?.id) return;
