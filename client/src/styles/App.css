@@ -86,8 +86,9 @@
 .container {
     margin: 1rem;
     padding: 1rem;
+    min-width: 300px;
     max-width: 300px;
-    min-height: 40px;
+    min-height: 50px;
     background: #232327;
     border-radius: 10px;
 }
@@ -111,7 +112,7 @@
     align-items: center;
 }
 
-input[type="number"] {
+input[type='number'] {
     font-family: inherit;
     font-size: 1rem;
     font-weight: 500;
@@ -126,11 +127,11 @@ input[type="number"] {
     transition: border-color 0.25s, background-color 0.25s;
 }
 
-input[type="number"]:hover {
+input[type='number']:hover {
     border-color: #646cff;
 }
 
-input[type="number"]:focus {
+input[type='number']:focus {
     outline: none;
     border-color: #535bf2;
     background-color: #222;

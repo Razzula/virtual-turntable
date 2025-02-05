@@ -35,6 +35,7 @@ export abstract class MusicPlayer implements IMusicPlayer {
     abstract pause(): void;
     abstract nextTrack(): void;
     abstract previousTrack(): void;
+    abstract setVolume(volume: number): void;
 }
 
 export default MusicPlayer;

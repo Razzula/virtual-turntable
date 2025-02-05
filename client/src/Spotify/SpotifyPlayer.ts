@@ -106,5 +106,9 @@ export class SpotifyPlayer extends MusicPlayer {
         this.player?.previousTrack();
     }
 
+    public setVolume(volume: number) {
+        this.player?.setVolume(volume / 100);
+    }
+
 }
 export default SpotifyPlayer;

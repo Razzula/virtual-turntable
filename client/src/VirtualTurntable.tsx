@@ -45,7 +45,7 @@ function VirtualTurntable({
     const [deviceID, setDeviceID] = useState<string | undefined>(undefined);
     const [isActive, setIsActive] = useState<boolean>(false);
 
-    const [, setPlayer] = useState<SpotifyPlayer | null>(null);
+    const [player, setPlayer] = useState<SpotifyPlayer | null>(null);
 
     const [centreLabelSource, setCentreLabelSource] = useState<string | null>(null);
     const [vinylDetails, setVinylDetails] = useState<any>(null);
@@ -96,16 +96,31 @@ function VirtualTurntable({
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault(); // prevent default page zoom
 
-            setClientSettings((prev) => ({
-                ...prev,
-                plateZoom: Math.min( // overflow clamp
-                    plateZoomBounds.max,
-                    Math.max( // underflow clamp
-                        plateZoomBounds.min,
-                        prev.plateZoom - Math.sign(e.deltaY) * 5 // delta 5%
+            if (e.ctrlKey) {
+                setClientSettings((prev) => ({
+                    ...prev,
+                    plateZoom: Math.min( // overflow clamp
+                        plateZoomBounds.max,
+                        Math.max( // underflow clamp
+                            plateZoomBounds.min,
+                            prev.plateZoom - Math.sign(e.deltaY) * 5 // delta 5%
+                        )
                     )
-                )
-            }));
+                }));
+            }
+            else if (e.shiftKey) {
+                setHostSettings((prev) => ({
+                    ...prev,
+                    volume: Math.min( // overflow clamp
+                        100,
+                        Math.max( // underflow clamp
+                            0,
+                            prev.volume - Math.sign(e.deltaY) * 5 // delta 5%
+                        )
+                    )
+                }));
+            }
+
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
@@ -173,6 +188,12 @@ function VirtualTurntable({
     useEffect(() => {
         WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: hostSettings }));
     }, [hostSettings]);
+
+    useEffect(() => {
+        if (player) {
+            player.setVolume(hostSettings.volume);
+        }
+    }, [player, hostSettings.volume]);
 
     useEffect(() => {
         // FETCH CENTRE LABEL ON ALBUM CHANGE
@@ -448,7 +469,10 @@ function VirtualTurntable({
 
                 { showInteractive &&
                     <div className='floating'>
-                            <div className='row container' onClick={(e) => e.stopPropagation()}>
+                        <div className='row' onClick={(e) => e.stopPropagation()}>
+
+                        {/* SETTINGS BAR */}
+                        <div className='row container'>
                                 <img src='/virtual-turntable/icons/zoomOut.svg' alt='-' />
                                 <input type='range' min={plateZoomBounds.min} max={plateZoomBounds.max}
                                     value={clientSettings.plateZoom}
@@ -459,6 +483,18 @@ function VirtualTurntable({
                                 <button onClick={toggleSettingsDisplay}>
                                     <img src='/virtual-turntable/icons/settings.svg' alt='Settings' />
                                 </button>
+                            </div>
+
+                            {/* VOLUME BAR */}
+                            <div className='row container'>
+                                <img src='/virtual-turntable/icons/mute.svg' alt='-' />
+                                <input type='range' min={0} max={100}
+                                    value={hostSettings.volume}
+                                    onChange={(e) => updateHostSettings('volume', parseInt(e.target.value))}
+                                />
+                                <img src='/virtual-turntable/icons/volume.svg' alt='+' />
+                            </div>
+
                         </div>
 
                         { showSettings &&

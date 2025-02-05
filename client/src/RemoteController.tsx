@@ -4,6 +4,7 @@ import './styles/App.css'
 import WebSocketManagerInstance from './WebSocketManager';
 import { useEffect, useState } from 'react';
 import SpotifyAPI from './Spotify/SpotifyAPI.ts';
+import { Settings } from './App.tsx';
 
 type RemoteControllerProps = {
     authToken: string;
@@ -13,6 +14,7 @@ type RemoteControllerProps = {
     currentTrack: Track | null;
     handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
     hostUserID: string | null;
+    hostSettings: Settings;
 };
 
 function RemoteController({
@@ -21,12 +23,15 @@ function RemoteController({
     isPlaying, currentAlbum, currentTrack,
     handleFileUpload,
     hostUserID,
+    hostSettings,
 }: RemoteControllerProps): JSX.Element {
 
     const [libraryPlaylistID, setLibraryPlaylistID] = useState<string | null>(null);
     const [library, setLibrary] = useState<Album[]>([]);
 
     const [hostUserProfile, setHostUserProfile] = useState<User | null>(null);
+
+    const [volume, setVolume] = useState<number>(hostSettings.volume);
 
     useEffect(() => {
         document.body.className = 'default';
@@ -66,6 +71,15 @@ function RemoteController({
             );
         }
     }, [libraryPlaylistID]);
+
+    useEffect(() => {
+        const settings = { ...hostSettings, volume: volume };
+        WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
+    }, [volume]);
+
+    useEffect(() => {
+        setVolume(hostSettings.volume);
+    }, [hostSettings.volume]);
 
     const isHost = hostUserProfile?.id !== undefined && userProfile?.id === hostUserProfile?.id;
     const displayName = hostUserProfile?.id !== undefined ? (isHost ? 'Your' : `${hostUserProfile?.display_name}'s`) : null;
@@ -137,17 +151,30 @@ function RemoteController({
                     {/* MAIN */}
                     <div className='main'>
                         {currentAlbum !== null ?
-                            <>
-                                <h1>{currentAlbum?.name}</h1>
-                                {currentAlbum !== null &&
-                                    <a href={currentAlbum.external_urls.spotify} target='_blank' rel='noreferrer'>
-                                        <img className='albumArt'
-                                            src={currentAlbum.images[0].url} alt='Album Cover'
-                                        />
-                                    </a>
-                                }
-                                <h2>{currentTrack?.name}</h2>
-                            </>
+                            <div className='row'>
+                                <div>
+                                    <h1>{currentAlbum?.name}</h1>
+                                    {currentAlbum !== null &&
+                                        <a href={currentAlbum.external_urls.spotify} target='_blank' rel='noreferrer'>
+                                            <img className='albumArt'
+                                                src={currentAlbum.images[0].url} alt='Album Cover'
+                                            />
+                                        </a>
+                                    }
+                                    <h2>{currentTrack?.name}</h2>
+                                </div>
+
+                                {/* VOLUME BAR */}
+                                <div className='column'>
+                                    <img src='/virtual-turntable/icons/mute.svg' alt='-' />
+                                    <input type='range' min={0} max={100}
+                                        value={volume}
+                                        onChange={(e) => setVolume(parseInt(e.target.value))}
+                                        orient='vertical'
+                                    />
+                                    <img src='/virtual-turntable/icons/volume.svg' alt='+' />
+                                </div>
+                            </div>
                             :
                             <div className='centre'>
                                 <div className='error'>

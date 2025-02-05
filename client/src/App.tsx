@@ -13,6 +13,7 @@ export type Settings = {
     enableMotor: boolean;
     enableRemote: boolean;
     enforceSignature: boolean;
+    volume: number;
 }
 
 const BUILD_MODE = import.meta.env.MODE;
@@ -35,6 +36,7 @@ function App() {
         enableMotor: true,
         enableRemote: true,
         enforceSignature: false,
+        volume: 50,
     });
 
     const fetchAuthToken = useCallback(async () => {
@@ -170,6 +172,9 @@ function App() {
             else if (message.command === 'REFRESH_HOST') {
                 refreshCurrentHostID();
             }
+            else if (message.command === 'settings') {
+                setSettings(message.value);
+            }
 
             if (isHostDeviceRef.current) {
                 // MAIN
@@ -178,9 +183,6 @@ function App() {
                 // server commands
                 if (message.command === 'ALBUM') {
                     SpotifyAPI.playAlbum(message.token, message.value);
-                }
-                else if (message.command === 'SETTINGS') {
-                    console.log(message.value);
                 }
 
                 // side controller commands
@@ -260,6 +262,7 @@ function App() {
                     currentTrack={currentTrack}
                     handleFileUpload={handleFileUpload}
                     hostUserID={hostUserID}
+                    hostSettings={settings}
                 />
             );
         }
