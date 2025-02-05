@@ -72,12 +72,6 @@ function RemoteController({
         }
     }, [libraryPlaylistID]);
 
-    function handleAlbumClick(albumID: string, controlAllowed: boolean) {
-        if (controlAllowed) {
-            SpotifyAPI.playAlbum(authToken, albumID);
-        }
-    }
-
     useEffect(() => {
         const settings = { ...hostSettings, volume: volume };
         WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
@@ -86,6 +80,12 @@ function RemoteController({
     useEffect(() => {
         setVolume(hostSettings.volume);
     }, [hostSettings.volume]);
+
+    function handleAlbumClick(albumID: string, controlAllowed: boolean) {
+        if (controlAllowed) {
+            SpotifyAPI.playAlbum(authToken, albumID);
+        }
+    }
 
     const isHost = hostUserProfile?.id !== undefined && userProfile?.id === hostUserProfile?.id;
     const displayName = hostUserProfile?.id !== undefined ? (isHost ? 'Your' : `${hostUserProfile?.display_name}'s`) : null;
@@ -179,6 +179,7 @@ function RemoteController({
                                         value={volume}
                                         onChange={(e) => setVolume(parseInt(e.target.value))}
                                         orient='vertical'
+                                        disabled={!controlAllowed}
                                     />
                                     <img src='/virtual-turntable/icons/volume.svg' alt='+' />
                                 </div>

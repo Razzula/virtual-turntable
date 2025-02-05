@@ -190,9 +190,6 @@ function App() {
                 if (message.command === 'ALBUM') {
                     SpotifyAPI.playAlbum(message.token, message.value);
                 }
-                else if (message.command === 'SETTINGS') {
-                    console.log(message.value);
-                }
 
                 // side controller commands
                 else if (player) {
