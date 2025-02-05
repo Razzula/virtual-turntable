@@ -2,7 +2,7 @@ import { Album, Track, User } from './types/Spotify.ts'
 
 import './styles/App.css'
 import WebSocketManagerInstance from './WebSocketManager';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SpotifyAPI from './Spotify/SpotifyAPI.ts';
 import { Settings } from './App.tsx';
 
@@ -72,6 +72,12 @@ function RemoteController({
         }
     }, [libraryPlaylistID]);
 
+    function handleAlbumClick(albumID: string, controlAllowed: boolean) {
+        if (controlAllowed) {
+            SpotifyAPI.playAlbum(authToken, albumID);
+        }
+    }
+
     useEffect(() => {
         const settings = { ...hostSettings, volume: volume };
         WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
@@ -83,6 +89,8 @@ function RemoteController({
 
     const isHost = hostUserProfile?.id !== undefined && userProfile?.id === hostUserProfile?.id;
     const displayName = hostUserProfile?.id !== undefined ? (isHost ? 'Your' : `${hostUserProfile?.display_name}'s`) : null;
+
+    const controlAllowed =  hostSettings?.enableRemote && (isHost || (hostSettings?.enforceSignature === false))
 
     if (authToken && authToken !== '') {
         // CONTROLLER
@@ -135,7 +143,7 @@ function RemoteController({
                             {
                                 library.map((album, index) => (
                                     <div key={index} className='album'>
-                                        <a href='#' onClick={() => SpotifyAPI.playAlbum(authToken, album.id)}>
+                                        <a href='#' onClick={() => handleAlbumClick(album.id, controlAllowed)}>
                                             <img className='albumArtMini'
                                                 src={album.images[0].url} alt='Album Cover'
                                                 // width={128} height={128}
@@ -197,19 +205,43 @@ function RemoteController({
                         {currentAlbum &&
                             <div>
                                 <div className='controls'>
-                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'PREVIOUS'}))}>
+                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'PREVIOUS'}))}
+                                        disabled={!controlAllowed}
+                                    >
                                         <img src='/virtual-turntable/icons/previous.svg' alt='Previous' />
                                     </button>
-                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: isPlaying ? 'PAUSE' : 'PLAY'}))}>
+                                    {/* <button
+                                        onMouseDown={() => WebSocketManagerInstance.send(JSON.stringify({command: 'reverse'}))}
+                                        onMouseUp={() => WebSocketManagerInstance.send(JSON.stringify({command: 'seek', value: -10}))}
+                                        disabled={!controlAllowed}
+                                    >
+                                        <img src='/virtual-turntable/icons/rewind.svg' alt='Rewind' />
+                                    </button> */}
+                                    <button
+                                        onClick={() => WebSocketManagerInstance.send(JSON.stringify({
+                                            command: 'playState',
+                                            value: isPlaying ? false : true
+                                        }))}
+                                        disabled={!controlAllowed}
+                                    >
                                         <img src={isPlaying ? '/virtual-turntable/icons/pause.svg' : '/virtual-turntable/icons/play.svg'} alt='Play/Pause' />
                                     </button>
-                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'NEXT'}))}>
+                                    {/* <button
+                                        onMouseDown={() => WebSocketManagerInstance.send(JSON.stringify({command: 'forwards'}))}
+                                        onMouseUp={() => WebSocketManagerInstance.send(JSON.stringify({command: 'seek', value: 10}))}
+                                        disabled={!controlAllowed}
+                                    >
+                                        <img src='/virtual-turntable/icons/forwards.svg' alt='Fast Forward' />
+                                    </button> */}
+                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'NEXT'}))}
+                                        disabled={!controlAllowed}
+                                    >
                                         <img src='/virtual-turntable/icons/next.svg' alt='Next' />
                                     </button>
                                 </div>
 
                                 <div className='controls'>
-                                    <button>
+                                    <button disabled={!controlAllowed}>
                                         <img src='/virtual-turntable/icons/scan.svg' alt='Scan' /> Scan Album
                                     </button>
                                 </div>

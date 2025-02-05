@@ -69,12 +69,7 @@ function App() {
             .then((response) => {
                 if (response.ok) {
                     response.json().then((data) => {
-                        const isHostDevice = window.location.hostname === data.clientIP;
-                        setIsHostDevice(isHostDevice);
-
-                        // connect to WebSocket server
-                        const hostURL = process.env.HOST_URL || 'localhost';
-                        WebSocketManagerInstance.connect(`ws://${hostURL}:8491/ws/${isHostDevice ? 'main' : 'side'}`, handleWebSocketMessage);
+                        setIsHostDevice(window.location.hostname === data.clientIP);
                     });
                 }
             }
@@ -104,11 +99,16 @@ function App() {
             self.location.href = '/virtual-turntable/auth/login';
         }
         else if (authToken !== undefined) {
+            // get current user data
             SpotifyAPI.getOwnProfile(authToken)
                 .then((data) => {
                     setUserProfile(data);
                 }
             );
+
+            // connect to WebSocket server
+            const hostURL = process.env.HOST_URL || 'localhost';
+            WebSocketManagerInstance.connect(`ws://${hostURL}:8491/ws`, handleWebSocketMessage);
         }
     }, [authToken]);
 
@@ -136,6 +136,12 @@ function App() {
             WebSocketManagerInstance.send(JSON.stringify({ command: 'currentTrack', value: currentTrack }));
         }
     }, [currentTrack, isHostDevice]);
+
+    useEffect(() => {
+        if (isHostDevice) { // broadcast to side devices
+            WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
+        }
+    }, [settings, isHostDevice]);
 
     useEffect(() => {
         if (authToken && currentTrack !== null) {
@@ -184,14 +190,19 @@ function App() {
                 if (message.command === 'ALBUM') {
                     SpotifyAPI.playAlbum(message.token, message.value);
                 }
+                else if (message.command === 'SETTINGS') {
+                    console.log(message.value);
+                }
 
                 // side controller commands
                 else if (player) {
-                    if (message.command === 'PLAY') {
-                        player.play();
-                    }
-                    else if (message.command === 'PAUSE') {
-                        player.pause();
+                    if (message.command === 'playState') {
+                        if (message.value === true) {
+                            player.play();
+                        }
+                        else {
+                            player.pause();
+                        }
                     }
                     else if (message.command === 'PREVIOUS') {
                         player.previousTrack();

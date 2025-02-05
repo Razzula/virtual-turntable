@@ -4,31 +4,29 @@ from typing import Any, List, Optional
 
 from fastapi import WebSocket, HTTPException
 from fastapi.websockets import WebSocketState
+from app.enums.StateKeys import StateKeys
 
 class WebsocketHandler:
     """Handler class for WebSocket connections."""
 
-    def __init__(self, getState: Any, updateState: Any) -> None:
+    def __init__(self, getState: Any, handleCommand: Any) -> None:
         """Initialise the WebSocket handler."""
         self.activeMainSocket: Optional[WebSocket] = None
         self.activeSideSockets: List[WebSocket] = []
 
         self.getState = getState
-        self.updateState = updateState
+        self.handleCommand = handleCommand
 
-    async def handleConnectionRequest(self, websocket: WebSocket, isMain: bool) -> None:
+    async def handleConnection(self, websocket: WebSocket, sessionID: str, isMain: bool) -> None:
         """Handle a WebSocket connection request."""
 
         if (isMain):
-            # if (self.activeMainSocket is not None):
-            #     # reject connection
-            #     await websocket.close(code=123, reason='Another main socket is already connected.')
-            #     return
+            # override existing connections
             self.activeMainSocket = websocket
         else:
             self.activeSideSockets.append(websocket)
         await websocket.accept()
-        print('Client connected.')
+        print(f'Client connected. ({sessionID})')
 
         # initial information batch
         currentState = self.getState()
@@ -40,24 +38,17 @@ class WebsocketHandler:
             # monitor the connection
             while (websocket.client_state != WebSocketState.DISCONNECTED):
                 request = await websocket.receive_text()
-                print(f'{websocket.client}, (main={isMain}):', request)
-                if (isMain):
+                # if (isMain):
                     # cache data
-                    try:
-                        data = json.loads(request)
-                        command = data.get('command')
-                        if (command in ['playState', 'currentTrack']):
-                            self.updateState(data['command'], data['value'])
-                    except Exception:
-                        data = request
 
-                    # forward main messages to all side sockets
-                    for sideSocket in self.activeSideSockets:
-                        await sideSocket.send_text(request)
+                data = json.loads(request)
+                command = data.get('command')
+                if (command is not None):
+                    print(f'{websocket.client} [{"HOST" if isMain else "SIDE"}]:', command)
+                    await self.handleCommand(sessionID, command, data.get('value')) 
                 else:
-                    # redirect side messages to main socket
-                    if (self.activeMainSocket is not None):
-                        await self.activeMainSocket.send_text(request)
+                    print(print(f'{websocket.client} [{"HOST" if isMain else "SIDE"}]:', request))
+                    
         except Exception as e:
             print(f"Error: {e}")
         finally:
@@ -72,26 +63,29 @@ class WebsocketHandler:
             else:
                 self.activeSideSockets.remove(websocket)
             print('Client disconnected.')
-
-    async def sendToClient(self, data: dict[str, str], authToken: Optional[str] = None) -> None:
-        """Send a message to the client."""
-
+    
+    async def sendToHost(self, data: dict[str, str]) -> None:
+        """Send a message to the host client."""
         # send to main socket
         if (self.activeMainSocket is not None):
-            if (authToken):
-                data['token'] = authToken
             await self.activeMainSocket.send_json(data)
-
+    
+    async def sentToClients(self, data: dict[str, str]) -> None:
+        """Send a message to the other clients."""
         # broadcast to side sockets
         for websocket in self.activeSideSockets:
-            if (authToken):
-                data['token'] = authToken
             await websocket.send_json(data)
+
+    async def broadcast(self, data: dict[str, str]) -> None:
+        """Send a message to the all connected clients."""
+        await self.sendToHost(data)
+        await self.sentToClients(data)
+        print('Broadcast', data.get('command'))
 
     async def ping(self) -> dict[str, str]:
         """DEV! This endpoint triggers a ping event to the client, from the server."""
         if (len(self.activeSideSockets) == 0):
             raise HTTPException(status_code=400, detail='No client connected.')
 
-        await self.sendToClient({'message': 'ping'})
+        await self.broadcast({'message': 'ping'})
         return {'message': 'ping'}
