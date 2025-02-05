@@ -187,7 +187,7 @@ function App() {
                 const player = SpotifyPlayer.getExistingInstance();
 
                 // server commands
-                if (message.command === 'ALBUM') {
+                if (message.command === 'playAlbum') {
                     SpotifyAPI.playAlbum(message.token, message.value);
                 }
 
@@ -201,10 +201,10 @@ function App() {
                             player.pause();
                         }
                     }
-                    else if (message.command === 'PREVIOUS') {
+                    else if (message.command === 'playPrevious') {
                         player.previousTrack();
                     }
-                    else if (message.command === 'NEXT') {
+                    else if (message.command === 'playNext') {
                         player.nextTrack();
                     }
                 }

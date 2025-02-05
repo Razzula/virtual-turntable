@@ -6,6 +6,9 @@ class StateKeys(Enum):
     SETTINGS = 'settings'
 
 class Commands(Enum):
+    PLAY_NEXT = 'playNext'
+    PLAY_PREVIOUS = 'playPrevious'
+    PLAY_ALBUM = 'playAlbum'
     FAST_FORWARD = 'forwards'
     REWIND = 'reverse'
     SEEK = 'seek'

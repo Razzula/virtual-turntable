@@ -157,9 +157,13 @@ class Server:
                 return
             
         if (command == StateKeys.SETTINGS.value):
-            if (not requestFromHost): # only allow host to control settings
-                print(sessionID, 'is not host')
-                return
+            if (not requestFromHost):
+                # only allow host to control sensitive settings
+                for setting in ['enableMotor', 'enableRemote', 'enforceSignature']:
+                    if (settings.get(setting) != value.get(setting)):
+                        print(sessionID, 'is not host')
+                        return
+                # settings such as volume, are allowed
             await self.updateState(StateKeys.SETTINGS, value)
             return
             
@@ -175,9 +179,10 @@ class Server:
         #     pass
         
         # remote-to-host commands
-        if (command in ['NEXT', 'PREVIOUS']):
-            await self.websocketHandler.sendToHost({ 'command': command })
-            return
+        for key in [Commands.PLAY_NEXT, Commands.PLAY_PREVIOUS, Commands.PLAY_ALBUM]:
+            if (command == key.value):
+                await self.websocketHandler.sendToHost({ 'command': command })
+                return
 
     # Setup FastAPI endpoints
     def setupRoutes(self) -> None:
@@ -240,7 +245,7 @@ class Server:
 
             # SEND TO CLIENT
             await self.websocketHandler.sendToHost({
-                'command': 'ALBUM',
+                'command': 'playAlbum',
                 'value': SPOTIFY_ID,
             }, authToken=AUTH_TOKEN)
 

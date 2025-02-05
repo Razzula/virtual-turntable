@@ -83,7 +83,7 @@ function RemoteController({
 
     function handleAlbumClick(albumID: string, controlAllowed: boolean) {
         if (controlAllowed) {
-            SpotifyAPI.playAlbum(authToken, albumID);
+            WebSocketManagerInstance.send(JSON.stringify({ command: 'playAlbum', value: albumID }));
         }
     }
 
@@ -143,12 +143,9 @@ function RemoteController({
                             {
                                 library.map((album, index) => (
                                     <div key={index} className='album'>
-                                        <a href='#' onClick={() => handleAlbumClick(album.id, controlAllowed)}>
-                                            <img className='albumArtMini'
-                                                src={album.images[0].url} alt='Album Cover'
-                                                // width={128} height={128}
-                                            />
-                                        </a>
+                                        <img className={`albumArtMini ${!controlAllowed && 'forbidden'}`} onClick={() => handleAlbumClick(album.id, controlAllowed)}
+                                            src={album.images[0].url} alt='Album Cover'
+                                        />
                                         {/* <h3>{album.name}</h3> */}
                                     </div>
                                 ))
@@ -206,7 +203,7 @@ function RemoteController({
                         {currentAlbum &&
                             <div>
                                 <div className='controls'>
-                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'PREVIOUS'}))}
+                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'playPrevious'}))}
                                         disabled={!controlAllowed}
                                     >
                                         <img src='/virtual-turntable/icons/previous.svg' alt='Previous' />
@@ -234,7 +231,7 @@ function RemoteController({
                                     >
                                         <img src='/virtual-turntable/icons/forwards.svg' alt='Fast Forward' />
                                     </button> */}
-                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'NEXT'}))}
+                                    <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'playNext'}))}
                                         disabled={!controlAllowed}
                                     >
                                         <img src='/virtual-turntable/icons/next.svg' alt='Next' />
