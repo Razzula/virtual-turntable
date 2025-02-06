@@ -15,6 +15,7 @@ type RemoteControllerProps = {
     handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
     hostUserID: string | null;
     hostSettings: Settings;
+    isHostSettingsUpdateLocal: React.MutableRefObject<boolean>;
 };
 
 function RemoteController({
@@ -23,7 +24,7 @@ function RemoteController({
     isPlaying, currentAlbum, currentTrack,
     handleFileUpload,
     hostUserID,
-    hostSettings,
+    hostSettings, isHostSettingsUpdateLocal,
 }: RemoteControllerProps): JSX.Element {
 
     const [libraryPlaylistID, setLibraryPlaylistID] = useState<string | null>(null);
@@ -73,11 +74,14 @@ function RemoteController({
     }, [libraryPlaylistID]);
 
     useEffect(() => {
-        const settings = { ...hostSettings, volume: volume };
-        WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
+        if (isHostSettingsUpdateLocal.current) {
+            const settings = { ...hostSettings, volume: volume };
+            WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
+        }
     }, [volume]);
 
     useEffect(() => {
+        isHostSettingsUpdateLocal.current = false;
         setVolume(hostSettings.volume);
     }, [hostSettings.volume]);
 
@@ -85,6 +89,11 @@ function RemoteController({
         if (controlAllowed) {
             WebSocketManagerInstance.send(JSON.stringify({ command: 'playAlbum', value: albumID }));
         }
+    }
+
+    function updateVolume(newVolume: number) {
+        isHostSettingsUpdateLocal.current = true;
+        setVolume(newVolume);
     }
 
     const isHost = hostUserProfile?.id !== undefined && userProfile?.id === hostUserProfile?.id;
@@ -174,7 +183,7 @@ function RemoteController({
                                     <img src='/virtual-turntable/icons/mute.svg' alt='-' />
                                     <input type='range' min={0} max={100}
                                         value={volume}
-                                        onChange={(e) => setVolume(parseInt(e.target.value))}
+                                        onChange={(e) => updateVolume(parseInt(e.target.value))}
                                         orient='vertical'
                                         disabled={!controlAllowed}
                                     />

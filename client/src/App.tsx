@@ -38,6 +38,7 @@ function App() {
         enforceSignature: false,
         volume: 50,
     });
+    const isSettingsUpdateLocal = useRef(false);
 
     const fetchAuthToken = useCallback(async () => {
         // get auth token
@@ -138,7 +139,7 @@ function App() {
     }, [currentTrack, isHostDevice]);
 
     useEffect(() => {
-        if (isHostDevice) { // broadcast to side devices
+        if (isHostDevice && isSettingsUpdateLocal.current) { // broadcast to side devices
             WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: settings }));
         }
     }, [settings, isHostDevice]);
@@ -179,6 +180,7 @@ function App() {
                 refreshCurrentHostID();
             }
             else if (message.command === 'settings') {
+                isSettingsUpdateLocal.current = false; // origin from server; prevent re-broadcasts
                 setSettings(message.value);
             }
 
@@ -255,7 +257,7 @@ function App() {
                     isPlaying={isPlaying} setIsPlaying={setIsPlaying}
                     currentAlbum={currentAlbum} setCurrentAlbum={setCurrentAlbum}
                     currentTrack={currentTrack} setCurrentTrack={setCurrentTrack}
-                    hostSettings={settings} setHostSettings={setSettings}
+                    hostSettings={settings} setHostSettings={setSettings} isHostSettingsUpdateLocal={isSettingsUpdateLocal}
                     hostUserID={hostUserID}
                 />
             );
@@ -270,7 +272,7 @@ function App() {
                     currentTrack={currentTrack}
                     handleFileUpload={handleFileUpload}
                     hostUserID={hostUserID}
-                    hostSettings={settings}
+                    hostSettings={settings} isHostSettingsUpdateLocal={isSettingsUpdateLocal}
                 />
             );
         }

@@ -200,11 +200,10 @@ class Server:
         currentSettings = self.getState().get('settings')
         if (currentSettings):
             currentVolume = currentSettings.get('volume', 50)
-            if (currentVolume):
-                newVolume = min(100, max(0, currentVolume + (delta * 5)))
-                newSettings = currentSettings.copy()
-                newSettings['volume'] = newVolume
-                await self.updateState(StateKeys.SETTINGS, newSettings)
+            newVolume = min(100, max(0, currentVolume + (delta * 5)))
+            newSettings = currentSettings.copy()
+            newSettings['volume'] = newVolume
+            await self.updateState(StateKeys.SETTINGS, newSettings)
     
     async def changeTrack(self, direction):
         """TODO"""

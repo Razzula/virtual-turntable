@@ -20,6 +20,7 @@ type VirtualTurntableProps = {
     setCurrentTrack: (track: Track | null) => void;
     hostSettings: Settings;
     setHostSettings: (settings: Settings) => void;
+    isHostSettingsUpdateLocal: React.MutableRefObject<boolean>;
     hostUserID: string | null;
 };
 
@@ -38,7 +39,7 @@ function VirtualTurntable({
     userProfile,
     isPlaying, currentAlbum,
     setIsPlaying, setCurrentAlbum, setCurrentTrack,
-    hostSettings, setHostSettings,
+    hostSettings, setHostSettings, isHostSettingsUpdateLocal,
     hostUserID,
 }: VirtualTurntableProps): JSX.Element {
 
@@ -109,16 +110,16 @@ function VirtualTurntable({
                 }));
             }
             else if (e.shiftKey) {
-                setHostSettings((prev) => ({
-                    ...prev,
-                    volume: Math.min( // overflow clamp
+                const previousVolume = hostSettings.volume;
+                updateHostSettings('volume',
+                    Math.min( // overflow clamp
                         100,
                         Math.max( // underflow clamp
                             0,
-                            prev.volume - Math.sign(e.deltaY) * 5 // delta 5%
+                            previousVolume - Math.sign(e.deltaY) * 5 // delta 5%
                         )
                     )
-                }));
+                );
             }
 
         };
@@ -262,6 +263,7 @@ function VirtualTurntable({
     }
 
     function updateHostSettings(setting: string, value: any) {
+        isHostSettingsUpdateLocal.current = true; // enable boradcasting
         setHostSettings((prevSettings) => ({
             ...prevSettings,
             [setting]: value,
