@@ -69,7 +69,7 @@ class Server:
         # setup components
         self.__state = {
             'playState': False,
-            'settings': { 'enableMotor': True, 'enableRemote': True, 'enforceSignature': True  },
+            'settings': { 'enableMotor': True, 'enableRemote': True, 'enforceSignature': True, 'volume': 50,  },
         }
         
         # setup hardware listeners
@@ -80,7 +80,13 @@ class Server:
             ))
             
             asyncio.create_task(self.piController.reactToButton(
-                onDown=lambda: print('Button Pressed!'),
+                onDown=lambda: self.triggerCamera(),
+            ))
+            
+            asyncio.create_task(self.piController.reactToEncoder(
+                onFreeRotate=lambda x: self.updateVolume(x),
+                onDownRotate=lambda x: self.changeTrack(x),
+                onDownOnly=lambda: self.togglePlayState(),
             ))
 
         # setup filestructure
@@ -137,7 +143,7 @@ class Server:
             'settings': { 'enableMotor': True, 'enableRemote': True, 'enforceSignature': True  },
         }
     
-    async def handleCommand(self, sessionID: str, command: str, value: Any) -> None:
+    async def handleCommand(self, sessionID: str, command: str, value: Any = None) -> None:
         """TODO"""
         requestFromHost = self.spotifyAPI.sessions[sessionID]['isHost']
         requestFromHostUser = self.spotifyAPI.sessions[sessionID]['userID'] == self.spotifyAPI.hostUserID
@@ -183,6 +189,33 @@ class Server:
             if (command == key.value):
                 await self.websocketHandler.sendToHost({ 'command': command })
                 return
+    
+    async def togglePlayState(self):
+        """TODO"""
+        currentPlayState = self.getState().get(StateKeys.PLAY_STATE.value)
+        await self.updateState(StateKeys.PLAY_STATE, not currentPlayState)
+    
+    async def updateVolume(self, delta):
+        """TODO"""
+        currentSettings = self.getState().get('settings')
+        if (currentSettings):
+            currentVolume = currentSettings.get('volume', 50)
+            if (currentVolume):
+                newVolume = min(100, max(0, currentVolume + (delta * 5)))
+                newSettings = currentSettings.copy()
+                newSettings['volume'] = newVolume
+                await self.updateState(StateKeys.SETTINGS, newSettings)
+    
+    async def changeTrack(self, direction):
+        """TODO"""
+        if (direction > 0):
+            await self.websocketHandler.sendToHost({ 'command': Commands.PLAY_NEXT.value })
+        elif (direction < 0):
+            await self.websocketHandler.sendToHost({ 'command': Commands.PLAY_PREVIOUS.value })
+    
+    async def triggerCamera(self):
+        """TODO"""
+        print('Lights! Camera! Action!!')
 
     # Setup FastAPI endpoints
     def setupRoutes(self) -> None:

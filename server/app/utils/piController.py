@@ -18,8 +18,9 @@ class PiController:
         self.MTR_ENC_B = 27
         
         # rotary encoder 2
-        self.ENC_A = 5
-        self.ENC_B = 6
+        self.ENC_DT = 6
+        self.ENC_CLK = 5
+        self.ENC_SW = 13
         
         # hinge switch
         self.HNG = 16
@@ -35,9 +36,10 @@ class PiController:
         lgpio.gpio_claim_output(self.h, self.MTR_REV)
         lgpio.gpio_claim_output(self.h, self.MTR_PWM)
         self.setMotorSpeed(100)
+        
+        lgpio.gpio_claim_output(self.h, self.ENC_SW, lgpio.SET_PULL_UP) # pull-up enabled
 
         lgpio.gpio_claim_output(self.h, self.HNG, lgpio.SET_PULL_UP) # pull-up enabled
-        
         lgpio.gpio_claim_output(self.h, self.BTN, lgpio.SET_PULL_UP) # pull-up enabled
     
     def __del__(self) -> None:
@@ -72,6 +74,64 @@ class PiController:
         else:
             lgpio.tx_pwm(self.h, self.MTR_PWM, frequency, 0) # start PWM
     
+    # ENCODER
+    def getIsEncoderButtonDown(self) -> bool:
+        """Returns True if the button is pressed, False if open."""
+        return lgpio.gpio_read(self.h, self.ENC_SW) == 0  # LOW means closed, since GPIO has internal pull-up
+    
+    async def reactToEncoder(self, onFreeRotate=None, onDownRotate=None, onDownOnly=None):
+        """TODO"""
+        print('Listening to encoder on GPIOs', self.ENC_CLK, self.ENC_DT, self.ENC_SW)
+        lastState = lgpio.gpio_read(self.h, self.ENC_CLK)
+        buttonWasDown = self.getIsEncoderButtonDown()
+        
+        ignoreUntilButtonUp = False
+
+        while True:
+            clkState = lgpio.gpio_read(self.h, self.ENC_CLK)
+            dtState = lgpio.gpio_read(self.h, self.ENC_DT)
+            buttonDown = self.getIsEncoderButtonDown()
+            
+            if (not buttonDown):
+                ignoreUntilButtonUp = False
+
+            # react to rotation
+            if (clkState != lastState): # rotation detected
+                if (dtState == clkState):
+                    # clockwise
+                    if (buttonDown):
+                        if (not ignoreUntilButtonUp):
+                            ignoreUntilButtonUp = True
+                            if (onDownRotate):
+                                await onDownRotate(1)
+                    else:
+                        if (onFreeRotate):
+                            await onFreeRotate(1)
+                else:
+                    # anticlockwise
+                    if (buttonDown):
+                        if (not ignoreUntilButtonUp):
+                            ignoreUntilButtonUp = True
+                            if (onDownRotate):
+                                await onDownRotate(-1)
+                    else:
+                        if (onFreeRotate):
+                            await onFreeRotate(-1)
+
+            # react to button-only
+            if (buttonDown and not buttonWasDown):
+                await asyncio.sleep(0.1) # debounce
+                if (self.getIsEncoderButtonDown()): # ensure button still down
+                    await asyncio.sleep(0.4) # ensure short-pulse only
+                    if (not self.getIsEncoderButtonDown()):
+                        # button is not still held- short pulse
+                        if (onDownOnly):
+                            await onDownOnly()
+
+            buttonWasDown = buttonDown
+            lastState = clkState
+            await asyncio.sleep(0.01) # small delay to avoid CPU overload
+    
     # HINGE
     def getIsHingeClosed(self) -> bool:
         """Returns True if the hinge is closed, False if open."""
@@ -93,11 +153,11 @@ class PiController:
                     if (onOpen is not None):
                         await onOpen()
                     hingeWasClosed = False
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.2) # small delay to avoid CPU overload
     
     # BUTTON
     def getIsButtonDown(self) -> bool:
-        """Returns True if the hinge is closed, False if open."""
+        """Returns True if the button is pressed, False if open."""
         return lgpio.gpio_read(self.h, self.BTN) == 0  # LOW means closed, since GPIO has internal pull-up
     
     async def reactToButton(self, onDown=None, onUp=None):
@@ -116,4 +176,4 @@ class PiController:
                     if (onUp is not None):
                         await onUp()
                     buttonWasDown = False
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01) # small delay to avoid CPU overload
