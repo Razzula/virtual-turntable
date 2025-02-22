@@ -251,6 +251,12 @@ input[type='number']:focus {
     cursor: not-allowed !important;
 }
 
+.camera {
+    max-width: 600px;
+    max-height: 800px;
+    padding: 8px;
+}
+
 /* MOBILE */
 
 @media (max-width: 768px) {

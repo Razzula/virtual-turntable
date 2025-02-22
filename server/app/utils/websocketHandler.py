@@ -1,10 +1,12 @@
 """Handler class for WebSocket connections."""
+
 import json
 from typing import Any, List, Optional
 
 from fastapi import WebSocket, HTTPException
 from fastapi.websockets import WebSocketState
 from app.enums.StateKeys import StateKeys
+
 
 class WebsocketHandler:
     """Handler class for WebSocket connections."""
@@ -17,7 +19,9 @@ class WebsocketHandler:
         self.getState = getState
         self.handleCommand = handleCommand
 
-    async def handleConnection(self, websocket: WebSocket, sessionID: str, isMain: bool) -> None:
+    async def handleConnection(
+        self, websocket: WebSocket, sessionID: str, isMain: bool
+    ) -> None:
         """Handle a WebSocket connection request."""
 
         if (isMain):
@@ -44,18 +48,23 @@ class WebsocketHandler:
                 data = json.loads(request)
                 command = data.get('command')
                 if (command is not None):
-                    print(f'{websocket.client} [{"HOST" if isMain else "SIDE"}]:', command)
-                    await self.handleCommand(sessionID, command, data.get('value')) 
+                    print(
+                        f'{websocket.client} [{"HOST" if isMain else "SIDE"}]:', command
+                    )
+                    await self.handleCommand(sessionID, command, data.get('value'))
                 else:
-                    print(print(f'{websocket.client} [{"HOST" if isMain else "SIDE"}]:', request))
-                    
+                    print(
+                        f'{websocket.client} [{"HOST" if isMain else "SIDE"}]:',
+                        request,
+                    )
+
         except Exception as e:
-            print(f"Error: {e}")
+            print(f'Error: {e}')
         finally:
             try:
                 await websocket.close()
             except Exception as e:
-                pass # connection is already closed
+                pass  # connection is already closed
 
             # cleanup
             if (isMain):
@@ -63,13 +72,13 @@ class WebsocketHandler:
             else:
                 self.activeSideSockets.remove(websocket)
             print('Client disconnected.')
-    
+
     async def sendToHost(self, data: dict[str, str]) -> None:
         """Send a message to the host client."""
         # send to main socket
         if (self.activeMainSocket is not None):
             await self.activeMainSocket.send_json(data)
-    
+
     async def sentToClients(self, data: dict[str, str]) -> None:
         """Send a message to the other clients."""
         # broadcast to side sockets

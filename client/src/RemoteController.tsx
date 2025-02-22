@@ -5,6 +5,10 @@ import WebSocketManagerInstance from './WebSocketManager';
 import React, { useEffect, useState } from 'react';
 import SpotifyAPI from './Spotify/SpotifyAPI.ts';
 import { Settings } from './App.tsx';
+import { Tooltip, TooltipContent, TooltipTrigger } from './common/Tooltip.tsx';
+import { Dialogue } from './common/Dialogue';
+import { DialogueContent } from './common/Dialogue';
+import WebcamCapture from './common/WebcamCapture.tsx';
 
 type RemoteControllerProps = {
     authToken: string;
@@ -12,7 +16,7 @@ type RemoteControllerProps = {
     isPlaying: boolean;
     currentAlbum: Album | null;
     currentTrack: Track | null;
-    handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleUpload: (input: File | string) => void;
     hostUserID: string | null;
     hostSettings: Settings;
     isHostSettingsUpdateLocal: React.MutableRefObject<boolean>;
@@ -22,7 +26,7 @@ function RemoteController({
     authToken,
     userProfile,
     isPlaying, currentAlbum, currentTrack,
-    handleFileUpload,
+    handleUpload,
     hostUserID,
     hostSettings, isHostSettingsUpdateLocal,
 }: RemoteControllerProps): JSX.Element {
@@ -33,6 +37,8 @@ function RemoteController({
     const [hostUserProfile, setHostUserProfile] = useState<User | null>(null);
 
     const [volume, setVolume] = useState<number>(hostSettings.volume);
+
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
     useEffect(() => {
         document.body.className = 'default';
@@ -96,6 +102,11 @@ function RemoteController({
         setVolume(newVolume);
     }
 
+    function handlePhoto(photo: string) {
+        handleUpload(photo);
+        setIsScannerOpen(false);
+    }
+
     const isHost = hostUserProfile?.id !== undefined && userProfile?.id === hostUserProfile?.id;
     const displayName = hostUserProfile?.id !== undefined ? (isHost ? 'Your' : `${hostUserProfile?.display_name}'s`) : null;
 
@@ -108,22 +119,32 @@ function RemoteController({
                 {/* BANNER */}
                 <div className='banner'>
                     <div className='row anchorLeft'>
-                        <a href={userProfile?.external_urls.spotify} target='_blank' rel='noreferrer'>
-                            <img className='userImage'
-                                src={userProfile?.images?.[0]?.url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt='Your Profile'
-                                width={64}
-                            />
-                        </a>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <a href={userProfile?.external_urls.spotify} target='_blank' rel='noreferrer'>
+                                    <img className='userImage'
+                                        src={userProfile?.images?.[0]?.url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt='Your Profile'
+                                        width={64}
+                                    />
+                                </a>
+                            </TooltipTrigger>
+                            <TooltipContent>{userProfile?.display_name}</TooltipContent>
+                        </Tooltip>
 
                         { !isHost && hostUserProfile &&
                             <>
                                 <img src='/virtual-turntable/icons/arrowRight.svg' alt='Using' width={32} />
-                                <a href={hostUserProfile?.external_urls?.spotify} target='_blank' rel='noreferrer'>
-                                    <img className='userImage'
-                                        src={hostUserProfile?.images?.[0]?.url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt="Host's Profile"
-                                        width={64}
-                                    />
-                                </a>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <a href={hostUserProfile?.external_urls?.spotify} target='_blank' rel='noreferrer'>
+                                            <img className='userImage'
+                                                src={hostUserProfile?.images?.[0]?.url || 'https://i.scdn.co/image/ab676161000051747baf6a3e4e70248079e48c5a'} alt="Host's Profile"
+                                                width={64}
+                                            />
+                                        </a>
+                                    </TooltipTrigger>
+                                    <TooltipContent>{hostUserProfile?.display_name}</TooltipContent>
+                                </Tooltip>
                             </>
                         }
 
@@ -146,16 +167,19 @@ function RemoteController({
                 <div className='panel'>
                     {/* SIDEBAR */}
                     { currentAlbum !== null &&
-                        <div className='sidebar'
-                        >
+                        <div className='sidebar'>
                             {/* <h2>Your Collection</h2> */}
                             {
                                 library.map((album, index) => (
                                     <div key={index} className='album'>
-                                        <img className={`albumArtMini ${!controlAllowed && 'forbidden'}`} onClick={() => handleAlbumClick(album.id, controlAllowed)}
-                                            src={album.images[0].url} alt='Album Cover'
-                                        />
-                                        {/* <h3>{album.name}</h3> */}
+                                        <Tooltip placement='right'>
+                                            <TooltipTrigger>
+                                                <img className={`albumArtMini ${!controlAllowed && 'forbidden'}`} onClick={() => handleAlbumClick(album.id, controlAllowed)}
+                                                    src={album.images[0].url} alt='Album Cover'
+                                                />
+                                            </TooltipTrigger>
+                                            <TooltipContent>{album.name}</TooltipContent>
+                                        </Tooltip>
                                     </div>
                                 ))
                             }
@@ -248,19 +272,29 @@ function RemoteController({
                                 </div>
 
                                 <div className='controls'>
-                                    <button disabled={!controlAllowed}>
+                                    <button disabled={!controlAllowed} onClick={() => setIsScannerOpen(true)}>
                                         <img src='/virtual-turntable/icons/scan.svg' alt='Scan' /> Scan Album
                                     </button>
                                 </div>
 
                                 {/* <div>
-                                    <input type="file" accept="image/*" onChange={handleFileUpload} />
+                                    <input type="file" accept="image/*" onChange={handleUpload} />
                                 </div> */}
                             </div>
                         }
                     </div>
 
                 </div>
+
+                <Dialogue open={isScannerOpen}>
+                    <DialogueContent>
+                        <button onClick={() => setIsScannerOpen(false)}>Close</button>
+                        <h2>Scan Album</h2>
+                        <div className='camera'>
+                            <WebcamCapture handlePhoto={handlePhoto} />
+                        </div>
+                    </DialogueContent>
+                </Dialogue>
             </>
         );
     }

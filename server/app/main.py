@@ -1,4 +1,5 @@
 """FastAPI server application."""
+
 import asyncio
 import os
 from typing import Any, Final, Optional
@@ -24,7 +25,6 @@ from app.enums.StateKeys import Commands, StateKeys
 ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
 print(ROOT_DIR)
 
-GPIO_ACCESS: Final = os.getenv('GPIO_ACCESS')
 
 class Server:
     """FastAPI server application."""
@@ -41,6 +41,7 @@ class Server:
         APP_VERSION: Final = os.getenv('VERSION')
         APP_CONTACT: Final = os.getenv('CONTACT')
 
+        GPIO_ACCESS: Final = os.getenv('GPIO_ACCESS')
 
         origins = ['*']
         self.app.add_middleware(
@@ -58,9 +59,13 @@ class Server:
             ROOT_DIR,
             os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),
         )
-        self.discogsAPI = DiscogsAPI(DISCOGS_API_KEY, DISCOGS_API_SECRET, APP_VERSION, APP_CONTACT)
-        self.centreLabelhandler = CentreLabelHandler(os.path.join(ROOT_DIR, 'data'), self.discogsAPI)
-        if (GPIO_ACCESS is None and GPIO_ACCESS != 'off'):
+        self.discogsAPI = DiscogsAPI(
+            DISCOGS_API_KEY, DISCOGS_API_SECRET, APP_VERSION, APP_CONTACT
+        )
+        self.centreLabelhandler = CentreLabelHandler(
+            os.path.join(ROOT_DIR, 'data'), self.discogsAPI
+        )
+        if (GPIO_ACCESS is None or GPIO_ACCESS != 'off'):
             self.piController = PiController()
             print('Hardware controller configured.')
         else:
@@ -69,25 +74,36 @@ class Server:
         # setup components
         self.__state = {
             'playState': False,
-            'settings': { 'enableMotor': True, 'enableRemote': True, 'enforceSignature': True, 'volume': 50,  },
+            'settings': {
+                'enableMotor': True,
+                'enableRemote': True,
+                'enforceSignature': True,
+                'volume': 50,
+            },
         }
-        
+
         # setup hardware listeners
-        if (self.piController is not None):
-            asyncio.create_task(self.piController.reactToHinge(
-                onClosed=lambda: self.updateState(StateKeys.PLAY_STATE, False),
-                onOpen=lambda: self.updateState(StateKeys.PLAY_STATE, True),
-            ))
-            
-            asyncio.create_task(self.piController.reactToButton(
-                onDown=lambda: self.triggerCamera(),
-            ))
-            
-            asyncio.create_task(self.piController.reactToEncoder(
-                onFreeRotate=lambda x: self.updateVolume(x),
-                onDownRotate=lambda x: self.changeTrack(x),
-                onDownOnly=lambda: self.togglePlayState(),
-            ))
+        if self.piController is not None:
+            asyncio.create_task(
+                self.piController.reactToHinge(
+                    onClosed=lambda: self.updateState(StateKeys.PLAY_STATE, False),
+                    onOpen=lambda: self.updateState(StateKeys.PLAY_STATE, True),
+                )
+            )
+
+            asyncio.create_task(
+                self.piController.reactToButton(
+                    onDown=lambda: self.triggerCamera(),
+                )
+            )
+
+            asyncio.create_task(
+                self.piController.reactToEncoder(
+                    onFreeRotate=lambda x: self.updateVolume(x),
+                    onDownRotate=lambda x: self.changeTrack(x),
+                    onDownOnly=lambda: self.togglePlayState(),
+                )
+            )
 
         # setup filestructure
         if (not os.path.exists(os.path.join(ROOT_DIR, 'data'))):
@@ -99,7 +115,7 @@ class Server:
         # configure endpoints
         self.setupRoutes()
         self.app.add_event_handler('shutdown', self.shutdown)
-    
+
     def get(self) -> FastAPI:
         """Return the FastAPI application singleton."""
         return self.app
@@ -134,19 +150,29 @@ class Server:
 
         # manage software broadcasts
         if (key in [StateKeys.PLAY_STATE, StateKeys.CURRENT_TRACK, StateKeys.SETTINGS]):
-            await self.websocketHandler.broadcast({ 'command': key.value, 'value': value })
+            await self.websocketHandler.broadcast(
+                {'command': key.value, 'value': value}
+            )
 
     def resetState(self) -> None:
         """TODO"""
         self.__state = {
             'playState': False,
-            'settings': { 'enableMotor': True, 'enableRemote': True, 'enforceSignature': True  },
+            'settings': {
+                'enableMotor': True,
+                'enableRemote': True,
+                'enforceSignature': True,
+            },
         }
-    
-    async def handleCommand(self, sessionID: str, command: str, value: Any = None) -> None:
+
+    async def handleCommand(
+        self, sessionID: str, command: str, value: Any = None
+    ) -> None:
         """TODO"""
         requestFromHost = self.spotifyAPI.sessions[sessionID]['isHost']
-        requestFromHostUser = self.spotifyAPI.sessions[sessionID]['userID'] == self.spotifyAPI.hostUserID
+        requestFromHostUser = (
+            self.spotifyAPI.sessions[sessionID]['userID'] == self.spotifyAPI.hostUserID
+        )
         settings = self.__state.get('settings')
         if (settings and not requestFromHost):
             if (not settings.get('enableRemote', False)):
@@ -161,7 +187,7 @@ class Server:
             if (command == key.value):
                 await self.updateState(key, value)
                 return
-            
+
         if (command == StateKeys.SETTINGS.value):
             if (not requestFromHost):
                 # only allow host to control sensitive settings
@@ -172,7 +198,7 @@ class Server:
                 # settings such as volume, are allowed
             await self.updateState(StateKeys.SETTINGS, value)
             return
-            
+
         # to-server commands
         # for key in [Commands.FAST_FORWARD, Commands.REWIND]:
         #     if (command == key.value):
@@ -180,22 +206,27 @@ class Server:
         #         if (self.piController is not None):
         #             self.piController.setMotorState(-1 if (key == Commands.REWIND) else 1)
         #         return
-        
+
         # if (command == Commands.SEEK.value):
         #     pass
-        
+
         # remote-to-host commands
-        for key in [Commands.PLAY_NEXT, Commands.PLAY_PREVIOUS, Commands.PLAY_ALBUM]:
+        for key in [Commands.PLAY_NEXT, Commands.PLAY_PREVIOUS]:
             if (command == key.value):
-                await self.websocketHandler.sendToHost({ 'command': command })
+                await self.websocketHandler.sendToHost({'command': command})
                 return
-    
-    async def togglePlayState(self):
+
+        for key in [Commands.PLAY_ALBUM]:
+            if (command == key.value):
+                await self.websocketHandler.sendToHost({'command': command, 'value': value})
+                return
+
+    async def togglePlayState(self) -> None:
         """TODO"""
         currentPlayState = self.getState().get(StateKeys.PLAY_STATE.value)
         await self.updateState(StateKeys.PLAY_STATE, not currentPlayState)
-    
-    async def updateVolume(self, delta):
+
+    async def updateVolume(self, delta) -> None:
         """TODO"""
         currentSettings = self.getState().get('settings')
         if (currentSettings):
@@ -204,15 +235,19 @@ class Server:
             newSettings = currentSettings.copy()
             newSettings['volume'] = newVolume
             await self.updateState(StateKeys.SETTINGS, newSettings)
-    
-    async def changeTrack(self, direction):
+
+    async def changeTrack(self, direction) -> None:
         """TODO"""
         if (direction > 0):
-            await self.websocketHandler.sendToHost({ 'command': Commands.PLAY_NEXT.value })
+            await self.websocketHandler.sendToHost(
+                {'command': Commands.PLAY_NEXT.value}
+            )
         elif (direction < 0):
-            await self.websocketHandler.sendToHost({ 'command': Commands.PLAY_PREVIOUS.value })
-    
-    async def triggerCamera(self):
+            await self.websocketHandler.sendToHost(
+                {'command': Commands.PLAY_PREVIOUS.value}
+            )
+
+    async def triggerCamera(self) -> None:
         """TODO"""
         print('Lights! Camera! Action!!')
 
@@ -240,11 +275,13 @@ class Server:
         @self.app.get('/scan')
         async def scanGet(fileName: str = 'testImage') -> JSONResponse:
             """
-                DEV! This endpoint allows a developer to simulate a playevent
-                (to mimic what the album detection would do).
+            DEV! This endpoint allows a developer to simulate a playevent
+            (to mimic what the album detection would do).
             """
             # DETECT ALBUM
-            SCAN_RESULT: Final = self.modelHandler.scan(os.path.join(ROOT_DIR, 'data', fileName))
+            SCAN_RESULT: Final = self.modelHandler.scan(
+                os.path.join(ROOT_DIR, 'data', fileName)
+            )
 
             # FIND SPOTIFY ID
             # if (SCAN_RESULT['predictedProb'] < 0.5):
@@ -252,7 +289,7 @@ class Server:
             ALBUM: Final = self.modelHandler.classes[SCAN_RESULT['predictedClass']]
 
             # TODO: extract this to API wrapper
-            AUTH_TOKEN: Final = self.spotifyAPI.token().get('access_token')
+            AUTH_TOKEN: Final = self.spotifyAPI.hostToken()
             PARAMS: Final = {
                 'q': f'{ALBUM["name"]} artist:{ALBUM["artist"]} year:{ALBUM["year"]}',
                 'type': 'album',
@@ -263,7 +300,7 @@ class Server:
                 headers={
                     'Authorization': f'Bearer {AUTH_TOKEN}',
                 },
-                timeout=10
+                timeout=10,
             )
 
             REQUEST.raise_for_status()
@@ -279,14 +316,14 @@ class Server:
             await self.websocketHandler.sendToHost({
                 'command': 'playAlbum',
                 'value': SPOTIFY_ID,
-            }, authToken=AUTH_TOKEN)
+            })
 
             return JSONResponse(content={'album': SPOTIFY_ID})
 
         @self.app.get('/shuffle')
         async def shuffleGet() -> JSONResponse:
             """
-                DEV! This endpoint allows a developer to simulate a shuffle event.
+            DEV! This endpoint allows a developer to simulate a shuffle event.
             """
             self.spotifyAPI.shufflePlaylist(self.spotifyAPI.playlist())
             return JSONResponse(content={'message': 'Playing'})
@@ -295,7 +332,7 @@ class Server:
         @self.app.post('/scan')
         async def scanPost(request: Request) -> JSONResponse:
             """
-                This endpoint allows a client to send an image to the server for album detection.
+            This endpoint allows a client to send an image to the server for album detection.
             """
             # validate body content
             body = await request.body()
@@ -313,7 +350,7 @@ class Server:
         @self.app.post('/centreLabel')
         async def centreLabelGet(request: Request) -> JSONResponse:
             """
-                This endpoint serves the centre label for the given album.
+            This endpoint serves the centre label for the given album.
             """
             # validate body content
             body = await request.json()
@@ -332,17 +369,23 @@ class Server:
             year = body.get('year')
 
             # get data
-            images, metadata = self.centreLabelhandler.findReleaseData(albumName, artistName, year, 'vinyl')
+            images, metadata = self.centreLabelhandler.findReleaseData(
+                albumName, artistName, year, 'vinyl'
+            )
 
             labelPath = os.path.join(ROOT_DIR, 'data', 'centreLabels', f'{albumID}.png')
             if (not os.path.exists(labelPath)):
                 # if label not cached, attempt to find it
 
                 # attempt to find a centre label
-                foundCentreLabel = self.centreLabelhandler.serveCentreLabel(albumID, images=images)
-                if (foundCentreLabel is None):
+                foundCentreLabel = self.centreLabelhandler.serveCentreLabel(
+                    albumID, images=images
+                )
+                if foundCentreLabel is None:
                     # re-attmpt with broader search
-                    foundCentreLabel = self.centreLabelhandler.serveCentreLabel(albumID, albumName, None, None, None)
+                    foundCentreLabel = self.centreLabelhandler.serveCentreLabel(
+                        albumID, albumName, None, None, None
+                    )
 
                 if (not foundCentreLabel or not os.path.exists(labelPath)):
                     # failed to find a centre label
@@ -366,8 +409,8 @@ class Server:
         @self.app.get('/clientIP')
         async def clientIPGet(request: Request) -> JSONResponse:
             """
-                This endpoint serves the client's own IP address back to them.
-                This is useful to determine if the client is the host.
+            This endpoint serves the client's own IP address back to them.
+            This is useful to determine if the client is the host.
             """
             proxiedIP = request.headers.get("x-forwarded-for")
             if (proxiedIP):
@@ -378,16 +421,24 @@ class Server:
         @self.app.get('/playlist')
         async def playlistIDGet(sessionID: str = Cookie(None)) -> JSONResponse:
             """
-                This endpoint serves the playlist ID back to the client.
+            This endpoint serves the playlist ID back to the client.
             """
             if (self.spotifyAPI.vttPlaylistID is not None):
-                return JSONResponse(content={ 'playlistID': self.spotifyAPI.vttPlaylistID })
-            return JSONResponse(content={ 'playlistID': self.spotifyAPI.getPlaylistByName(sessionID, 'Virtual Turntable') })
+                return JSONResponse(
+                    content={'playlistID': self.spotifyAPI.vttPlaylistID}
+                )
+            return JSONResponse(
+                content={
+                    'playlistID': self.spotifyAPI.getPlaylistByName(
+                        sessionID, 'Virtual Turntable'
+                    )
+                }
+            )
 
         @self.app.get('/host')
         async def hostUserGet() -> JSONResponse:
             """
-                This endpoint serves the host user's ID back to the client.
+            This endpoint serves the host user's ID back to the client.
             """
             if (self.spotifyAPI.hostUserID is None):
                 raise HTTPException(404, 'Host user not found')
@@ -429,11 +480,13 @@ class Server:
                 await websocket.close(code=4001)
                 return
             session = self.spotifyAPI.sessions.get(sessionID)
-            if (not session):
+            if not session:
                 await websocket.close(code=4001)
                 return
-            await self.websocketHandler.handleConnection(websocket, sessionID=sessionID, isMain=session.get('isHost', False))
-    
+            await self.websocketHandler.handleConnection(
+                websocket, sessionID=sessionID, isMain=session.get('isHost', False)
+            )
+
     async def shutdown(self) -> None:
         """Ensure all background tasks are cancelled when stopping."""
         await asyncio.gather()

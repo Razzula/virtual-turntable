@@ -1,4 +1,5 @@
 """Handler class for Spotify authentication flow."""
+
 import asyncio
 import os
 import random
@@ -15,6 +16,7 @@ from fastapi.responses import RedirectResponse
 
 from app.utils.websocketHandler import WebsocketHandler
 
+
 def getLocalIP() -> str:
     """Retrieve the local IP address of the device."""
     try:
@@ -29,7 +31,7 @@ def getLocalIP() -> str:
 class SpotifyAPI:
     """Handler class for Spotify authentication flow."""
 
-    REDIRECT_URI: Final = f'http://{getLocalIP()}:1948/virtual-turntable/auth/callback'
+    REDIRECT_URI: Final = f'https://{getLocalIP()}:1948/virtual-turntable/auth/callback'
     print(REDIRECT_URI)
 
     def __init__(self, sendToClient: Any, clearCache: Any) -> None:
@@ -47,21 +49,25 @@ class SpotifyAPI:
 
     def generateRandomString(self, length: int) -> str:
         """Generate a random string of letters and digits with a given length"""
-        return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
+        return ''.join(
+            random.choice(string.ascii_letters + string.digits) for _ in range(length)
+        )
 
     async def login(self, isHost: bool) -> RedirectResponse:
         """Redirect the user to the Spotify login page."""
         SCOPE: Final = (
-            'streaming '  # Manage playback
-            # 'user-read-email '  # Access user's email
-            'user-read-private '  # Access private account info
-            'user-modify-playback-state '  # Control playback
-            'playlist-modify-private '  # Create/edit private playlists
-            'playlist-modify-public '  # Create/edit public playlists
-            'playlist-read-private '  # Access private playlists
-        ) if isHost else (
-            'playlist-read-private '
-            'user-modify-playback-state '
+            (
+                'streaming '  # Manage playback
+                # 'user-read-email '  # Access user's email
+                'user-read-private '  # Access private account info
+                'user-modify-playback-state '  # Control playback
+                'playlist-modify-private '  # Create/edit private playlists
+                'playlist-modify-public '  # Create/edit public playlists
+                'playlist-read-private '  # Access private playlists
+            ) if isHost else (
+                'playlist-read-private '
+                'user-modify-playback-state '
+            )
         )
 
         sessionID = self.generateRandomString(16)
@@ -95,7 +101,7 @@ class SpotifyAPI:
                 'redirect_uri': self.REDIRECT_URI,
             },
             auth=(self.CLIENT_ID, self.CLIENT_SECRET),
-            timeout=10
+            timeout=10,
         )
 
         RESPONSE.raise_for_status()
@@ -153,7 +159,7 @@ class SpotifyAPI:
                     },
                     headers={'Content-Type': 'application/x-www-form-urlencoded'},
                     auth=(self.CLIENT_ID, self.CLIENT_SECRET),
-                    timeout=10
+                    timeout=10,
                 )
                 RESPONSE.raise_for_status()
                 BODY = RESPONSE.json()
@@ -182,6 +188,18 @@ class SpotifyAPI:
         else:
             print(f"Session '{sessionID}' not found.")
             raise HTTPException(status_code=401, detail='Invalid session.')
+
+    def hostToken(self) -> str:
+        hostToken = None
+        for session in self.sessions.values():
+            if (session and session.get('isHost')):
+                hostToken = session.get('accessToken')
+                break
+        if (hostToken) is None:
+            raise HTTPException(
+                status_code=404, detail='Host credentials not found.'
+            )
+        return hostToken
 
     def playlist(self) -> str:
         """Return the Virtual Turntable playlist ID."""
@@ -261,8 +279,8 @@ class SpotifyAPI:
     def addAlbumToPlaylist(self, albumID: str, playlistID: str) -> None:
         """Add an album to a Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.sessions.get("accessToken")}',
-            'Content-Type': 'application/json'
+            'Authorization': f'Bearer {self.hostToken()}',
+            'Content-Type': 'application/json',
         }
 
         # get tracks
@@ -280,15 +298,17 @@ class SpotifyAPI:
         # add tracks in batches of 100 (Spotify API limitation)
         addTracksUrl = f'https://api.spotify.com/v1/playlists/{playlistID}/tracks'
         for i in range(0, len(trackUris), 100):
-            payload = {'uris': trackUris[i:i+100]}
-            response = requests.post(addTracksUrl, headers=HEADERS, json=payload, timeout=10)
+            payload = {'uris': trackUris[i : i + 100]}
+            response = requests.post(
+                addTracksUrl, headers=HEADERS, json=payload, timeout=10
+            )
             response.raise_for_status()
 
     def playPlaylist(self, playlistID: str) -> None:
         """Start playback of the specified Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.sessions.get("accessToken")}',
-            'Content-Type': 'application/json'
+            'Authorization': f'Bearer {self.hostToken()}',
+            'Content-Type': 'application/json',
         }
 
         # define
@@ -300,4 +320,6 @@ class SpotifyAPI:
         # request
         response = requests.put(url, headers=HEADERS, json=payload, timeout=10)
         if (response.status_code != 204):
-            raise HTTPException(status_code=response.status_code, detail=response.json())
+            raise HTTPException(
+                status_code=response.status_code, detail=response.json()
+            )

@@ -1,0 +1,28 @@
+.DialogueOverlay {
+    background: rgba(0, 0, 0, 0.5);
+    display: grid;
+    place-items: center;
+}
+
+.Dialogue {
+    margin: 15px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 4px;
+    z-index: 100;
+}
+
+.DialogueContent {
+    background: #1e1e1e;
+    border-radius: 5px;
+    min-width: 200px;
+    min-height: 100px;
+    padding: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    // position: relative;
+}

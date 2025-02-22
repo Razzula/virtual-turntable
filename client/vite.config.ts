@@ -1,6 +1,7 @@
 import { networkInterfaces } from 'os';
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
+import mkcert from 'vite-plugin-mkcert';
 
 function getlocalIP() {
     const nets = networkInterfaces();
@@ -19,7 +20,15 @@ console.log(`Running on ${localIP}`);
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [react()],
+    plugins: [
+        react(),
+        mkcert({
+            savePath: '../certs',
+            certFileName: 'cert.pem',
+            keyFileName: 'cert-key.pem',
+            // force: true,
+        }),
+    ],
     build: {
         outDir: 'dist',
     },
@@ -30,7 +39,7 @@ export default defineConfig({
         */
         proxy: {
             '/virtual-turntable/auth': {
-                target: `http://${localIP}:8491`,
+                target: `https://${localIP}:8491`,
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/virtual-turntable/, ''),
                 configure: (proxy) => {
@@ -43,9 +52,10 @@ export default defineConfig({
                         }
                     });
                 },
+                secure: false,
             },
             '/virtual-turntable/server': {
-                target: `http://${localIP}:8491`,
+                target: `https://${localIP}:8491`,
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/virtual-turntable\/server/, ''),
                 configure: (proxy) => {
@@ -58,6 +68,7 @@ export default defineConfig({
                         }
                     });
                 },
+                secure: false,
             },
         },
         host: true,
@@ -69,7 +80,7 @@ export default defineConfig({
         */
         proxy: {
             '/virtual-turntable/auth': {
-                target: `http://${localIP}:8491`,
+                target: `https://${localIP}:8491`,
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/virtual-turntable/, ''),
                 configure: (proxy) => {
@@ -81,9 +92,10 @@ export default defineConfig({
                         }
                     });
                 },
+                secure: false,
             },
             '/virtual-turntable/server': {
-                target: `http://${localIP}:8491`,
+                target: `https://${localIP}:8491`,
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/virtual-turntable\/server/, ''),
                 configure: (proxy) => {
@@ -95,6 +107,7 @@ export default defineConfig({
                         }
                     });
                 },
+                secure: false,
             },
         },
         host: true,

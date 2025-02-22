@@ -55,7 +55,7 @@ class ModelHandler:
         if (self.model is None):
             raise Exception('No model loaded.')
 
-        testImage = Image.open(imagePath)
+        testImage = Image.open(imagePath).convert('RGB')
         testImage = transform(testImage).unsqueeze(0)  # add batch dimension
 
         with torch.no_grad():

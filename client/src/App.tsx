@@ -8,6 +8,7 @@ import SpotifyAPI from './Spotify/SpotifyAPI';
 import VirtualTurntable from './VirtualTurntable';
 import RemoteController from './RemoteController';
 import SpotifyPlayer from './Spotify/SpotifyPlayer';
+import { base64ToBlob } from './utils/blob';
 
 export type Settings = {
     enableMotor: boolean;
@@ -57,7 +58,7 @@ function App() {
                     setAuthToken(null);
                 }
             }
-        );
+            );
     }, []);
 
     useEffect(() => {
@@ -74,7 +75,7 @@ function App() {
                     });
                 }
             }
-        );
+            );
 
         // get host ID
         refreshCurrentHostID();
@@ -105,11 +106,11 @@ function App() {
                 .then((data) => {
                     setUserProfile(data);
                 }
-            );
+                );
 
             // connect to WebSocket server
             const hostURL = process.env.HOST_URL || 'localhost';
-            WebSocketManagerInstance.connect(`ws://${hostURL}:8491/ws`, handleWebSocketMessage);
+            WebSocketManagerInstance.connect(`wss://${hostURL}:8491/ws`, handleWebSocketMessage);
         }
     }, [authToken]);
 
@@ -151,7 +152,7 @@ function App() {
                 .then((data: Album) => {
                     setCurrentAlbum(data);
                 }
-            );
+                );
         }
     }, [currentTrack, authToken]);
 
@@ -164,7 +165,7 @@ function App() {
                     });
                 }
             }
-        );
+            );
     }
 
     function handleWebSocketMessage(e: MessageEvent) {
@@ -190,7 +191,9 @@ function App() {
 
                 // server commands
                 if (message.command === 'playAlbum') {
-                    SpotifyAPI.playAlbum(message.token, message.value);
+                    if (authToken !== undefined && authToken !== null) {
+                        SpotifyAPI.playAlbum(authToken, message.value);
+                    }
                 }
 
                 // side controller commands
@@ -227,21 +230,26 @@ function App() {
 
     }
 
-    async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.item(0);
-        if (file !== undefined && file !== null) {
-            await uploadFile(file);
+    async function handleUpload(input: File | string) {
+        if (typeof input === 'string') {
+            // convert Base64 string (from camera) to a Blob
+            const blob = base64ToBlob(input);
+            await uploadFile(blob);
+        }
+        else {
+            // direct File upload (from file input)
+            await uploadFile(input);
         }
     }
 
-    async function uploadFile(file: File) {
-        const arrayBuffer = await file.arrayBuffer();
+    async function uploadFile(data: File | Blob) {
+        const arrayBuffer = await data.arrayBuffer();
         const response = await fetch('/virtual-turntable/server/scan', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/octet-stream',
             },
-            body: arrayBuffer
+            body: arrayBuffer,
         });
 
         const result = await response.json();
@@ -270,7 +278,7 @@ function App() {
                     isPlaying={isPlaying}
                     currentAlbum={currentAlbum}
                     currentTrack={currentTrack}
-                    handleFileUpload={handleFileUpload}
+                    handleUpload={handleUpload}
                     hostUserID={hostUserID}
                     hostSettings={settings} isHostSettingsUpdateLocal={isSettingsUpdateLocal}
                 />
