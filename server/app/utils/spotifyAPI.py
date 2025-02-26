@@ -31,16 +31,16 @@ def getLocalIP() -> str:
 class SpotifyAPI:
     """Handler class for Spotify authentication flow."""
 
-    REDIRECT_URI: Final = f'https://{getLocalIP()}:1948/virtual-turntable/auth/callback'
-    print(REDIRECT_URI)
-
-    def __init__(self, sendToClient: Any, clearCache: Any) -> None:
+    def __init__(self, hostName: str, sendToClient: Any, clearCache: Any) -> None:
         """Initialise the Spotify authentication handler."""
         self.CLIENT_ID: Final = os.getenv('SPOTIFY_CLIENT_ID')
         self.CLIENT_SECRET: Final = os.getenv('SPOTIFY_CLIENT_SECRET')
 
         self.sendToClient = sendToClient
         self.clearCache = clearCache
+        
+        self.REDIRECT_URI: Final = f'https://{hostName}/virtual-turntable/auth/callback'
+        print(self.REDIRECT_URI)
 
         # TODO move these up to main level
         self.sessions: dict[str, dict[str, str]] = {}
@@ -134,7 +134,7 @@ class SpotifyAPI:
             self.hostUserID = self.sessions[sessionID]['userID']
 
         # return to the main page
-        response = RedirectResponse(url='/')
+        response = RedirectResponse(url='/virtual-turntable')
         response.set_cookie(
             key='sessionID',
             value=sessionID,

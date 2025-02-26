@@ -1,0 +1,19 @@
+raspJERRYpi.local {
+	tls internal
+
+	# Redirect /virtual-turntable (without trailing slash) to /virtual-turntable/
+	@noSlash {
+		path /virtual-turntable
+	}
+	redir @noSlash /virtual-turntable/ permanent
+
+	# Proxy all requests under /virtual-turntable/ preserving the prefix
+	route /virtual-turntable/* {
+		reverse_proxy localhost:1948
+	}
+
+    # Proxy the websocket connection from wss://raspjerrypi.local/ws to ws://localhost:8491/ws
+	route /ws {
+		reverse_proxy localhost:8491
+	}
+}

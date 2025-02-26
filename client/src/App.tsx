@@ -67,11 +67,11 @@ function App() {
 
     useEffect(() => {
         // resolve host device status
-        fetch('/virtual-turntable/server/clientIP')
+        fetch('/virtual-turntable/server/isHost')
             .then((response) => {
                 if (response.ok) {
                     response.json().then((data) => {
-                        setIsHostDevice(window.location.hostname === data.clientIP);
+                        setIsHostDevice(data?.isHost);
                     });
                 }
             }
@@ -109,8 +109,8 @@ function App() {
                 );
 
             // connect to WebSocket server
-            const hostURL = process.env.HOST_URL || 'localhost';
-            WebSocketManagerInstance.connect(`wss://${hostURL}:8491/ws`, handleWebSocketMessage);
+            const hostURL = process.env.HOST_NAME || process.env.HOST_URL || 'localhost';
+            WebSocketManagerInstance.connect(`wss://${hostURL}/ws`, handleWebSocketMessage);
         }
     }, [authToken]);
 

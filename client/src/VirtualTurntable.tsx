@@ -173,9 +173,9 @@ function VirtualTurntable({
 
     useEffect(() => {
         if (authToken !== '' && deviceID !== undefined) {
-            if (BUILD_MODE !== 'development') {
+            // if (BUILD_MODE !== 'development') {
                 handleActivation();
-            }
+            // }
         }
     }, [authToken, deviceID, handleActivation]);
 

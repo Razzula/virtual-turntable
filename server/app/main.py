@@ -42,6 +42,8 @@ class Server:
         APP_CONTACT: Final = os.getenv('CONTACT')
 
         GPIO_ACCESS: Final = os.getenv('GPIO_ACCESS')
+        
+        HOSTNAME: Final = os.getenv('HOSTNAME', 'localhost')
 
         origins = ['*']
         self.app.add_middleware(
@@ -54,7 +56,7 @@ class Server:
 
         # setup modules
         self.websocketHandler = WebsocketHandler(self.getState, self.handleCommand)
-        self.spotifyAPI = SpotifyAPI(self.websocketHandler.broadcast, self.resetState)
+        self.spotifyAPI = SpotifyAPI(HOSTNAME, self.websocketHandler.broadcast, self.resetState)
         self.modelHandler = ModelHandler(
             ROOT_DIR,
             os.path.join(ROOT_DIR, '..', 'modelling', 'models', 'models'),
@@ -406,17 +408,15 @@ class Server:
 
             return JSONResponse(content=response)
 
-        @self.app.get('/clientIP')
+        @self.app.get('/isHost')
         async def clientIPGet(request: Request) -> JSONResponse:
             """
             This endpoint serves the client's own IP address back to them.
             This is useful to determine if the client is the host.
             """
+            hostIP = getLocalIP()
             proxiedIP = request.headers.get("x-forwarded-for")
-            if (proxiedIP):
-                return JSONResponse(content={ 'clientIP': proxiedIP })
-            else:
-                return JSONResponse(content={ 'clientIP': request.client.host })
+            return JSONResponse(content={ 'clientIP': proxiedIP, 'isHost': (hostIP == proxiedIP) })
 
         @self.app.get('/playlist')
         async def playlistIDGet(sessionID: str = Cookie(None)) -> JSONResponse:
