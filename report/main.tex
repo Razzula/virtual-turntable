@@ -86,14 +86,24 @@
     % Define a custom quote environment
     \renewenvironment{quote}
     {
-    \par\setlength{\leftskip}{10pt}
-    \begin{tabular}{|p{0.9\linewidth}}  % Vertical bar on the left
-    \setlength{\leftskip}{10pt}
-    \itshape
+        \par\setlength{\leftskip}{10pt}
+        \begin{tabular}{|p{0.9\linewidth}}  % Vertical bar on the left
+        \setlength{\leftskip}{10pt}
+        \itshape
     }
     {
-    \end{tabular}
-    \par
+        \end{tabular}
+        \par
+    }
+    
+    % Define a custom temp environment for placeholders, etc.
+    \newenvironment{temp}
+    {
+        \color{red}  % Set text color to red
+        \itshape     % Italicize text for further distinction (optional)
+    }
+    {
+        \normalcolor % Reset text color
     }
     
     %%%%%%%%%%%%%%%%%% START DOCUMENT %%%%%%%%%%%%%%%%%%
@@ -205,7 +215,7 @@
     
       \subsection{Overview of Related Systems}
     
-        Whilst the creation of a digitised turntable software is a rather novel idea, it is important to consider where this sits in the existing landscape, to understand important technologies and design decisions used in similar projects, to best utilise them.
+        Whilst the creation of a digitised turntable software is a rather novel idea, it is important to consider where this sits in the existing landscape; to understand important technologies and design decisions used in similar projects, in order to best utilise them.
       
         \subsubsection{Vinyl Systems}
             % Research into questions such as 'why do people like vinyl so much?' and 'why is it making a comeback?'. Traits distilled from this feed into later design choices (I have chosen to make a make a physical artefact with a mahogany base, because physicality and aesthetics are important the people who would potentially use this system).
@@ -223,47 +233,68 @@
                 \label{fig:vinyl_sales}
             \end{figure}
     
-            The continuation of this trend suggests a resurgence in physical music formats, and understanding why this came about, as well as why it has not died out, is important to consider for this project, particularly from a UX perspective. This is especially true, as vinyl collector form a large part of the potential audience for such a product.
+            The continuation of this trend suggests a resurgence in physical music formats, and understanding why this came about, as well as why it has not since died out, is important to consider for this project, particularly from a UX perspective. This is especially true, as vinyl collectors form a large part of the potential targeted audience for such a product.
     
             Whilst it is now taken for granted, records at the time, (and their predecessors: Edison's cylinder recordings), were a revolutionary introduction to the world of music. Prior to this point, music was very much a temporal and localised art-form, which, unlike their visual counterparts could not be stored, transported, or reproduced- even if a song could be transcribed into musical notes, any one performance could never again be heard once it had completed. That is, until the recording medium became available on mass to the public.
     
             % Aesthetics
             \paragraph{Aesthetics and Emotions}
-                % nostalgia
-                % vibes
+                % nostalgia, vibes
+    
+                One of the most powerful motivators in this resurgence is how the medium \textit{affects} people. Nostalgia is a powerful factor. With the original surge of LPs and EPs of the 1970s still being within living memory, a whole generation of people still hold a direct fondness to the medium. And even for younger generations, with the prevalence of vinyls in older films, etc. they still live on in cultural memory and so present themselves with charm. Data from Statista \cite{Gotting2021} suggests that the revival in recent years has predominantly been driven by these two age groups: older consumers aged 55 and above, and younger buyers aged 25-34, but not the other age brackets.
+    
+                Whilst today's digital landscape offers an abundance of continence, it can begin to feel hollow to consumers. Having an infinite library at your fingertips, at all times, makes music no longer feel special. Where once a household would likely have a single phonograph, and all people in a room would share the experience of listening together, nowadays it is not uncommon to have multiple people in the same room all listening to their own music \cite{historyandrevivalofvinyls}. Music used to be an experience, just as watching a film could be. It, to an extent, demanded focus. You could not skip or replay a track without having to carefully reposition the needle. Many people are seeking to reclaim the significance of ``listening'' as an art-form \cite{Liu2020}, and so sacrificing convenience for intentionality can be a worthwhile tradeoff to make. For example, emphasising the creation of a centralised device over portable media players.
+    
+                To many, music has become hollow- especially as music streaming services have easily monopolised the digital sphere \cite{historyandrevivalofvinyls}. Whether people are  yearning for the experiences of their past, or just a breath of 'fresh air', many are turning to vinyl to do so.
+    
+                People are still seeking community around their music and even its medium. Reddit's r/Vinyl, as of 2025, has over 2.2 million members. Whilst vinyl is still a relatively niche option, the social aspect of the internet means that, today, people are not confined to geographical constraints, and so, no matter how niche an interest is, they will be able to find like-minded people to connect to, through.
+    
+                It is important to keep these facts in minds when creating a product intention to attract this demographic, as appreciation for charm and nostalgia can go a long way against the 'soulless' aspect of modern options.
+          
+              % Ownership
+              % Physicality
+            \paragraph{Physicality and Ownership} % or MATERIALITY; general ethics
+    
+                In today's digital day and age, ownership is becoming an important matter for consumers. Unlike with physical copies of media, digital versions offered by vendors are often tenuously done so. Such offerings often come with the fine-print of being revocable \cite{polygon2024cartoon_network_delisting} licenses when purchased, instead of consumer ownership \cite{verge2024steam_license}. This transition has upset many people, with there being many calls to bring back genuine ownership \cite{stanton2024gamers_pushback}, with legislation even being passed in California to make this fact more transparent to consumers \cite{california2024ab2426}.
+    
+                If someone's streaming vendor of choice stops serving a particular piece of music that they want, then they are powerless to do anything to prevent this, and would no longer be able to listen to that release. If they, however, own the physical discs or digital audio files, then they can ensure that they can listen to said audio, regardless of whatever licensing disputes may lead to the removal of digital media in the future (see \cite{bains2022lotr_strategy}).
+    
+                There are also concerns that some music streaming surfaces do not proportionately pay artists for their work, yet, most artists have no choice but to just accept this, as the newfound convenience of streaming makes sales and exposure very difficult for new artists. Because of this, many consumers still purchase physical media, even if they also use a streaming service, purely to ensure that the artists they like are being fairly supported. Some people even go as far as to purchase physical vinyls despite not owning a device to play them on \cite{Trapp2023}. In addition, the act of gaining a physical good in support of an artist can even result in a psychological feeling of proximity to their idol \cite{historyandrevivalofvinyls}.
+    
+                Therefore, a system can benefit from helping users have permanent access to their tracks, perhaps by making use of local audio files and therefore offering safety in the availability of tracks. Additionally, creating a system that marries the physical and digital worlds of music could be beneficial for people who do collect physical copies of albums in addition to also having digital access through a service or local files, and could be seen as a gateway of the digital continence, whilst still satisfying and even endorsing the ethical desire to purchase music directly from an artist's label.
+    
+                In addition to the potential scarcity of a track, there also a problem of over-abundance of tracks online. When tracks are being stored on the cloud, and served to users upon request, then suddenly collections no longer have any upper limit. Whilst people can still curate playlists of their digital tracks, even these can be added to and edited with no inconvenience. Collections no longer feel special or personal. Especially when the tracks staying there are at the mercy of licensing agreements. Whereas, by having physical and tangible goods, listeners can capture a sense of personal possession over their collections.
     
             % Audiophiles
-            \paragraph{Audiophilia and Quality} // temp % not sure why this spacing breaks without this
+            \paragraph{Audiophilia and Quality}
+    
+                Another significant factor is the quality of the music being offered.
     
                 \begin{quote}
                     \textbf{audiophile}: a person who is especially interested in high-fidelity sound reproduction. \cite{audiophile2025}
                 \end{quote}
     
                 % quality
-          
-              % Ownership
-              % Physicality
-            \paragraph{Physicality and Ownership}
+                Broadly speaking, vinyl has gained a reputation for being ``better'' than digital formats when it comes to audio quality. In the early days of the format, compression techniques performed very poorly on some tracks. Tom's Diner is a famous example, wherein the a cappella's clean, isolated vocals revealed artifacts and distortions when encoded in early MP3 formats \cite{TODO}. Nowadays, modern digital bitrates are now actually superior (in terms of both capturing detail and dynamic range) than vinyl's analogue encoding, and whilst advances in manufacturing storage drives has somewhat mitigated the need to compress files, there are still valid use cases where extreme compression may be needed, such as for streaming audio on a low-quality network, wherein the audio may sound worse than a vinyl.
     
-                In today's digital day and age, ownership is becoming an important matter for consumers. Unlike with physical copies of media, digital versions offered by vendors are tenuously offered to users. These offering often come with the fine-print of being merely revocable \cite{polygon2024cartoon_network_delisting} licenses when purchased, instead of consumer ownership \cite{verge2024steam_license}. This transition has upset many people, with there being many calls to bring back genuine ownership \cite{stanton2024gamers_pushback}, with legislation even being passed in California to make this fact more transparent to consumers \cite{california2024ab2426}.
+                Additionally, as a physical format, vinyls are prone to being scratched and having physical deformities which affect the playback quality. However, when only minor, many people actually like these imperfections, claiming they give a ``warmth'' to the track. No two vinyls sound perfectly identical, whereas digital recordings are utterly identical, to the point where some people see them as being sterile and soulless.
     
-                This sentiment extends just beyond games, and applies also to music. If someone's streaming service of choice stops serving a particular piece of music that they want, then they are currently powerless to do anything to prevent this. If they, however, own the physical discs or digital audio files, then they can ensure that they can listen to said audio, regardless of whatever licensing disputes may lead to the removal of digital media (see \cite{bains2022lotr_strategy}).
+                However, it is worth noting that many modern vinyl productions are digital tracks that have later been printed onto the medium, as a secondary thought. Whilst vinyls can potentially preserve details that are lost digitally - such as subtle details that are excluded in a track's discrete digital intervals; they are also limited in some aspects. If an artist does not account for the limitations of the vinyl medium, then they may produce a track that does not translate to it well. If they have many quiet sections, then they risk these being lost under the noise caused by distortion. If a track relies heavily on the stero separation of instruments, then a vinyl may suffer as these 'bleed' into each other with wear. If a track requires a high dynamic range, then a vinyl's quality may suffer. Whilst many people want to buy vinyls, as discussed above, it is worth keeping in mind that more modern tracks may actually perform better in their digital counterparts.
     
-                There are also concerns that some music streaming surfaces do not proportionately pay artists for their work, yet, most artists have no choice but to just accept this, as the newfound convenience of streaming makes sales and exposure very difficult for new artists. Because of this, many consumers still purchase physical media, even if they also use a streaming service, purely to ensure that the artists they like are being fairly supported.
-    
-                Therefore, a system can benefit from helping users permanent access to their tracks, perhaps by making use of local audio files and therefore offering the safety of available. Additionally, creating a system that marries the physical and digital worlds of music could be beneficial for people who collect physical copies of albums in addition to having digital access through a service or local files, and could be seen as a gateway of the digital continence, whilst still satisfying and even endorsing the ethical desire to purchase music directly from an artist's label.
+            \paragraph{To conclude}
+                Whilst digital audio services provide a myriad of conveniences over physical mediums, the sustained resurgence of the vinyl medium suggests that to many the warm and charming nostalgic factors, or social aspects are more important to consumers.
     
         \subsubsection{Image Recognition}
     
-            Image recognition is is the creation of software and tools which can be used to identify objects, places, people, etc. in digital images, which arguably does not predate 1946 \cite{hall1979computer}. However, in this brief time, the field has undergone several drastic changes as technology has advanced \cite{imagenetclasscnn}, and is still be redefined in the present day, particularly with the arrival of machine learning approaches, with new implementations being utilised across the field (e.g., \cite{RAMPRASAD2025100556}, 2025).
-            
-            \paragraph{Traditional Methods}
+            Image recognition is the creation of software and tools which can be used to identify objects, places, people, etc. in digital images, which arguably does not predate 1946 \cite{hall1979computer}. However, in this brief time, the field has undergone several drastic changes as technology has advanced \cite{imagenetclasscnn}, and is still be redefined in the present day, particularly with the arrival of machine learning approaches, with new implementations being utilised across the field (e.g., \cite{RAMPRASAD2025100556}, 2025).
     
-                Some stuff.
+            \paragraph{Traditional Methods}
+            
+                Before the advent of deep learning, image recognition primarily relied on manually crafted feature extraction techniques. Classical methods included edge detection, template matching, and statistical pattern recognition. Notable feature descriptors such as Scale-Invariant Feature Transform (SIFT), Speeded-Up Robust Features (SURF), and Histogram of Oriented Gradients (HOG) played a significant role in object detection and classification. However, these approaches were often limited by their inability to generalise across variations in lighting, scale, and occlusions. The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) served as a benchmark for evaluating the effectiveness of traditional and emerging techniques \cite{russakovsky2015imagenetlargescalevisual}.
             
             \paragraph{Emergence of Convolutional Neural Networks}
-    
-                Some more stuff.
+            
+                The introduction of convolutional neural networks (CNNs) marked a paradigm shift in image recognition. Early work, such as LeNet-5, demonstrated CNNs' potential, but it was the breakthrough of AlexNet in the 2012 ImageNet competition that solidified their dominance \cite{imagenetclasscnn}. Subsequent architectures, including VGG, ResNet, and EfficientNet, further improved performance by introducing deeper networks, residual connections, and optimised convolutional layers \cite{deppcnnsforimagerecognition}. These advancements enabled significant improvements in tasks such as object detection, facial recognition, and medical image analysis.
     
         \subsection{Legal and Ethical Considerations}
     
@@ -367,149 +398,194 @@
     
     %%%%%%%%%%%%%%%%%% SECTION 3 %%%%%%%%%%%%%%%%%%
     \section{Design} % DESIGN / METHODOLOGY
-      What did past-Jack set out to do?
-      % design diagrams!
+        \begin{temp}
+            What did past-Jack set out to do?
+        \end{temp}
+        % design diagrams!
     
-      \subsection{Requirements Analysis}
-          % list of requirements
+        Research shows that wood is the most frequently cited material in nostalgic household items, appearing in 34\% of nostalgic objects (with metal second at 21\%) in one survey \cite{Skinner2022}. These materials were ubiquitous in classic mid-20th-century audio equipment (think of old phonographs with wooden cabinets and brass horns), so they instantly call to mind ``the charm of a bygone era'' \cite{LookInTheAttic2024}.
+        
+        \subsection{Requirements Analysis}
+            % list of requirements
+        
+        \subsection{System Architecture} % high-level system overview
+            \subsubsection{Technology Stack}
     
-      \subsection{System Architecture} % high-level system overview
-          \subsubsection{Technology Stack}
-              All of the technologies used (TS, React, bun, Python, FastAPI, etc.), and why them specifically.
+                \begin{temp}
+                    All of the technologies used (TS, React, bun, Python, FastAPI, etc.), and why them specifically.
+                \end{temp}
+        
+            \subsubsection{Design Choices}
+                % unique 1-1/1-many relation
+                % server hardware control
+                % host v. remote client
+                \begin{temp}
+                    Particular broad and niche design choices made, and why, such as:
+                    \begin{description}
+                        \item[1.] Why use a web approach for a localised device?
+                        \item[2.] Why use an unorthodox 1-1 Websocket approach for client-server calls?
+                    \end{description}
+                    Also things such as 'point of truth handling', etc.
+                    
+                    Design philosophy of being an non-reliant on Spotify (or any other singular API) as possible
+                \end{temp}
+        
+        \subsection{Front-end}
+            \subsubsection{Primary User Interface}
+                % lofi designs
     
-          \subsubsection{Design Choices}
-              % unique 1-1/1-many relation
-              % server hardware control
-              % host v. remote client
-              Particular broad and niche design choices made, and why, such as:
-              \begin{description}
-                  \item[1.] Why use a web approach for a localised device?
-                  \item[2.] Why use an unorthodox 1-1 Websocket approach for client-server calls?
-              \end{description}
-              Also things such as 'point of truth handling', etc.
+                \begin{temp}
+                    - Minimal-UI approach \\
+                    - Physical user interaction controls
+                \end{temp}
+                
+            
+            \subsubsection{Audio Playback}
+                % Spotify Playback SDK
+                % Spotify Web API
+        
+            \subsubsection{Remote Clients}
     
-              Design philosophy of being an non-reliant on Spotify (or any other singular API) as possible
+                \begin{temp}
+                    - 'Remote Control' UI from an external device (mobile, etc.)
+                    
+                    - Gains that this system provides: accessibility (mobility, etc), convinience, scanning of out-of-house albums, etc.
     
-      \subsection{Front-end}
-          \subsubsection{Primary User Interface}
-              % lofi designs
-    
-              Minimal-UI approach \\
-              Physical user interaction controls
-    
-          \subsubsection{Audio Playback}
-              % Spotify Playback SDK
-              % Spotify Web API
-    
-          \subsubsection{Remote Clients}
-              'Remote Control' UI from an external device (mobile, etc.)
-    
-              Gains that this system provides: accessibility (mobility, etc), convinience, scanning of out-of-house albums, etc.
-              % for convineince, the need for (33-45) adapter  can be cited
-              % https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fnotesonvinyl.com%2Fwp-content%2Fuploads%2F2022%2F04%2Fspeeds-of-the-different-record-types-1.png&f=1&nofb=1&ipt=7d1e31af8468ae7ae70f11be6bd40c897a73cf0c42aa194a5e09309f9af25945&ipo=images
-              % https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.bluescentric.com%2Fimages%2Fproduct%2Flarge%2F557_2_.jpg&f=1&nofb=1&ipt=1cd939744050d9f13eb7f581b786a2f22d3787cf30dd60c2a6975a816043546f&ipo=images
-      
-      \subsection{Back-end}
-    
-          \subsubsection{Metadata Retrieval}
-              % Discogs API
-              % assert Discogs ToS compliance (not used for AI) 
+                    - for convineince, the need for (33-45) adapter  can be cited
+                    % https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fnotesonvinyl.com%2Fwp-content%2Fuploads%2F2022%2F04%2Fspeeds-of-the-different-record-types-1.png&f=1&nofb=1&ipt=7d1e31af8468ae7ae70f11be6bd40c897a73cf0c42aa194a5e09309f9af25945&ipo=images
+                    % https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.bluescentric.com%2Fimages%2Fproduct%2Flarge%2F557_2_.jpg&f=1&nofb=1&ipt=1cd939744050d9f13eb7f581b786a2f22d3787cf30dd60c2a6975a816043546f&ipo=images
+                \end{temp}
+        
+        \subsection{Back-end}
+        
+            \subsubsection{Metadata Retrieval}
+                % Discogs API
+                % assert Discogs ToS compliance (not used for AI) 
           
-          \subsubsection{Hardware Interaction}
-              % RPi
-      
-      \subsection{Machine Learning Model Design}
-          \subsubsection{Dataset Collection}
-              % use of CoverArtArchive
+            \subsubsection{Hardware Interaction}
+                % RPi
+        
+        \subsection{Machine Learning Model Design}
+            \subsubsection{Dataset Collection}
+                % use of CoverArtArchive
+        
+            \subsubsection{Model Architecture}
+        
+        \subsection{Security Considerations}
+            % handling of auth tokens (transient)
+            % off-handing of persistence tasks
+            % network hosting
+            % option of same-user or any-user controls
+            % API compliances
+        
+        \subsection{Testing Methodology}
     
-          \subsubsection{Model Architecture}
-    
-      \subsection{Security Considerations}
-          % handling of auth tokens (transient)
-          % off-handing of persistence tasks
-          % network hosting
-          % option of same-user or any-user controls
-          % API compliances
-    
-      \subsection{Testing Methodology}
-          Design of tests and evaluations; plan for unit testing, model evaluation, etc.
-    
-          Does the system satisfy that physical and aesthetic desires of that the vinyl trend appeals to, whilst still offering functional convenience over original systems?
-    
-          \subsubsection{Validation of Effectiveness}
-              1. Model performance (formal model evaluation)
-              2. Usability (user feedback)
-    
-              3. Code robustness (Unit Tests, etc.)
-    
-          \subsubsection{Validation of Affectiveness}
-              User feedback on aesthetics
+            \begin{temp}
+                Design of tests and evaluations; plan for unit testing, model evaluation, etc.
+                
+                Does the system satisfy that physical and aesthetic desires of that the vinyl trend appeals to, whilst still offering functional convenience over original systems?
+            \end{temp}
+            
+            \subsubsection{Validation of Effectiveness}
+                \begin{temp}
+                1. Model performance (formal model evaluation)
+                2. Usability (user feedback)
+                
+                3. Code robustness (Unit Tests, etc.)
+                \end{temp}
+        
+        \subsubsection{Validation of Affectiveness}
+            \begin{temp}
+                User feedback on aesthetics
+            \end{temp}
     
     
     %%%%%%%%%%%%%%%%%% SECTION 4 %%%%%%%%%%%%%%%%%%
     \section{Implementation}
-      Details realised in practice, decisions made, etc.\\
-      Challenges encountered, how addressed, etc.
-      % details realised in practice
-      % challenges, and how overcame
-      % code-level or system-specific decisions, optimizations, or trade-offs
-      % integration
-      \subsection{Front-end}
-          \subsubsection{Challenges Encountered}
-              1. Switch to minimal UI mid-production
-              2. Responsive / wholeness tradeoff (do we wait for the centre label before playing the audio?)
-              3. Media codec, DRM, etc. issues specific to Ubuntu/aarch64 OS.
+        \begin{temp}
+            Details realised in practice, decisions made, etc.\\
+            Challenges encountered, how addressed, etc.
+        \end{temp}
+        % details realised in practice
+        % challenges, and how overcame
+        % code-level or system-specific decisions, optimizations, or trade-offs
+        % integration
     
-      \subsection{Back-end} % maybe Front/Back should just merge to software, here
-          \subsubsection{Challenges Encountered}
-              1. Change of auth flow, due to 'remote client' introduction
-              2. Removal of barcode detection form spec, due to camera limitations
+        \subsection{Front-end}
+            \subsubsection{Challenges Encountered}
+                \begin{temp}
+                    1. Switch to minimal UI mid-production
+                    2. Responsive / wholeness tradeoff (do we wait for the centre label before playing the audio?)
+                    3. Media codec, DRM, etc. issues specific to Ubuntu/aarch64 OS.
+                \end{temp}
     
-      \subsection{Hardware}
-          \subsubsection{Challenges Encountered}
-              1. Lack of 'Measure twice, cut once' methodology (fried GPIO pin; overstrained motor driver)
-              2. Voltage issues
-              3. Overheating (throttling) issues
+        \subsection{Back-end} % maybe Front/Back should just merge to software, here
+            \subsubsection{Challenges Encountered}
+                \begin{temp}
+                    1. Change of auth flow, due to 'remote client' introduction
+                    2. Removal of barcode detection form spec, due to camera limitations
+                    3. \cite{spotify2025security}
+                \end{temp}
+    
+        \subsection{Hardware}
+            \subsubsection{Challenges Encountered}
+                \begin{temp}
+                    1. Lack of 'Measure twice, cut once' methodology (fried GPIO pin; overstrained motor driver)
+                    2. Voltage issues
+                    3. Overheating (throttling) issues
+                \end{temp}
     
       \subsection{Machine Learning Model}
-          \subsubsection{System Integration}
-              Practice-driven discoveries, such as 'how much is not too much' when it came to model architecture and the Pi's specs.
     
-          \subsubsection{Challenges Encountered}
-              Internet Archive downtime!
+            \begin{temp}
+                cite \cite{Mitchell_2019}
+            \end{temp}
+      
+            \subsubsection{System Integration}
+                \begin{temp}
+                    Practice-driven discoveries, such as 'how much is not too much' when it came to model   architecture and the Pi's specs.
+                \end{temp}
+            
+            \subsubsection{Challenges Encountered}
+    
+                \begin{temp}
+                    Internet Archive downtime!
+                \end{temp}
     
     
     %%%%%%%%%%%%%%%%%% SECTION 5 %%%%%%%%%%%%%%%%%%
     \section{Results} % edit section heading as appropriate
-      What was actually produced?
-      % results of soft/hardware testing
-      % screenshots of UI / program output
-      \subsection{Software Artefact}
-    
-      \subsection{Hardware Artefact}
+        \begin{temp}
+            What was actually produced?
+        \end{temp}
+        % results of soft/hardware testing
+        % screenshots of UI / program output
+        \subsection{Software Artefact}
+        
+        \subsection{Hardware Artefact}
     
     %%%%%%%%%%%%%%%%%% SECTION 6 %%%%%%%%%%%%%%%%%%
     \section{Evaluation}
-      % does it do what it is supposed to do?
-      % how well?
-      % how well against others?
-      \subsection{Machine Learning Model Performance}
-    
-      \subsection{User Experience}
-    
-      \subsection{Comparison with Existing Systems}
-    
-      \subsection{Ethical Implications}
+        % does it do what it is supposed to do?
+        % how well?
+        % how well against others?
+        \subsection{Machine Learning Model Performance}
+        
+        \subsection{User Experience}
+        
+        \subsection{Comparison with Existing Systems}
+        
+        \subsection{Ethical Implications}
     
     
     %%%%%%%%%%%%%%%%%% SECTION 7 %%%%%%%%%%%%%%%%%%
     \section{Conclusions and future work} % edit section heading as appropriate
-      \subsection{Conclusions}
+        \subsection{Conclusions}
           % summarise results
           % achieved aims?
           % improvements!
-      
-      \subsection{Future work}
+        
+        \subsection{Future work}
           % ideas for further work
           % big ideas; what could be done with my project?
     
@@ -522,15 +598,15 @@
     
     %%%%%%%%%%%%%%%%%% APPENDICES %%%%%%%%%%%%%%%%%%
     \begin{uomappendix} 
-      % screen dumps of UI
-      % important but large results
-      \section{Project outline}
-      Project outline as submitted at the start of the project is a required appendix. Put here. 
-      
-      \section{Risk assessment}
-      Risk assessment is a required appendix. Put here.
-      
-      %\section{Other appendices as necessary}
+        % screen dumps of UI
+        % important but large results
+        \section{Project outline}
+        Project outline as submitted at the start of the project is a required appendix. Put here. 
+        
+        \section{Risk assessment}
+        Risk assessment is a required appendix. Put here.
+        
+        %\section{Other appendices as necessary}
     \end{uomappendix}
     
     
