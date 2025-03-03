@@ -33,6 +33,8 @@ function App() {
     const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
 
+    const [needToFetchCapture, setNeedToFetchCapture] = useState<boolean>(false);
+
     const [settings, setSettings] = useState<Settings>({
         enableMotor: true,
         enableRemote: true,
@@ -195,6 +197,9 @@ function App() {
                         SpotifyAPI.playAlbum(authToken, message.value);
                     }
                 }
+                else if (message.command === 'capture') {
+                    setNeedToFetchCapture(true);
+                }
 
                 // side controller commands
                 else if (player) {
@@ -267,6 +272,7 @@ function App() {
                     currentTrack={currentTrack} setCurrentTrack={setCurrentTrack}
                     hostSettings={settings} setHostSettings={setSettings} isHostSettingsUpdateLocal={isSettingsUpdateLocal}
                     hostUserID={hostUserID}
+                    needToFetchCapture={needToFetchCapture} setNeedToFetchCapture={setNeedToFetchCapture}
                 />
             );
         }

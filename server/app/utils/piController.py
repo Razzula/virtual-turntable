@@ -1,5 +1,5 @@
 import asyncio
-
+import cv2
 import lgpio
 
 class PiController:
@@ -165,7 +165,7 @@ class PiController:
         print('Listening to button on GPIO', self.BTN)
         buttonWasDown = self.getIsButtonDown()
         
-        while True:
+        while (True):
             if (self.getIsButtonDown()):
                 if (not buttonWasDown):
                     if (onDown is not None):
@@ -177,3 +177,20 @@ class PiController:
                         await onUp()
                     buttonWasDown = False
             await asyncio.sleep(0.01) # small delay to avoid CPU overload
+
+    # CAMERA
+    def takePhoto(self):
+        """Captures an image from the camera, crops it to the center square, and returns it."""
+        
+        cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+        if (not cap.isOpened()):
+            print('Error: Camera not found')
+            return None
+
+        ret, frame = cap.read()
+        cap.release()
+
+        if (not ret):
+            print('Error: Failed to capture image')
+            return None
+        return frame

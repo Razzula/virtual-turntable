@@ -22,6 +22,8 @@ type VirtualTurntableProps = {
     setHostSettings: (settings: Settings) => void;
     isHostSettingsUpdateLocal: React.MutableRefObject<boolean>;
     hostUserID: string | null;
+    needToFetchCapture: boolean;
+    setNeedToFetchCapture: (needToFetchCapture: boolean) => void;
 };
 
 type ClientSettings = {
@@ -41,6 +43,7 @@ function VirtualTurntable({
     setIsPlaying, setCurrentAlbum, setCurrentTrack,
     hostSettings, setHostSettings, isHostSettingsUpdateLocal,
     hostUserID,
+    needToFetchCapture, setNeedToFetchCapture,
 }: VirtualTurntableProps): JSX.Element {
 
     const [deviceID, setDeviceID] = useState<string | undefined>(undefined);
@@ -50,6 +53,8 @@ function VirtualTurntable({
 
     const [centreLabelSource, setCentreLabelSource] = useState<string | null>(null);
     const [vinylDetails, setVinylDetails] = useState<any>(null);
+
+    const [captureSource, setCaptureSource] = useState<string | null>(null);
 
     const [mouseActive, setMouseActive] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
@@ -257,6 +262,54 @@ function VirtualTurntable({
         };
     }, [currentAlbum?.id]);
 
+    useEffect(() => {
+        // FETCH CENTRE LABEL ON ALBUM CHANGE
+        const fetchImage = async () => {
+            if (!needToFetchCapture) return;
+
+            try {
+                // HANDLED BY SERVER
+                const response = await fetch('/virtual-turntable/server/capture', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch capture');
+                }
+
+                const result = await response.json();
+
+                // store image as blob URL, to display in <img>
+                const base64Image = result.imageData;
+                const binary = atob(base64Image);
+                const array = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    array[i] = binary.charCodeAt(i);
+                }
+
+                const blob = new Blob([array], { type: 'image/png' });
+                const url = URL.createObjectURL(blob);
+                setCaptureSource(url);
+
+            } catch (error) {
+                console.error('Error fetching capture:', error);
+                setCaptureSource(null); // prevent stale image
+            }
+            setNeedToFetchCapture(false);
+        };
+
+        fetchImage();
+
+        return () => {
+            if (captureSource) {
+                URL.revokeObjectURL(captureSource); // Clean up blob URL
+            }
+        };
+    }, [needToFetchCapture]);
+
     function toggleSettingsDisplay(event: React.MouseEvent<HTMLButtonElement>) {
         event.stopPropagation();
         setShowSettings(!showSettings);
@@ -339,6 +392,8 @@ function VirtualTurntable({
             }}
                 onClick={() => setShowSettings(false)}
             >
+                { captureSource && <img src={captureSource} /> }
+
                 <div className={`plate ${showInteractive ? 'showOutline' : ''}`}
                     style={{
                         width: `${clientSettings.plateZoom}vw`,

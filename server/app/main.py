@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.websockets import WebSocketState
 from dotenv import load_dotenv
 import requests
+import cv2
 
 from app.utils.spotifyAPI import SpotifyAPI, getLocalIP
 from app.utils.websocketHandler import WebsocketHandler
@@ -251,7 +252,74 @@ class Server:
 
     async def triggerCamera(self) -> None:
         """TODO"""
-        print('Lights! Camera! Action!!')
+        frame = self.piController.takePhoto()
+        if (frame is None):
+            return
+    
+        # get image dimensions
+        height, width, _ = frame.shape
+
+        # determine center square
+        size = min(height, width)
+        xStart = (width - size) // 2
+        yStart = (height - size) // 2
+
+        # crop
+        croppedFrame = frame[yStart:yStart + size, xStart:xStart + size]
+
+        fileName = 'capture.jpg'
+        cv2.imwrite(os.path.join(ROOT_DIR, 'data', fileName), croppedFrame)
+        print('Captured camera')
+        
+        await self.websocketHandler.sendToHost({ 'command': 'capture' })  # serve image to host client
+        await self.scanGet(fileName)  # run album prediction, and serve to host
+    
+    async def scanGet(self, fileName: str = 'testImage') -> JSONResponse:
+        """
+        DEV! This endpoint allows a developer to simulate a playevent
+        (to mimic what the album detection would do).
+        """
+        # DETECT ALBUM
+        SCAN_RESULT: Final = self.modelHandler.scan(
+            os.path.join(ROOT_DIR, 'data', fileName)
+        )
+
+        # FIND SPOTIFY ID
+        # if (SCAN_RESULT['predictedProb'] < 0.5):
+        #     raise HTTPException(status_code=400, detail='No album (sufficiently) detected.')
+        ALBUM: Final = self.modelHandler.classes[SCAN_RESULT['predictedClass']]
+
+        # TODO: extract this to API wrapper
+        AUTH_TOKEN: Final = self.spotifyAPI.hostToken()
+        PARAMS: Final = {
+            'q': f'{ALBUM["name"]} artist:{ALBUM["artist"]} year:{ALBUM["year"]}',
+            'type': 'album',
+            'limit': 1,
+        }
+        REQUEST: Final = requests.get(
+            f'https://api.spotify.com/v1/search/?{urlencode(PARAMS)}',
+            headers={
+                'Authorization': f'Bearer {AUTH_TOKEN}',
+            },
+            timeout=10,
+        )
+
+        REQUEST.raise_for_status()
+        RESPONSE: Final = REQUEST.json()
+        SPOTIFY_ID = RESPONSE['albums']['items'][0]['id']
+
+        print(SPOTIFY_ID)
+
+        # ADD TO PLAYLIST
+        self.spotifyAPI.addAlbumToPlaylist(SPOTIFY_ID, self.spotifyAPI.playlist())
+
+        # SEND TO CLIENT
+        await self.websocketHandler.sendToHost({
+            'command': 'playAlbum',
+            'value': SPOTIFY_ID,
+        })
+
+        return JSONResponse(content={'album': SPOTIFY_ID})
 
     # Setup FastAPI endpoints
     def setupRoutes(self) -> None:
@@ -273,54 +341,6 @@ class Server:
             """DEV! This endpoint triggers a ping event to the client, from the server."""
             return JSONResponse(await self.websocketHandler.ping())
 
-        # DEV
-        @self.app.get('/scan')
-        async def scanGet(fileName: str = 'testImage') -> JSONResponse:
-            """
-            DEV! This endpoint allows a developer to simulate a playevent
-            (to mimic what the album detection would do).
-            """
-            # DETECT ALBUM
-            SCAN_RESULT: Final = self.modelHandler.scan(
-                os.path.join(ROOT_DIR, 'data', fileName)
-            )
-
-            # FIND SPOTIFY ID
-            # if (SCAN_RESULT['predictedProb'] < 0.5):
-            #     raise HTTPException(status_code=400, detail='No album (sufficiently) detected.')
-            ALBUM: Final = self.modelHandler.classes[SCAN_RESULT['predictedClass']]
-
-            # TODO: extract this to API wrapper
-            AUTH_TOKEN: Final = self.spotifyAPI.hostToken()
-            PARAMS: Final = {
-                'q': f'{ALBUM["name"]} artist:{ALBUM["artist"]} year:{ALBUM["year"]}',
-                'type': 'album',
-                'limit': 1,
-            }
-            REQUEST: Final = requests.get(
-                f'https://api.spotify.com/v1/search/?{urlencode(PARAMS)}',
-                headers={
-                    'Authorization': f'Bearer {AUTH_TOKEN}',
-                },
-                timeout=10,
-            )
-
-            REQUEST.raise_for_status()
-            RESPONSE: Final = REQUEST.json()
-            SPOTIFY_ID = RESPONSE['albums']['items'][0]['id']
-
-            print(SPOTIFY_ID)
-
-            # ADD TO PLAYLIST
-            self.spotifyAPI.addAlbumToPlaylist(SPOTIFY_ID, self.spotifyAPI.playlist())
-
-            # SEND TO CLIENT
-            await self.websocketHandler.sendToHost({
-                'command': 'playAlbum',
-                'value': SPOTIFY_ID,
-            })
-
-            return JSONResponse(content={'album': SPOTIFY_ID})
 
         @self.app.get('/shuffle')
         async def shuffleGet() -> JSONResponse:
@@ -346,7 +366,7 @@ class Server:
             with open(IMAGE_PATH, 'wb') as file:
                 file.write(body)
 
-            return await scanGet('upload.png') # TODO: refactor to use genuine method, when available
+            return await self.scanGet('upload.png') # TODO: refactor to use genuine method, when available
 
         # CENTRE LABEL
         @self.app.post('/centreLabel')
@@ -383,7 +403,7 @@ class Server:
                 foundCentreLabel = self.centreLabelhandler.serveCentreLabel(
                     albumID, images=images
                 )
-                if foundCentreLabel is None:
+                if (foundCentreLabel is None):
                     # re-attmpt with broader search
                     foundCentreLabel = self.centreLabelhandler.serveCentreLabel(
                         albumID, albumName, None, None, None
@@ -393,11 +413,11 @@ class Server:
                     # failed to find a centre label
                     labelData = None
                 else:
-                    with open(labelPath, "rb") as labelFile:
+                    with open(labelPath, 'rb') as labelFile:
                         labelData = base64.b64encode(labelFile.read()).decode('utf-8')
             else:
                 # load cached label
-                with open(labelPath, "rb") as labelFile:
+                with open(labelPath, 'rb') as labelFile:
                     labelData = base64.b64encode(labelFile.read()).decode('utf-8')
 
             response = {
@@ -406,6 +426,23 @@ class Server:
             if (metadata):
                 response['metadata'] = metadata
 
+            return JSONResponse(content=response)
+        
+        # CAMERA
+        @self.app.get('/capture')
+        async def captureGet() -> JSONResponse:
+            """
+            This endpoint serves the camera capture.
+            """
+            data = None
+            filePath = os.path.join(ROOT_DIR, 'data', 'capture.jpg')
+            if (os.path.exists(filePath)):
+                with open(filePath, 'rb') as labelFile:
+                    data = base64.b64encode(labelFile.read()).decode('utf-8')
+
+            response = {
+                'imageData': data,
+            }
             return JSONResponse(content=response)
 
         @self.app.get('/isHost')
