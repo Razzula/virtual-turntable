@@ -179,18 +179,19 @@ class PiController:
             await asyncio.sleep(0.01) # small delay to avoid CPU overload
 
     # CAMERA
-    def takePhoto(self):
-        """Captures an image from the camera, crops it to the center square, and returns it."""
-        
-        cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
-        if (not cap.isOpened()):
-            print('Error: Camera not found')
-            return None
+    def takePhotos(self, maxCameras = 2) -> list:
+        """Captures an image from each connected camera and returns them as an array."""
+        photos = []
+        for i in range(maxCameras):
+            cap = cv2.VideoCapture(i, cv2.CAP_V4L2)
+            if (not cap.isOpened()):
+                cap.release()
+                continue
+            ret, frame = cap.read()
+            cap.release()
+            if (not ret):
+                print(f'Error: Failed to capture image from camera {i}')
+                continue
+            photos.append(frame)
+        return photos
 
-        ret, frame = cap.read()
-        cap.release()
-
-        if (not ret):
-            print('Error: Failed to capture image')
-            return None
-        return frame

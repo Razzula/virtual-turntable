@@ -252,29 +252,46 @@ class Server:
 
     async def triggerCamera(self) -> None:
         """TODO"""
-        frame = self.piController.takePhoto()
-        if (frame is None):
-            return
-    
-        # get image dimensions
-        height, width, _ = frame.shape
-
-        # determine center square
-        size = min(height, width)
-        xStart = (width - size) // 2
-        yStart = (height - size) // 2
-
-        # crop
-        croppedFrame = frame[yStart:yStart + size, xStart:xStart + size]
-
-        fileName = 'capture.jpg'
-        cv2.imwrite(os.path.join(ROOT_DIR, 'data', fileName), croppedFrame)
-        print('Captured camera')
+        captures = self.piController.takePhotos(maxCameras=3)
         
+        if (not captures):
+            return
+        print('Captured camera(s)')
+        
+        dirPath = os.path.join(ROOT_DIR, 'data', 'captures')
+        if (not os.path.exists(dirPath)):
+            # create dir
+            os.makedirs(dirPath)
+        else:
+            # clear previous results
+            for fileName in os.listdir(dirPath):
+                filePath = os.path.join(dirPath, fileName)
+                if (os.path.isfile(filePath) or os.path.islink(filePath)):
+                    os.unlink(filePath)
+        
+        # handle new images
+        for (i, frame) in enumerate(captures):
+            if (frame is None):
+                continue
+        
+            # get image dimensions
+            height, width, _ = frame.shape
+
+            # determine center square
+            size = min(height, width)
+            xStart = (width - size) // 2
+            yStart = (height - size) // 2
+
+            # crop
+            croppedFrame = frame[yStart:yStart + size, xStart:xStart + size]
+
+            fileName = f'capture{i}.jpg'
+            cv2.imwrite(os.path.join(dirPath, fileName), croppedFrame)
+            
         await self.websocketHandler.sendToHost({ 'command': 'capture' })  # serve image to host client
-        await self.scanGet(fileName)  # run album prediction, and serve to host
+        await self.scanGet('captures')  # run album prediction, and serve to host
     
-    async def scanGet(self, fileName: str = 'testImage') -> JSONResponse:
+    async def scanGet(self, fileName: str) -> JSONResponse:
         """
         DEV! This endpoint allows a developer to simulate a playevent
         (to mimic what the album detection would do).
@@ -283,11 +300,26 @@ class Server:
         SCAN_RESULT: Final = self.modelHandler.scan(
             os.path.join(ROOT_DIR, 'data', fileName)
         )
+        
+        # HANDLE RESULT
+        result = None
+        if (len(SCAN_RESULT) > 1):
+            # consensus
+            currentMax = 0
+            for scanResult in SCAN_RESULT:
+                if (scanResult.get('predictedProb', 0) > currentMax):
+                    result = scanResult
+                    currentMax = scanResult.get('predictedProb', 0)
+        elif (len(SCAN_RESULT) == 1):
+            # singular
+            result = SCAN_RESULT[0]
+        else:
+            raise Exception('No prediction found for images.')
 
         # FIND SPOTIFY ID
-        # if (SCAN_RESULT['predictedProb'] < 0.5):
+        # if (result['predictedProb'] < 0.5):
         #     raise HTTPException(status_code=400, detail='No album (sufficiently) detected.')
-        ALBUM: Final = self.modelHandler.classes[SCAN_RESULT['predictedClass']]
+        ALBUM: Final = self.modelHandler.classes[result['predictedClass']]
 
         # TODO: extract this to API wrapper
         AUTH_TOKEN: Final = self.spotifyAPI.hostToken()
@@ -438,7 +470,7 @@ class Server:
             This endpoint serves the camera capture.
             """
             data = None
-            filePath = os.path.join(ROOT_DIR, 'data', 'capture.jpg')
+            filePath = os.path.join(ROOT_DIR, 'data', 'captures', 'capture0.jpg')
             if (os.path.exists(filePath)):
                 with open(filePath, 'rb') as labelFile:
                     data = base64.b64encode(labelFile.read()).decode('utf-8')

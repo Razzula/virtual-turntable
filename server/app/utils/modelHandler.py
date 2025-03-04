@@ -2,7 +2,7 @@
 """Handler class for the model."""
 import json
 import os
-from typing import Final
+from typing import Dict, Final, Union
 
 import torch
 import torch.nn as nn
@@ -54,6 +54,22 @@ class ModelHandler:
 
         if (self.model is None):
             raise Exception('No model loaded.')
+        
+        if (os.path.isdir(imagePath)):
+            # scan dir
+            results = []
+            for file in sorted(os.listdir(imagePath)):
+                filePath = os.path.join(imagePath, file)
+                if (os.path.isfile(filePath) and file.lower().endswith(('.png', '.jpg', '.jpeg'))):
+                    results.append(self._predictImage(filePath))
+            return results
+        elif (os.path.isfile(imagePath)):
+            return [self._predictImage(imagePath)]
+        else:
+            raise FileNotFoundError(f"Path '{imagePath}' does not exist.")
+        
+    def _predictImage(self, imagePath: str) -> Dict[str, Union[str, int, float]]:
+        """Helper function to predict the class of a single image."""
 
         testImage = Image.open(imagePath).convert('RGB')
         testImage = transform(testImage).unsqueeze(0)  # add batch dimension
@@ -63,9 +79,11 @@ class ModelHandler:
             PROBABILITES: Final = torch.nn.functional.softmax(OUTPUTS, dim=1)
             PREDICTED_PROB, PREDICTED_CLASS = torch.max(PROBABILITES, 1)
 
-        print(f'Predicted: {self.model.classes[int(PREDICTED_CLASS.item())]} ({PREDICTED_PROB.item()})')
-
-        return {
+        result = {
+            'image': os.path.basename(imagePath),
             'predictedClass': self.model.classes[int(PREDICTED_CLASS.item())],
             'predictedProb': PREDICTED_PROB.item()
         }
+        
+        print(f"Predicted: {result['predictedClass']} ({result['predictedProb']}) for {result['image']}")
+        return result
