@@ -17,23 +17,45 @@ from fastapi.responses import RedirectResponse
 from app.utils.websocketHandler import WebsocketHandler
 
 
+import socket
+
 def getLocalIPs() -> list:
-    """Retrieve all local IP addresses (IPv4 and IPv6, including link-local)."""
+    """Retrieve all local IP addresses (IPv4 and IPv6, including link-local) using both hostname lookup and socket connections."""
     ips = set()
+
+    # Method 1: Hostname lookup
     try:
         hostName = socket.gethostname()
-        # Add IPv4 addresses
+        # IPv4
         ips.update(socket.gethostbyname_ex(hostName)[2])
     except Exception as e:
         print(f'Error retrieving IPv4 addresses: {e}')
     try:
-        # Add IPv6 addresses
+        # IPv6
         addrInfos = socket.getaddrinfo(hostName, None, socket.AF_INET6)
         for info in addrInfos:
             ips.add(info[4][0])
     except Exception as e:
         print(f'Error retrieving IPv6 addresses: {e}')
+
+    # Method 2: Dummy socket connections
+    try:
+        # IPv4
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(('8.8.8.8', 80))
+            ips.add(s.getsockname()[0])
+    except Exception as e:
+        print(f'Error retrieving external IPv4 address: {e}')
+    try:
+        # IPv6
+        with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as s:
+            s.connect(('2001:4860:4860::8888', 80))
+            ips.add(s.getsockname()[0])
+    except Exception as e:
+        print(f'Error retrieving external IPv6 address: {e}')
+
     return list(ips)
+
 
 class SpotifyAPI:
     """Handler class for Spotify authentication flow."""
@@ -73,7 +95,7 @@ class SpotifyAPI:
                 'playlist-read-private '  # Access private playlists
             ) if isHost else (
                 'playlist-read-private '
-                'user-modify-playback-state '
+                # 'user-modify-playback-state '
             )
         )
 

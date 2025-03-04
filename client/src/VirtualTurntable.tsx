@@ -399,7 +399,7 @@ function VirtualTurntable({
                         height: `${clientSettings.plateZoom / clientSettings.baseplateWidth * clientSettings.baseplateHeight}vw`,
                     }}
                 >
-                    <div className='vinyl'
+                    <div className='vinylContainer'
                         style={{
                             position: 'relative',
                             left: `${(-0.5 + vinylCentre) * 100}%`,
@@ -414,22 +414,47 @@ function VirtualTurntable({
                             cursor: 'pointer',
                             // border: '1px solid #ff00ff',
                         }}
-                        onClick={handleActivation}
                     >
-                        {/* SPINNING VINYL RENDER */}
-                        <div className={dicsClasses.join(' ')}
+                        <div className='vinyl'
                             style={{
-                                position: 'relative',
                                 width: '100%',
                                 height: '100%',
                             }}
+                            onClick={handleActivation}
                         >
-                            {/* PLAIN VINYL */}
-                            <Vinyl colour={vinylDetails?.colour || '#000000'} />
+                            {/* SPINNING VINYL RENDER */}
+                            <div className={dicsClasses.join(' ')}
+                                style={{
+                                    position: 'relative',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
+                                {/* PLAIN VINYL */}
+                                <Vinyl colour={vinylDetails?.colour || '#000000'} />
 
-                            {/* MARBLE TEXTURE */}
-                            { vinylDetails?.marble &&
-                                <img src='/virtual-turntable/marble.webp'
+                                {/* MARBLE TEXTURE */}
+                                { vinylDetails?.marble &&
+                                    <img src='/virtual-turntable/marble.webp'
+                                        style={{
+                                            position: "absolute",
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                            width: '100%',
+                                            height: '100%',
+
+                                            objectFit: "cover",
+                                            mixBlendMode: "multiply", // Adjust as needed
+                                            opacity: 0.5, // Adjust transparency
+                                            pointerEvents: "none", // Makes the overlay non-interactive
+                                            borderRadius: '50%',
+                                        }}
+                                    />
+                                }
+
+                                {/* VINYL TEXTURE */}
+                                <img src='/virtual-turntable/vinyl.png'
                                     style={{
                                         position: "absolute",
                                         top: '50%',
@@ -439,67 +464,50 @@ function VirtualTurntable({
                                         height: '100%',
 
                                         objectFit: "cover",
-                                        mixBlendMode: "multiply", // Adjust as needed
-                                        opacity: 0.5, // Adjust transparency
+                                        mixBlendMode: vinylDetails?.colour ? "darken" : "lighten", // Adjust as needed
+                                        opacity: 0.4, // Adjust transparency
                                         pointerEvents: "none", // Makes the overlay non-interactive
                                         borderRadius: '50%',
                                     }}
                                 />
-                            }
 
-                            {/* VINYL TEXTURE */}
-                            <img src='/virtual-turntable/vinyl.png'
+                                {/* CENTRE LABEL */}
+                                {centreLabelSource &&
+                                    <img src={centreLabelSource}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                            borderRadius: '50%',
+                                            zIndex: 1,
+                                            width: '43%',
+                                            height: '43%',
+                                        }}
+                                    />
+                                }
+                            </div>
+                        </div>
+
+                        { isActive && captureSource &&
+                            <img
+                                className='albumImage glideAnimation'
+                                key={captureSource}
+                                src={captureSource}
                                 style={{
-                                    position: "absolute",
+                                    position: 'absolute',
                                     top: '50%',
                                     left: '50%',
                                     transform: 'translate(-50%, -50%)',
+                                    // borderRadius: '50%',
+                                    zIndex: 1,
                                     width: '100%',
                                     height: '100%',
-
-                                    objectFit: "cover",
-                                    mixBlendMode: vinylDetails?.colour ? "darken" : "lighten", // Adjust as needed
-                                    opacity: 0.4, // Adjust transparency
-                                    pointerEvents: "none", // Makes the overlay non-interactive
-                                    borderRadius: '50%',
                                 }}
                             />
-
-                            {/* CENTRE LABEL */}
-                            {centreLabelSource &&
-                                <img src={centreLabelSource}
-                                    style={{
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        borderRadius: '50%',
-                                        zIndex: 1,
-                                        width: '43%',
-                                        height: '43%',
-                                    }}
-                                />
-                            }
-
-                            { isActive && captureSource &&
-                                <img
-                                    className='glideAnimation'
-                                    key={captureSource}
-                                    src={captureSource}
-                                    style={{
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        // borderRadius: '50%',
-                                        zIndex: 1,
-                                        width: '100%',
-                                        height: '100%',
-                                    }}
-                                />
-                            }
-                        </div>
+                        }
                     </div>
+
 
                     <div className='topRight'>
                     <a href={userProfile?.external_urls.spotify} target='_blank' rel='noreferrer'>

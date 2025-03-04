@@ -322,8 +322,7 @@ class Server:
         return JSONResponse(content={'album': SPOTIFY_ID})
 
     def isHostIP(self, ip: str | None) -> bool:
-        localIps = getLocalIPs()
-        return (ip in localIps)
+        return (ip in getLocalIPs())
 
     # Setup FastAPI endpoints
     def setupRoutes(self) -> None:
@@ -487,8 +486,8 @@ class Server:
         # SPOTIFY AUTH
         @self.app.get('/auth/login')
         async def login(request: Request) -> RedirectResponse:
-            if (request.headers.get("x-forwarded-for")):
-                clientIP = request.headers.get("x-forwarded-for")
+            if (request.headers.get('x-forwarded-for')):
+                clientIP = request.headers['x-forwarded-for']
             else:
                 clientIP = request.client.host
 

@@ -259,6 +259,15 @@ input[type='number']:focus {
     padding: 8px;
 }
 
+.albumImage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+
 .glideAnimation {
     animation: glideOff 2s 2s forwards;
 }
