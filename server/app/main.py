@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 import requests
 import cv2
 
-from app.utils.spotifyAPI import SpotifyAPI, getLocalIP
+from app.utils.spotifyAPI import SpotifyAPI, getLocalIPs
 from app.utils.websocketHandler import WebsocketHandler
 from app.utils.modelHandler import ModelHandler
 from app.utils.centreLabelHandler import CentreLabelHandler
@@ -321,6 +321,10 @@ class Server:
 
         return JSONResponse(content={'album': SPOTIFY_ID})
 
+    def isHostIP(self, ip: str | None) -> bool:
+        localIps = getLocalIPs()
+        return (ip in localIps)
+
     # Setup FastAPI endpoints
     def setupRoutes(self) -> None:
         """Setup the FastAPI routes."""
@@ -427,7 +431,7 @@ class Server:
                 response['metadata'] = metadata
 
             return JSONResponse(content=response)
-        
+
         # CAMERA
         @self.app.get('/capture')
         async def captureGet() -> JSONResponse:
@@ -451,9 +455,8 @@ class Server:
             This endpoint serves the client's own IP address back to them.
             This is useful to determine if the client is the host.
             """
-            hostIP = getLocalIP()
-            proxiedIP = request.headers.get("x-forwarded-for")
-            return JSONResponse(content={ 'clientIP': proxiedIP, 'isHost': (hostIP == proxiedIP) })
+            proxiedIP = request.headers.get('x-forwarded-for')
+            return JSONResponse(content={ 'clientIP': proxiedIP, 'isHost': self.isHostIP(proxiedIP) })
 
         @self.app.get('/playlist')
         async def playlistIDGet(sessionID: str = Cookie(None)) -> JSONResponse:
@@ -489,7 +492,7 @@ class Server:
             else:
                 clientIP = request.client.host
 
-            isHost = clientIP == getLocalIP() # if client is host machine
+            isHost = self.isHostIP(clientIP)
             return await self.spotifyAPI.login(isHost)
 
         @self.app.get('/auth/callback')

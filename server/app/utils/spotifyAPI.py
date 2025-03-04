@@ -17,16 +17,23 @@ from fastapi.responses import RedirectResponse
 from app.utils.websocketHandler import WebsocketHandler
 
 
-def getLocalIP() -> str:
-    """Retrieve the local IP address of the device."""
+def getLocalIPs() -> list:
+    """Retrieve all local IP addresses (IPv4 and IPv6, including link-local)."""
+    ips = set()
     try:
-        # create a socket and connect to a public address to determine the local IP
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.connect(('8.8.8.8', 80))
-            return s.getsockname()[0]
+        hostName = socket.gethostname()
+        # Add IPv4 addresses
+        ips.update(socket.gethostbyname_ex(hostName)[2])
     except Exception as e:
-        print(f'Error determining local IP: {e}')
-        return '127.0.0.1'
+        print(f'Error retrieving IPv4 addresses: {e}')
+    try:
+        # Add IPv6 addresses
+        addrInfos = socket.getaddrinfo(hostName, None, socket.AF_INET6)
+        for info in addrInfos:
+            ips.add(info[4][0])
+    except Exception as e:
+        print(f'Error retrieving IPv6 addresses: {e}')
+    return list(ips)
 
 class SpotifyAPI:
     """Handler class for Spotify authentication flow."""
@@ -38,7 +45,7 @@ class SpotifyAPI:
 
         self.sendToClient = sendToClient
         self.clearCache = clearCache
-        
+
         self.REDIRECT_URI: Final = f'https://{hostName}/virtual-turntable/auth/callback'
         print(self.REDIRECT_URI)
 

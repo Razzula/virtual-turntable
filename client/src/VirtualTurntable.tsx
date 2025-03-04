@@ -392,7 +392,6 @@ function VirtualTurntable({
             }}
                 onClick={() => setShowSettings(false)}
             >
-                { captureSource && <img src={captureSource} /> }
 
                 <div className={`plate ${showInteractive ? 'showOutline' : ''}`}
                     style={{
@@ -478,6 +477,24 @@ function VirtualTurntable({
                                         zIndex: 1,
                                         width: '43%',
                                         height: '43%',
+                                    }}
+                                />
+                            }
+
+                            { isActive && captureSource &&
+                                <img
+                                    className='glideAnimation'
+                                    key={captureSource}
+                                    src={captureSource}
+                                    style={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        // borderRadius: '50%',
+                                        zIndex: 1,
+                                        width: '100%',
+                                        height: '100%',
                                     }}
                                 />
                             }
