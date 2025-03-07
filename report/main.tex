@@ -283,6 +283,10 @@
     
         \subsubsection{Image Recognition}
     
+            \begin{temp}
+                Dropout; GPU-utilisation; Data Augmentation; Visual Transformers; 
+            \end{temp}
+    
             Image recognition is the creation of software and tools which can be used to identify objects, places, people, etc. in digital images, which has existed since at least 1946 \cite{hall1979computer}. However, in this brief time, the field has undergone several drastic changes as technology has advanced \cite{imagenetclasscnn}, and is still be redefined in the present day, particularly with the arrival of machine learning approaches, with new implementations being utilised across the field (e.g. \cite{RAMPRASAD2025100556}, 2025).
     
             \paragraph{Traditional Methods}
@@ -410,12 +414,21 @@
         
         \subsection{Requirements Analysis}
             % list of requirements
+    
+            \begin{temp}
+                UML Use Case Diagram
+            \end{temp}
         
         \subsection{System Architecture} % high-level system overview
+    
+            \begin{temp}
+                System Architecture Diagram \ref{fig:networkDiagram}; Data Flow Diagram; Component Diagram
+            \end{temp}
+        
             \subsubsection{Technology Stack}
     
                 \begin{temp}
-                    All of the technologies used (TS, React, bun, Python, FastAPI, etc.), and why them specifically.
+                    All of the technologies used, and why them specifically.
                 \end{temp}
         
             \subsubsection{Design Choices}
@@ -436,6 +449,13 @@
                 It was decided to create a physical device that utilised online music streaming. This would allow it to have the convenience of a digital player with easy library availability and playing to the strengths of virtual playback for modern tracks, whilst still encouraging the ownership of physical mediums, and leaning into the physicality in its design and interaction mechanisms. Since the background research showed that there is an existing demographic of consumers who purchase both physical and digital copies (or subscriptions) simultaneously, this meant this design strategy would be beneficial. 
     
                 In order to utilise nostalgia, the device was designed to make use of a stylish mahogany wood with brass controls. Research shows that, in one survey, wood is the most frequently cited material in nostalgic household items, appearing in 34\% of nostalgic objects (with metal second at 21\%) \cite{Skinner2022}. These materials were ubiquitous in classic mid-20th-century audio equipment, so they instantly call to mind ``the charm of a bygone era'' \cite{LookInTheAttic2024}.
+    
+                \begin{figure}[h]
+                    \centering
+                    \includegraphics[width=\textwidth]{images/VTT_network.NetworkDiagram.pdf}
+                    \caption{Network diagram of system.}
+                    \label{fig:networkDiagram}
+                \end{figure}
         
         \subsection{Front-end}
             \subsubsection{Primary User Interface}
@@ -445,6 +465,11 @@
                     - Minimal-UI approach \\
                     - Physical user interaction controls
                 \end{temp}
+    
+                \begin{temp}
+                    UI Wireframes / Mockups
+                \end{temp}
+    
                 
             
             \subsubsection{Audio Playback}
@@ -471,12 +496,34 @@
           
             \subsubsection{Hardware Interaction}
                 % RPi
+    
+                \begin{temp}
+                    Simple Hardware Schematic Diagram (enough pins for specs)
+                \end{temp}
+    
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/raspberry-pi-5-pinout.png}
+                    \caption{Pinout configuration of Raspberry Pi 5, as per https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio}
+                    \label{fig:RPi5Pinout}
+                \end{figure}
         
         \subsection{Machine Learning Model Design}
             \subsubsection{Dataset Collection}
                 % use of CoverArtArchive
         
             \subsubsection{Model Architecture}
+                \begin{temp}
+                    Single-Head Model Diagram
+                \end{temp}
+    
+                \begin{temp}
+                    Multi-Head Model Diagram
+                \end{temp}
+    
+                \begin{temp}
+                    Decision Flowchart for Image Recognition
+                \end{temp}
         
         \subsection{Security Considerations}
             % handling of auth tokens (transient)
@@ -484,6 +531,14 @@
             % network hosting
             % option of same-user or any-user controls
             % API compliances
+    
+            \begin{temp}
+                Security Architecture Diagram
+            \end{temp}
+    
+            \begin{temp}
+                Data Flow Diagram
+            \end{temp}
         
         \subsection{Testing Methodology}
     
@@ -519,6 +574,11 @@
         % integration
     
         \subsection{Front-end}
+    
+            \begin{temp}
+                All of the technologies used (TS, React, bun, Python, FastAPI, etc.), and why them specifically.
+            \end{temp}
+        
             \subsubsection{Challenges Encountered}
                 \begin{temp}
                     1. Switch to minimal UI mid-production
@@ -527,6 +587,33 @@
                 \end{temp}
     
         \subsection{Back-end} % maybe Front/Back should just merge to software, here
+    
+            \begin{temp}
+                All of the technologies used (TS, React, bun, Python, FastAPI, etc.), and why them specifically.
+            \end{temp}
+    
+            \begin{temp}
+                Sequence Diagram (two triggers of scan, and shared handling) Figure \ref{fig:imageSequenceDiagram}
+            \end{temp}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/VTT_imageScan.SequenceDiagram.pdf}
+                \caption{Sequence diagram showing two alternative triggers (client upload and server capture) leading to image processing and metadata retrieval before sending playback instructions to the host.}
+                \label{fig:imageSequenceDiagram}
+            \end{figure}
+    
+            \begin{temp}
+                Real-time Communication Loop \ref{fig:statePropagationDiagram}
+            \end{temp}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/VTT_states.DependencyGraph.pdf}
+                \caption{Dependency diagram showing state propagation model both between system and external components, allowing real-time reactivity to state changes from multiple sources.}
+                \label{fig:statePropagationDiagram}
+            \end{figure}
+        
             \subsubsection{Challenges Encountered}
                 \begin{temp}
                     1. Change of auth flow, due to 'remote client' introduction
@@ -535,6 +622,11 @@
                 \end{temp}
     
         \subsection{Hardware}
+    
+            \begin{temp}
+                All of the technologies used (TS, React, bun, Python, FastAPI, etc.), and why them specifically.
+            \end{temp}
+        
             \subsubsection{Challenges Encountered}
                 \begin{temp}
                     1. Lack of 'Measure twice, cut once' methodology (fried GPIO pin; overstrained motor driver)
@@ -542,7 +634,15 @@
                     3. Overheating (throttling) issues
                 \end{temp}
     
+                \begin{temp}
+                    Hardware Schematic Diagram
+                \end{temp}
+    
       \subsection{Machine Learning Model}
+    
+            \begin{temp}
+                All of the technologies used (TS, React, bun, Python, FastAPI, etc.), and why them specifically.
+            \end{temp}
     
             \begin{temp}
                 cite \cite{Mitchell_2019}
@@ -568,22 +668,45 @@
         % results of soft/hardware testing
         % screenshots of UI / program output
         \subsection{Software Artefact}
+            \begin{temp}
+                Screenshots
+            \end{temp}
         
         \subsection{Hardware Artefact}
+            \begin{temp}
+                Photographs
+            \end{temp}
     
     %%%%%%%%%%%%%%%%%% SECTION 6 %%%%%%%%%%%%%%%%%%
     \section{Evaluation}
         % does it do what it is supposed to do?
         % how well?
         % how well against others?
-        \subsection{Machine Learning Model Performance}
-        
-        \subsection{User Experience}
-        
-        \subsection{Comparison with Existing Systems}
-        
-        \subsection{Ethical Implications}
+        \subsection{Quantitative Evaluation}
+            \begin{temp}
+                ML model performance, response times, accuracy
+            \end{temp}
     
+            \subsubsection{}{Machine Learning Model Performance}
+    
+        \subsection{Qualitative Evaluation}
+            \begin{temp}
+                User feedback, usability, aesthetic considerations
+            \end{temp}
+        
+            \subsubsection{User Experience}
+            
+        \subsection{Comparative Analysis}
+            \begin{temp}
+                Comparison with Existing Systems
+            \end{temp}
+    
+        \subsection{Limitations and Trade-offs}
+    
+        \subsection{Ethical Implications}
+            \begin{temp}
+                What is the impact of the finished product?
+            \end{temp}
     
     %%%%%%%%%%%%%%%%%% SECTION 7 %%%%%%%%%%%%%%%%%%
     \section{Conclusions and future work} % edit section heading as appropriate

@@ -1,0 +1,302 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0" version="26.1.0">
+  <diagram name="Page-1" id="lJxZjfwC_cMXIw86f_as">
+    <mxGraphModel dx="2537" dy="887" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="CFtunintirZtyBM8X9aK-65" value="" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=none;arcSize=50;strokeColor=light-dark(#808080,#EDEDED);" vertex="1" parent="1">
+          <mxGeometry x="520" y="229" width="120" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-97" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="540" y="542" as="sourcePoint" />
+            <mxPoint x="470" y="542" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-67" value="&lt;div&gt;Playback&lt;/div&gt;&lt;div&gt;State&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="540" y="510" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-69" value="Settings" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=2" vertex="1" parent="1">
+          <mxGeometry x="540" y="240" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-71" value="&lt;div&gt;Current&lt;/div&gt;&lt;div&gt;Album&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontStyle=2;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="540" y="329" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-102" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="469.9999999999998" y="450" as="targetPoint" />
+            <mxPoint x="540" y="450" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-73" value="Volume" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="540" y="419" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-1" value="" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=none;arcSize=50;strokeColor=light-dark(#808080,#EDEDED);" vertex="1" parent="1">
+          <mxGeometry x="370" y="230" width="120" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-95" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="542" as="targetPoint" />
+            <mxPoint x="390" y="542" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-96" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="560" as="sourcePoint" />
+            <mxPoint x="540" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-128" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="CFtunintirZtyBM8X9aK-2" target="CFtunintirZtyBM8X9aK-127">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-2" value="&lt;div&gt;Playback&lt;/div&gt;&lt;div&gt;State&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="390" y="511" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-89" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="390" y="271" as="sourcePoint" />
+            <mxPoint x="320" y="271" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-91" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="291" as="sourcePoint" />
+            <mxPoint x="540" y="291" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-3" value="Settings" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=3;labelBackgroundColor=#FFF2CC;" vertex="1" parent="1">
+          <mxGeometry x="390" y="241" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-105" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="379" as="sourcePoint" />
+            <mxPoint x="540.0000000000034" y="379" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-108" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="360" as="targetPoint" />
+            <mxPoint x="390" y="360" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-4" value="&lt;div&gt;Current&lt;/div&gt;&lt;div&gt;Album&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="390" y="330" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-100" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="390" y="451" as="sourcePoint" />
+            <mxPoint x="320" y="451" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-101" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="470" y="471" as="sourcePoint" />
+            <mxPoint x="540" y="471" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-5" value="Volume" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="390" y="420" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-32" value="&lt;div&gt;Server&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="190" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-34" value="Remote Client(s)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="555" y="189" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-77" value="" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=none;arcSize=50;strokeColor=light-dark(#808080,#EDEDED);" vertex="1" parent="1">
+          <mxGeometry x="220" y="230" width="120" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-93" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240" y="540" as="sourcePoint" />
+            <mxPoint x="170.00000000000182" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-94" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="561" as="sourcePoint" />
+            <mxPoint x="390" y="561" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-78" value="&lt;div&gt;Playback&lt;/div&gt;&lt;div&gt;State&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;labelBackgroundColor=#FFF2CC;" vertex="1" parent="1">
+          <mxGeometry x="240" y="511" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-90" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="390" y="291" as="targetPoint" />
+            <mxPoint x="320" y="291" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-79" value="Settings" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="240" y="241" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-103" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="379" as="sourcePoint" />
+            <mxPoint x="390" y="379" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-107" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240" y="360" as="sourcePoint" />
+            <mxPoint x="170.00000000000182" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-80" value="&lt;div&gt;Current&lt;/div&gt;&lt;div&gt;Album&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=3;labelBackgroundColor=#FFF2CC;labelBorderColor=none;textShadow=0;" vertex="1" parent="1">
+          <mxGeometry x="240" y="330" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-98" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="240" y="451" as="sourcePoint" />
+            <mxPoint x="170" y="451" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-99" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="469" as="sourcePoint" />
+            <mxPoint x="390" y="469" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-81" value="Volume" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;labelBackgroundColor=#FFF2CC;" vertex="1" parent="1">
+          <mxGeometry x="240" y="420" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-82" value="" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=none;arcSize=50;strokeColor=light-dark(#808080,#EDEDED);" vertex="1" parent="1">
+          <mxGeometry x="70" y="310" width="120" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-92" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="559" as="sourcePoint" />
+            <mxPoint x="240" y="559" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-83" value="&lt;div&gt;Playback&lt;/div&gt;&lt;div&gt;State&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontStyle=0" vertex="1" parent="1">
+          <mxGeometry x="90" y="511" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-106" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="379" as="sourcePoint" />
+            <mxPoint x="240" y="379" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-85" value="&lt;div&gt;Current&lt;/div&gt;&lt;div&gt;Album&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontStyle=0" vertex="1" parent="1">
+          <mxGeometry x="90" y="330" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-86" value="Volume" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="90" y="420" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-87" value="Spotify" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="100" y="266" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-88" value="Host Client" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="255" y="190" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-109" value="Legend" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="660" y="360" width="120" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-110" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="10" y="30" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-113" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="10" y="70" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-114" value="Editable State" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="44" y="30" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-115" value="Read-Only State" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="44" y="70" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-117" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="10" y="110" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-118" value="External State" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="44" y="110" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-111" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="10" y="159" as="sourcePoint" />
+            <mxPoint x="40" y="159" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-116" value="On state change, update..." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="44" y="144" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-144" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="10" y="180" width="30" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-146" value="Point of Truth" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=8;" vertex="1" parent="CFtunintirZtyBM8X9aK-109">
+          <mxGeometry x="44" y="170" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-129" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="CFtunintirZtyBM8X9aK-126" target="CFtunintirZtyBM8X9aK-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-142" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;entryX=1;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="CFtunintirZtyBM8X9aK-126" target="CFtunintirZtyBM8X9aK-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="458" y="600" />
+              <mxPoint x="500" y="600" />
+              <mxPoint x="500" y="510" />
+              <mxPoint x="458" y="510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-126" value="Encoder" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="432.5" y="620" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-127" value="&lt;div&gt;Motor&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="377.5" y="620" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-130" value="" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;fillColor=none;arcSize=50;strokeColor=light-dark(#808080,#EDEDED);" vertex="1" parent="1">
+          <mxGeometry x="-80" y="309" width="120" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-131" value="&lt;div&gt;Playback&lt;/div&gt;&lt;div&gt;State&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontStyle=0" vertex="1" parent="1">
+          <mxGeometry x="-60" y="510" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-132" value="&lt;div&gt;Current&lt;/div&gt;&lt;div&gt;Album&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontStyle=0" vertex="1" parent="1">
+          <mxGeometry x="-60" y="329" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-133" value="Volume" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="-60" y="419" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-134" value="External Device" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="-50" y="266" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-136" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="90" y="359.16" as="sourcePoint" />
+            <mxPoint x="20.00000000000182" y="359.16" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-137" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="378.16" as="sourcePoint" />
+            <mxPoint x="90" y="378.16" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-138" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="90" y="450.15999999999997" as="sourcePoint" />
+            <mxPoint x="20.00000000000182" y="450.15999999999997" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-139" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="469.15999999999997" as="sourcePoint" />
+            <mxPoint x="90" y="469.15999999999997" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-140" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="90" y="541.16" as="sourcePoint" />
+            <mxPoint x="20.00000000000182" y="541.16" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CFtunintirZtyBM8X9aK-141" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="560.16" as="sourcePoint" />
+            <mxPoint x="90" y="560.16" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
