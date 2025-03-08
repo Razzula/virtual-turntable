@@ -2,28 +2,32 @@
 import os
 from typing import Any, Final
 
-from fastapi import HTTPException
-
 import cv2
 import numpy as np
+from fastapi import HTTPException
 
-from app.utils.discogsAPI import DiscogsAPI
+from app.APIs.discogsAPI import DiscogsAPI
+
 
 def detectCircle(imagePath: str) -> np.ndarray[Any, np.dtype[np.integer[Any] | np.floating[Any]]]:
-    """TODO"""
+    """Detect circle within an image."""
     image = cv2.imread(imagePath)
 
     grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(grey, (15, 15), 0)
 
     # Detect circles
-    circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, dp=1.5, minDist=100, param1=80, param2=80, minRadius=200, maxRadius=0)
+    circles = cv2.HoughCircles(
+        blurred, cv2.HOUGH_GRADIENT,
+        dp=1.5, minDist=100,
+        param1=80, param2=80,
+        minRadius=200, maxRadius=0
+    )
     return circles
 
 def cropLabel(imagePath: str) -> np.ndarray[Any, np.dtype[np.integer[Any] | np.floating[Any]]] | None:
-    """TODO"""
+    """Crop the current image to the largest circle detected."""
     circles = detectCircle(imagePath)
-    pass
     if (circles is not None):
         image = cv2.imread(imagePath)
         circles = np.round(circles[0, :]).astype("int")
@@ -39,7 +43,7 @@ def cropLabel(imagePath: str) -> np.ndarray[Any, np.dtype[np.integer[Any] | np.f
     return None
 
 def processImages(directory: str) -> np.ndarray[Any, np.dtype[np.integer[Any] | np.floating[Any]]] | None:
-    """TODO"""
+    """Process the images in the given directory, returning the best selection."""
     for file in os.listdir(directory):
         imagePath = os.path.join(directory, file)
         cropped = cropLabel(imagePath)
@@ -60,6 +64,7 @@ class CentreLabelHandler:
                 os.makedirs(os.path.join(dataPath, subDir))
 
     def findReleaseData(self, albumName: str, artistName: str | None, year: str | None, medium: str | None) -> Any | None:
+        """Find the release data for the given album."""
         album = self.DISCOGS_API.searchRelease(albumName, artistName, year, medium)
         if (album is not None):
             return self.DISCOGS_API.getDataForRelease(album['id'])
@@ -67,7 +72,7 @@ class CentreLabelHandler:
             raise HTTPException(status_code=404, detail='Failed to find album on Discogs.')
 
     def downloadCandidates(self, albumID: str, images: list[Any]) -> None:
-        """TODO"""
+        """Download images for an album."""
 
         candidatesDir = os.path.join(self.DATA_DIR, 'centreLabelCandidates')
 

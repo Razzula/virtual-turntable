@@ -1,6 +1,8 @@
 """Discogs API handler."""
 from urllib.parse import urlencode
+
 import requests
+
 
 class DiscogsAPI:
     """Discogs API handler."""

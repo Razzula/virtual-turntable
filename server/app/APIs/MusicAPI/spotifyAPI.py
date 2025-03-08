@@ -2,88 +2,27 @@
 
 import asyncio
 import os
-import random
-import string
-import socket
-import threading
-import time
 from typing import Any, Final
-
 from urllib.parse import urlencode
+
 import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import RedirectResponse
 
-from app.utils.websocketHandler import WebsocketHandler
+from app.APIs.MusicAPI.IMusicAPI import IMusicAPI
+from app.modules.sessionManager import SessionManager
+from app.utils import generateRandomString
 
 
-import socket
-
-from server.app.utils.sessionHandler import SessionManager
-
-def getLocalIPs() -> list:
-    """Retrieve all local IP addresses (IPv4 and IPv6, including link-local) using both hostname lookup and socket connections."""
-    ips = set()
-
-    # Method 1: Hostname lookup
-    try:
-        hostName = socket.gethostname()
-        # IPv4
-        ips.update(socket.gethostbyname_ex(hostName)[2])
-    except Exception as e:
-        print(f'Error retrieving IPv4 addresses: {e}')
-    try:
-        # IPv6
-        addrInfos = socket.getaddrinfo(hostName, None, socket.AF_INET6)
-        for info in addrInfos:
-            ips.add(info[4][0])
-    except Exception as e:
-        print(f'Error retrieving IPv6 addresses: {e}')
-
-    # Method 2: Dummy socket connections
-    try:
-        # IPv4
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.connect(('8.8.8.8', 80))
-            ips.add(s.getsockname()[0])
-    except Exception as e:
-        print(f'Error retrieving external IPv4 address: {e}')
-    try:
-        # IPv6
-        with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM) as s:
-            s.connect(('2001:4860:4860::8888', 80))
-            ips.add(s.getsockname()[0])
-    except Exception as e:
-        print(f'Error retrieving external IPv6 address: {e}')
-
-    return list(ips)
-
-
-class SpotifyAPI:
+class SpotifyAPI(IMusicAPI):
     """Handler class for Spotify authentication flow."""
 
     def __init__(self, sessionManager: SessionManager, hostName: str, sendToClient: Any, clearCache: Any) -> None:
         """Initialise the Spotify authentication handler."""
+        super().__init__(sessionManager, hostName, sendToClient, clearCache)
+        self.provider = 'Spotify'
         self.CLIENT_ID: Final = os.getenv('SPOTIFY_CLIENT_ID')
         self.CLIENT_SECRET: Final = os.getenv('SPOTIFY_CLIENT_SECRET')
-
-        self.sendToClient = sendToClient
-        self.clearCache = clearCache
-
-        self.REDIRECT_URI: Final = f'https://{hostName}/virtual-turntable/auth/callback'
-        print(self.REDIRECT_URI)
-
-        self.sessionManager = sessionManager
-
-        # TODO move these up to main level
-        self.vttPlaylistID: str | None = None
-        self.hostUserID: str | None = None
-
-    def generateRandomString(self, length: int) -> str:
-        """Generate a random string of letters and digits with a given length"""
-        return ''.join(
-            random.choice(string.ascii_letters + string.digits) for _ in range(length)
-        )
 
     async def login(self, isHost: bool) -> RedirectResponse:
         """Redirect the user to the Spotify login page."""
@@ -103,9 +42,9 @@ class SpotifyAPI:
         )
 
         # generate unique session ID
-        sessionID = self.generateRandomString(16)
+        sessionID = generateRandomString(16)
         while (self.sessionManager.getSession(sessionID)):
-            sessionID = self.generateRandomString(16)
+            sessionID = generateRandomString(16)
         self.sessionManager.createSession(sessionID, isHost)
 
         AUTH_QUERY_PARAMS: Final = {
@@ -162,11 +101,11 @@ class SpotifyAPI:
                 if (session is not None):
                     if (session.get('isHost') and sessionID != existingSessionID):
                         self.sessionManager.deleteSession(existingSessionID)
-            self.vttPlaylistID = None
+            self.sessionManager.setHostPlaylistID(None)
             self.clearCache()
             # setup new host
             self.setupPlaylist(sessionID, 'Virtual Turntable')
-            self.hostUserID = self.sessionManager.getSession(sessionID)['userID']
+
 
         # return to the main page
         response = RedirectResponse(url='/virtual-turntable')
@@ -174,7 +113,7 @@ class SpotifyAPI:
             key='sessionID',
             value=sessionID,
             httponly=True,
-            secure=False, # allow HTTP
+            secure=False,  # allow HTTP
             samesite='lax'
         )
         return response
@@ -211,49 +150,17 @@ class SpotifyAPI:
                 print(f"Error refreshing Spotify token: {e}")
                 break
 
-    def token(self, sessionID: str) -> dict[str, str]:
-        """Return the Spotify access token."""
-        SESSION: Final = self.sessionManager.getSession(sessionID)
-        if (SESSION):
-            ACCESS_TOKEN: Final = SESSION.get('accessToken')
-            if (not ACCESS_TOKEN):
-                print(f"Access token not found for session '{sessionID}'")
-                raise HTTPException(status_code=404, detail='Access token not found.')
-            return {'accessToken': ACCESS_TOKEN}
-        else:
-            print(f"Session '{sessionID}' not found.")
-            raise HTTPException(status_code=401, detail='Invalid session.')
-
-    def hostToken(self) -> str:
-        hostToken = None
-        for session in self.sessionManager.sessions.values():
-            if (session and session.get('isHost')):
-                hostToken = session.get('accessToken')
-                break
-        if (hostToken) is None:
-            raise HTTPException(
-                status_code=404, detail='Host credentials not found.'
-            )
-        return hostToken
-
-    def playlist(self) -> str:
-        """Return the Virtual Turntable playlist ID."""
-        PLAYLIST_ID: Final = self.vttPlaylistID
-        if (not PLAYLIST_ID):
-            raise HTTPException(status_code=404, detail='Playlist ID not found.')
-        return PLAYLIST_ID
-
     def setupPlaylist(self, sessionID: str, playlistName: str) -> None:
         """Fetch/create playlist on Spotify, and cache ID."""
         playlistID = self.getPlaylistByName(sessionID, playlistName)
         if (not playlistID):
             playlistID = self.createPlaylist(sessionID, playlistName)
-        self.vttPlaylistID = playlistID
+        self.sessionManager.setHostPlaylistID(playlistID)
 
     def getPlaylistByName(self, sessionID: str, playlistName: str) -> str | None:
         """Get the Spotify playlist ID by name."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.sessionManager.getSession("accessToken")}'
+            'Authorization': f'Bearer {self.sessionManager.getToken(sessionID)}',
         }
         url = 'https://api.spotify.com/v1/me/playlists'
         while (url):
@@ -273,7 +180,7 @@ class SpotifyAPI:
     def createPlaylist(self, sessionID: str, playlistName: str) -> str:
         """Create a new Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.sessionManager.getSession("accessToken")}',
+            'Authorization': f'Bearer {self.sessionManager.getToken(sessionID)}',
             'Content-Type': 'application/json',
         }
 
@@ -296,7 +203,7 @@ class SpotifyAPI:
     def getUserID(self, sessionID: str) -> str:
         """Get user."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.sessionManager.getSession("accessToken")}',
+            'Authorization': f'Bearer {self.sessionManager.getToken(sessionID)}',
             'Content-Type': 'application/json'
         }
 
@@ -314,7 +221,7 @@ class SpotifyAPI:
     def addAlbumToPlaylist(self, albumID: str, playlistID: str) -> None:
         """Add an album to a Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.hostToken()}',
+            'Authorization': f'Bearer {self.sessionManager.getHostToken()}',
             'Content-Type': 'application/json',
         }
 
@@ -342,7 +249,7 @@ class SpotifyAPI:
     def playPlaylist(self, playlistID: str) -> None:
         """Start playback of the specified Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.hostToken()}',
+            'Authorization': f'Bearer {self.sessionManager.getHostToken()}',
             'Content-Type': 'application/json',
         }
 
@@ -358,3 +265,23 @@ class SpotifyAPI:
             raise HTTPException(
                 status_code=response.status_code, detail=response.json()
             )
+
+    def searchForAlbum(self, album: dict[str, str]) -> str:
+        """TODO"""
+        AUTH_TOKEN: Final = self.sessionManager.getHostToken()
+        PARAMS: Final = {
+            'q': f'{album["name"]} artist:{album["artist"]} year:{album["year"]}',
+            'type': 'album',
+            'limit': 1,
+        }
+        REQUEST: Final = requests.get(
+            f'https://api.spotify.com/v1/search/?{urlencode(PARAMS)}',
+            headers={
+                'Authorization': f'Bearer {AUTH_TOKEN}',
+            },
+            timeout=10,
+        )
+
+        REQUEST.raise_for_status()
+        RESPONSE: Final = REQUEST.json()
+        return str(RESPONSE['albums']['items'][0]['id'])

@@ -8,8 +8,9 @@ import torch
 import torch.nn as nn
 from PIL import Image
 
-from modelling.models.Ouroboros import Ouroboros, transform
 from modelling.models.ModelType import ModelType
+from modelling.models.Ouroboros import Ouroboros, transform
+
 
 class ModelHandler:
     """Handler class for the model."""
@@ -25,7 +26,12 @@ class ModelHandler:
 
     def loadModel(self, modelType: ModelType, modelName: str) -> None:
         """Load a pre-trained model."""
-        modelPath = os.path.join(self.MODELS_PATH, modelType.name, modelName)
+        try:
+            modelTypeName = modelType.name
+        except AttributeError:
+            modelTypeName = modelType
+
+        modelPath = os.path.join(self.MODELS_PATH, modelTypeName, modelName)
         if (not os.path.exists(modelPath)):
             raise FileNotFoundError(f'Model ({modelPath}) not found.')
 
@@ -35,7 +41,7 @@ class ModelHandler:
             case ModelType.OUROBOROS:
                 self.model = Ouroboros(classes=checkpoint['classes']) # artificial IDs
             case _:
-                raise TypeError(f'Model type ({modelType.name}) not found.')
+                raise TypeError(f'Model type ({modelTypeName}) not found.')
         if (self.model is None):
             raise RuntimeError('Model not loaded.')
 
@@ -54,7 +60,7 @@ class ModelHandler:
 
         if (self.model is None):
             raise Exception('No model loaded.')
-        
+
         if (os.path.isdir(imagePath)):
             # scan dir
             results = []
@@ -67,7 +73,7 @@ class ModelHandler:
             return [self._predictImage(imagePath)]
         else:
             raise FileNotFoundError(f"Path '{imagePath}' does not exist.")
-        
+
     def _predictImage(self, imagePath: str) -> Dict[str, Union[str, int, float]]:
         """Helper function to predict the class of a single image."""
 

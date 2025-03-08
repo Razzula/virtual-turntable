@@ -3,9 +3,9 @@
 import json
 from typing import Any, List, Optional
 
-from fastapi import WebSocket, HTTPException
-from fastapi.websockets import WebSocketState
 from app.enums.StateKeys import StateKeys
+from fastapi import HTTPException, WebSocket
+from fastapi.websockets import WebSocketState
 
 
 class WebsocketHandler:
