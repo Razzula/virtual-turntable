@@ -1,14 +1,13 @@
-import { Album, Track, User } from './types/Spotify.ts'
+import { Album, Track, User } from './types/Spotify.ts';
 
-import './styles/App.css'
-import WebSocketManagerInstance from './WebSocketManager';
 import React, { useEffect, useState } from 'react';
-import SpotifyAPI from './Spotify/SpotifyAPI.ts';
 import { Settings } from './App.tsx';
+import { Dialogue, DialogueContent } from './common/Dialogue';
 import { Tooltip, TooltipContent, TooltipTrigger } from './common/Tooltip.tsx';
-import { Dialogue } from './common/Dialogue';
-import { DialogueContent } from './common/Dialogue';
 import WebcamCapture from './common/WebcamCapture.tsx';
+import SpotifyAPI from './Spotify/SpotifyAPI.ts';
+import './styles/App.css';
+import WebSocketManagerInstance from './WebSocketManager';
 
 type RemoteControllerProps = {
     authToken: string;
@@ -73,7 +72,10 @@ function RemoteController({
         if (libraryPlaylistID) {
             SpotifyAPI.getPlaylistAlbums(authToken, libraryPlaylistID)
                 .then((albums) => {
-                    setLibrary(albums);
+                    setLibrary([
+                        { id: '-1', name: "I'm Feeling Lucky", album_type: 'playlist', artists: [], images: [{ url: '/virtual-turntable/icons/random.svg', height: 300, width: 300 }], label: '', release_date: '', external_urls: { spotify: '' } },
+                        ...albums
+                    ]);
                 }
             );
         }
@@ -93,7 +95,12 @@ function RemoteController({
 
     function handleAlbumClick(albumID: string, controlAllowed: boolean) {
         if (controlAllowed) {
-            WebSocketManagerInstance.send(JSON.stringify({ command: 'playAlbum', value: albumID }));
+            if (albumID === '-1') {
+                WebSocketManagerInstance.send(JSON.stringify({ command: 'playPlaylist', value: libraryPlaylistID }));
+            }
+            else {
+                WebSocketManagerInstance.send(JSON.stringify({ command: 'playAlbum', value: albumID }));
+            }
         }
     }
 

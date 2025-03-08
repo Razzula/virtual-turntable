@@ -195,6 +195,13 @@ function App() {
                 if (message.command === 'playAlbum') {
                     if (authToken !== undefined && authToken !== null) {
                         SpotifyAPI.playAlbum(authToken, message.value);
+                        SpotifyAPI.setShuffle(authToken, false);
+                    }
+                }
+                if (message.command === 'playPlaylist') {
+                    if (authToken !== undefined && authToken !== null) {
+                        SpotifyAPI.playPlaylist(authToken, message.value);
+                        SpotifyAPI.setShuffle(authToken, true);
                     }
                 }
                 else if (message.command === 'capture') {

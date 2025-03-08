@@ -193,7 +193,7 @@ class Server:
                 await self.websocketHandler.sendToHost({'command': command})
                 return
 
-        for key in [Commands.PLAY_ALBUM]:
+        for key in [Commands.PLAY_ALBUM, Commands.PLAY_PLAYLIST]:
             if (command == key.value):
                 await self.websocketHandler.sendToHost({'command': command, 'value': value})
                 return

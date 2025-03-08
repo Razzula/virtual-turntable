@@ -1,5 +1,5 @@
 import IMusicAPI from '../IMusicAPI';
-import { Album, Track, User } from '../types/Spotify';
+import { Album, User } from '../types/Spotify';
 
 class SpotifyAPI implements IMusicAPI {
 
@@ -33,6 +33,21 @@ class SpotifyAPI implements IMusicAPI {
             },
             body: JSON.stringify({
                 context_uri: `spotify:album:${albumID}`,
+                offset: { position: offset },
+                position_ms: position_ms
+            }),
+        });
+    }
+
+    public async playPlaylist(authToken: string, playlistID: string, offset: number = 0, position_ms: number = 0): Promise<void> {
+        fetch('https://api.spotify.com/v1/me/player/play', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+                context_uri: `spotify:playlist:${playlistID}`,
                 offset: { position: offset },
                 position_ms: position_ms
             }),
@@ -98,6 +113,22 @@ class SpotifyAPI implements IMusicAPI {
         });
 
         return albums;
+    }
+
+    public async setShuffle(authToken: string, shuffle: boolean): Promise<void> {
+        const response = await fetch(`https://api.spotify.com/v1/me/player/shuffle?state=${shuffle}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ state: shuffle }),
+        });
+        const text = await response.text();
+        console.warn("Response status:", response.status, "body:", text);
+        if (!response.ok) {
+            throw new Error(`Failed to set shuffle: ${response.statusText}`);
+        }
     }
 
 }
