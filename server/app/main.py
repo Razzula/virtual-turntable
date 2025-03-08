@@ -26,7 +26,6 @@ from app.enums.StateKeys import Commands, StateKeys
 ROOT_DIR: Final = os.path.dirname(os.path.abspath(__file__))
 print(ROOT_DIR)
 
-
 class Server:
     """FastAPI server application."""
 
@@ -43,7 +42,7 @@ class Server:
         APP_CONTACT: Final = os.getenv('CONTACT')
 
         GPIO_ACCESS: Final = os.getenv('GPIO_ACCESS')
-        
+
         HOSTNAME: Final = os.getenv('HOSTNAME', 'localhost')
 
         origins = ['*']
@@ -96,7 +95,7 @@ class Server:
 
             asyncio.create_task(
                 self.piController.reactToButton(
-                    onDown=lambda: self.triggerCamera(),
+                    onDown=self.triggerCamera,
                 )
             )
 
@@ -104,7 +103,7 @@ class Server:
                 self.piController.reactToEncoder(
                     onFreeRotate=lambda x: self.updateVolume(x),
                     onDownRotate=lambda x: self.changeTrack(x),
-                    onDownOnly=lambda: self.togglePlayState(),
+                    onDownOnly=self.togglePlayState,
                 )
             )
 
@@ -124,7 +123,7 @@ class Server:
         return self.app
 
     # STATE MANAGEMENT
-    def getState(self) -> dict:
+    def getState(self) -> dict[str, Any]:
         """TODO"""
         return self.__state
 
@@ -229,7 +228,7 @@ class Server:
         currentPlayState = self.getState().get(StateKeys.PLAY_STATE.value)
         await self.updateState(StateKeys.PLAY_STATE, not currentPlayState)
 
-    async def updateVolume(self, delta) -> None:
+    async def updateVolume(self, delta: float) -> None:
         """TODO"""
         currentSettings = self.getState().get('settings')
         if (currentSettings):
@@ -239,7 +238,7 @@ class Server:
             newSettings['volume'] = newVolume
             await self.updateState(StateKeys.SETTINGS, newSettings)
 
-    async def changeTrack(self, direction) -> None:
+    async def changeTrack(self, direction: float) -> None:
         """TODO"""
         if (direction > 0):
             await self.websocketHandler.sendToHost(
@@ -253,11 +252,11 @@ class Server:
     async def triggerCamera(self) -> None:
         """TODO"""
         captures = self.piController.takePhotos(maxCameras=3)
-        
+
         if (not captures):
             return
         print('Captured camera(s)')
-        
+
         dirPath = os.path.join(ROOT_DIR, 'data', 'captures')
         if (not os.path.exists(dirPath)):
             # create dir
@@ -268,12 +267,12 @@ class Server:
                 filePath = os.path.join(dirPath, fileName)
                 if (os.path.isfile(filePath) or os.path.islink(filePath)):
                     os.unlink(filePath)
-        
+
         # handle new images
         for (i, frame) in enumerate(captures):
             if (frame is None):
                 continue
-        
+
             # get image dimensions
             height, width, _ = frame.shape
 
@@ -287,10 +286,10 @@ class Server:
 
             fileName = f'capture{i}.jpg'
             cv2.imwrite(os.path.join(dirPath, fileName), croppedFrame)
-            
+
         await self.websocketHandler.sendToHost({ 'command': 'capture' })  # serve image to host client
         await self.scanGet('captures')  # run album prediction, and serve to host
-    
+
     async def scanGet(self, fileName: str) -> JSONResponse:
         """
         DEV! This endpoint allows a developer to simulate a playevent
@@ -300,7 +299,7 @@ class Server:
         SCAN_RESULT: Final = self.modelHandler.scan(
             os.path.join(ROOT_DIR, 'data', fileName)
         )
-        
+
         # HANDLE RESULT
         result = None
         if (len(SCAN_RESULT) > 1):

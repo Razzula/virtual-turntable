@@ -19,6 +19,8 @@ from app.utils.websocketHandler import WebsocketHandler
 
 import socket
 
+from server.app.utils.sessionHandler import SessionManager
+
 def getLocalIPs() -> list:
     """Retrieve all local IP addresses (IPv4 and IPv6, including link-local) using both hostname lookup and socket connections."""
     ips = set()
@@ -60,7 +62,7 @@ def getLocalIPs() -> list:
 class SpotifyAPI:
     """Handler class for Spotify authentication flow."""
 
-    def __init__(self, hostName: str, sendToClient: Any, clearCache: Any) -> None:
+    def __init__(self, sessionManager: SessionManager, hostName: str, sendToClient: Any, clearCache: Any) -> None:
         """Initialise the Spotify authentication handler."""
         self.CLIENT_ID: Final = os.getenv('SPOTIFY_CLIENT_ID')
         self.CLIENT_SECRET: Final = os.getenv('SPOTIFY_CLIENT_SECRET')
@@ -71,8 +73,9 @@ class SpotifyAPI:
         self.REDIRECT_URI: Final = f'https://{hostName}/virtual-turntable/auth/callback'
         print(self.REDIRECT_URI)
 
+        self.sessionManager = sessionManager
+
         # TODO move these up to main level
-        self.sessions: dict[str, dict[str, str]] = {}
         self.vttPlaylistID: str | None = None
         self.hostUserID: str | None = None
 
@@ -99,10 +102,11 @@ class SpotifyAPI:
             )
         )
 
+        # generate unique session ID
         sessionID = self.generateRandomString(16)
-        while (self.sessions.get('sessionID')):
+        while (self.sessionManager.getSession(sessionID)):
             sessionID = self.generateRandomString(16)
-        self.sessions[sessionID] = { 'isHost': isHost }
+        self.sessionManager.createSession(sessionID, isHost)
 
         AUTH_QUERY_PARAMS: Final = {
             'response_type': 'code',
@@ -139,28 +143,30 @@ class SpotifyAPI:
         accessToken = BODY.get('access_token')
 
         # store tokens
-        self.sessions[sessionID]['accessToken'] = accessToken
-        self.sessions[sessionID]['refresh_token'] = BODY.get('refresh_token')
-        self.sessions[sessionID]['userID'] = self.getUserID(sessionID)
+        self.sessionManager.updateSession(sessionID, {
+            'accessToken': accessToken,
+            'refresh_token': BODY.get('refresh_token'),
+            'userID': self.getUserID(sessionID),
+        })
 
         # start token refresh thread
         expiration = BODY.get('expires_in', 3600)
         asyncio.create_task(self.refreshToken(sessionID, expiration))
 
         # handle setup, for host only
-        if (self.sessions[sessionID]['isHost']):
+        if (self.sessionManager.getSession(sessionID)['isHost']):
             print('New host connected')
             # terminate existing host sessions
             await self.sendToClient({ 'command': 'REFRESH_HOST' })
-            for existingSessionID, session in self.sessions.items():
+            for (existingSessionID, session) in self.sessionManager.sessions.items():
                 if (session is not None):
                     if (session.get('isHost') and sessionID != existingSessionID):
-                        self.sessions[existingSessionID] = None
+                        self.sessionManager.deleteSession(existingSessionID)
             self.vttPlaylistID = None
             self.clearCache()
             # setup new host
             self.setupPlaylist(sessionID, 'Virtual Turntable')
-            self.hostUserID = self.sessions[sessionID]['userID']
+            self.hostUserID = self.sessionManager.getSession(sessionID)['userID']
 
         # return to the main page
         response = RedirectResponse(url='/virtual-turntable')
@@ -184,7 +190,7 @@ class SpotifyAPI:
                     'https://accounts.spotify.com/api/token',
                     data={
                         'grant_type': 'refresh_token',
-                        'refresh_token': self.sessions[sessionID]['refresh_token'],
+                        'refresh_token': self.sessionManager.getSession(sessionID)['refresh_token'],
                     },
                     headers={'Content-Type': 'application/x-www-form-urlencoded'},
                     auth=(self.CLIENT_ID, self.CLIENT_SECRET),
@@ -194,9 +200,9 @@ class SpotifyAPI:
                 BODY = RESPONSE.json()
 
                 # update tokens
-                self.sessions[sessionID]['accessToken'] = BODY.get('accessToken')
+                self.sessionManager.updateSession(sessionID, { 'accessToken': BODY.get('access_token') })
                 expiration = BODY.get('expires_in', 3600)
-                print("Spotify access token refreshed.")
+                print('Spotify access token refreshed.')
 
                 # inform clients to retrieve the new token
                 await self.sendToClient({'command': 'TOKEN'})
@@ -207,7 +213,7 @@ class SpotifyAPI:
 
     def token(self, sessionID: str) -> dict[str, str]:
         """Return the Spotify access token."""
-        SESSION: Final = self.sessions.get(sessionID)
+        SESSION: Final = self.sessionManager.getSession(sessionID)
         if (SESSION):
             ACCESS_TOKEN: Final = SESSION.get('accessToken')
             if (not ACCESS_TOKEN):
@@ -220,7 +226,7 @@ class SpotifyAPI:
 
     def hostToken(self) -> str:
         hostToken = None
-        for session in self.sessions.values():
+        for session in self.sessionManager.sessions.values():
             if (session and session.get('isHost')):
                 hostToken = session.get('accessToken')
                 break
@@ -247,7 +253,7 @@ class SpotifyAPI:
     def getPlaylistByName(self, sessionID: str, playlistName: str) -> str | None:
         """Get the Spotify playlist ID by name."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.sessions[sessionID].get("accessToken")}'
+            'Authorization': f'Bearer {self.sessionManager.getSession("accessToken")}'
         }
         url = 'https://api.spotify.com/v1/me/playlists'
         while (url):
@@ -267,8 +273,8 @@ class SpotifyAPI:
     def createPlaylist(self, sessionID: str, playlistName: str) -> str:
         """Create a new Spotify playlist."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.sessions[sessionID].get("accessToken")}',
-            'Content-Type': 'application/json'
+            'Authorization': f'Bearer {self.sessionManager.getSession("accessToken")}',
+            'Content-Type': 'application/json',
         }
 
         # define
@@ -290,7 +296,7 @@ class SpotifyAPI:
     def getUserID(self, sessionID: str) -> str:
         """Get user."""
         HEADERS: Final = {
-            'Authorization': f'Bearer {self.sessions[sessionID].get("accessToken")}',
+            'Authorization': f'Bearer {self.sessionManager.getSession("accessToken")}',
             'Content-Type': 'application/json'
         }
 
