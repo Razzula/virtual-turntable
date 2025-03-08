@@ -17,3 +17,4 @@ class Commands(Enum):
     FAST_FORWARD = 'forwards'
     REWIND = 'reverse'
     SEEK = 'seek'
+    REFRESH_PLAYLIST = 'refreshPlaylist'

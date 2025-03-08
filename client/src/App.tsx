@@ -34,6 +34,7 @@ function App() {
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
 
     const [needToFetchCapture, setNeedToFetchCapture] = useState<boolean>(false);
+    const [needToRefreshPlaylist, setNeedToRefreshPlaylist] = useState<boolean>(false);
 
     const [settings, setSettings] = useState<Settings>({
         enableMotor: true,
@@ -186,6 +187,9 @@ function App() {
                 isSettingsUpdateLocal.current = false; // origin from server; prevent re-broadcasts
                 setSettings(message.value);
             }
+            else if (message.command === 'refreshPlaylist') {
+                setNeedToRefreshPlaylist(true);
+            }
 
             if (isHostDeviceRef.current) {
                 // MAIN
@@ -198,7 +202,7 @@ function App() {
                         SpotifyAPI.setShuffle(authToken, false);
                     }
                 }
-                if (message.command === 'playPlaylist') {
+                else if (message.command === 'playPlaylist') {
                     if (authToken !== undefined && authToken !== null) {
                         SpotifyAPI.playPlaylist(authToken, message.value);
                         SpotifyAPI.setShuffle(authToken, true);
@@ -294,6 +298,7 @@ function App() {
                     handleUpload={handleUpload}
                     hostUserID={hostUserID}
                     hostSettings={settings} isHostSettingsUpdateLocal={isSettingsUpdateLocal}
+                    needToRefreshPlaylist={needToRefreshPlaylist} setNeedToRefreshPlaylist={setNeedToRefreshPlaylist}
                 />
             );
         }

@@ -312,10 +312,14 @@ class Server:
 
         # ADD TO PLAYLIST
         self.musicAPI.addAlbumToPlaylist(ALBUM_ID, self.sessionManager.getHostPlaylistID())
+        await self.websocketHandler.broadcast({
+            'command': Commands.REFRESH_PLAYLIST.value,
+            'value': self.sessionManager.getHostPlaylistID(),
+        })
 
-        # SEND TO CLIENTMusicAPIInterface
+        # SEND TO CLIENTM
         await self.websocketHandler.sendToHost({
-            'command': 'playAlbum',
+            'command': Commands.PLAY_ALBUM.value,
             'value': ALBUM_ID,
         })
 

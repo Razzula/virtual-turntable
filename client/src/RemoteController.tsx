@@ -19,6 +19,8 @@ type RemoteControllerProps = {
     hostUserID: string | null;
     hostSettings: Settings;
     isHostSettingsUpdateLocal: React.MutableRefObject<boolean>;
+    needToRefreshPlaylist: boolean;
+    setNeedToRefreshPlaylist: (value: boolean) => void;
 };
 
 function RemoteController({
@@ -28,6 +30,7 @@ function RemoteController({
     handleUpload,
     hostUserID,
     hostSettings, isHostSettingsUpdateLocal,
+    needToRefreshPlaylist, setNeedToRefreshPlaylist,
 }: RemoteControllerProps): JSX.Element {
 
     const [libraryPlaylistID, setLibraryPlaylistID] = useState<string | null>(null);
@@ -51,6 +54,7 @@ function RemoteController({
                     if (response.ok) {
                         response.json().then((data) => {
                             setLibraryPlaylistID(data.playlistID);
+                            setNeedToRefreshPlaylist(false);
                         });
                     }
                 }
@@ -66,7 +70,7 @@ function RemoteController({
                 );
             }
         }
-    }, [hostUserID, authToken]);
+    }, [hostUserID, authToken, needToRefreshPlaylist]);
 
     useEffect(() => {
         if (libraryPlaylistID) {
