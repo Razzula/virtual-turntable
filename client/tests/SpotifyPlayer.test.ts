@@ -1,7 +1,7 @@
 import { vi, describe, test, expect, beforeEach } from "vitest";
 import { SpotifyPlayer } from "../src/Spotify/SpotifyPlayer";
 
-// Setup a global mock for the Spotify SDK
+// --- Global Mocks for Spotify SDK ---
 const mockPlayerMethods = {
     connect: vi.fn(),
     togglePlay: vi.fn(),
@@ -12,13 +12,12 @@ const mockPlayerMethods = {
     setVolume: vi.fn(),
     addListener: vi.fn(),
 };
-
 const SpotifyPlayerMock = vi.fn(() => mockPlayerMethods);
 globalThis.Spotify = {
     Player: SpotifyPlayerMock,
 } as any;
 
-// Instead of returning a fake object, let document.createElement return a real Node.
+// Let document.createElement return a real Node for scripts.
 const originalCreateElement = document.createElement.bind(document);
 vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
     if (tagName === "script") {
@@ -30,30 +29,44 @@ vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
     return originalCreateElement(tagName);
 });
 
-// Dummy functions for setDeviceID and state change handling
+// Dummy callbacks
 const mockSetDeviceID = vi.fn();
 const mockHandleStateChange = vi.fn();
 
+beforeEach(() => {
+    vi.clearAllMocks();
+});
+
 describe("SpotifyPlayer", () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
-
     test("should initialize and load the SDK script", () => {
-        const mockAuthToken = "test-token";
-        new SpotifyPlayer(mockAuthToken, mockSetDeviceID, mockHandleStateChange);
-
-        // Check that a script element is created
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
         expect(document.createElement).toHaveBeenCalledWith("script");
     });
 
+    test("should log error when SDK fails to load", async () => {
+        const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => { });
+        // Override document.body.appendChild to simulate script error.
+        const originalAppendChild = document.body.appendChild;
+        document.body.appendChild = (node: Node) => {
+            if (node instanceof HTMLScriptElement && node.onerror) {
+                node.onerror(new Error("Script failed"));
+            }
+            return originalAppendChild.call(document.body, node);
+        };
+
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
+        // Allow microtask queue to flush.
+        await new Promise((r) => setTimeout(r, 0));
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+            "Error during SDK loading:",
+            expect.any(Error)
+        );
+        document.body.appendChild = originalAppendChild;
+    });
+
     test("should create Spotify Player instance when SDK is ready", () => {
-        const mockAuthToken = "test-token";
-        new SpotifyPlayer(mockAuthToken, mockSetDeviceID, mockHandleStateChange);
-
-        // Simulate SDK loaded callback
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
         window.onSpotifyWebPlaybackSDKReady();
-
         expect(SpotifyPlayerMock).toHaveBeenCalledWith({
             name: "Virtual Turntable",
             getOAuthToken: expect.any(Function),
@@ -61,56 +74,144 @@ describe("SpotifyPlayer", () => {
         });
     });
 
-    test("should call connect() on player when initialized", () => {
-        const mockAuthToken = "test-token";
-        new SpotifyPlayer(mockAuthToken, mockSetDeviceID, mockHandleStateChange);
+    test("should call setDeviceID on ready event", () => {
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
         window.onSpotifyWebPlaybackSDKReady();
+        // Simulate 'ready' event.
+        const readyCall = mockPlayerMethods.addListener.mock.calls.find(
+            (call) => call[0] === "ready"
+        );
+        expect(readyCall).toBeDefined();
+        if (readyCall) {
+            readyCall[1]({ device_id: "dummyDevice" });
+            expect(mockSetDeviceID).toHaveBeenCalledWith("dummyDevice");
+        }
+    });
 
+    test("should log not_ready event", () => {
+        const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => { });
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
+        window.onSpotifyWebPlaybackSDKReady();
+        const notReadyCall = mockPlayerMethods.addListener.mock.calls.find(
+            (call) => call[0] === "not_ready"
+        );
+        expect(notReadyCall).toBeDefined();
+        if (notReadyCall) {
+            notReadyCall[1]({ device_id: "dummyDevice" });
+            expect(consoleLogSpy).toHaveBeenCalledWith("Device ID has gone offline", "dummyDevice");
+        }
+    });
+
+    test("should call handlePlayerStateChange on player_state_changed event", () => {
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
+        window.onSpotifyWebPlaybackSDKReady();
+        const stateChangedCall = mockPlayerMethods.addListener.mock.calls.find(
+            (call) => call[0] === "player_state_changed"
+        );
+        expect(stateChangedCall).toBeDefined();
+        if (stateChangedCall) {
+            const dummyState = { paused: false, track_window: { current_track: { id: "track1" } } };
+            stateChangedCall[1](dummyState);
+            expect(mockHandleStateChange).toHaveBeenCalledWith(dummyState);
+        }
+    });
+
+    test("should log error for autoplay_failed event", () => {
+        const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => { });
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
+        window.onSpotifyWebPlaybackSDKReady();
+        const autoplayCall = mockPlayerMethods.addListener.mock.calls.find(
+            (call) => call[0] === "autoplay_failed"
+        );
+        expect(autoplayCall).toBeDefined();
+        if (autoplayCall) {
+            autoplayCall[1]();
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                "Autoplay failed. This may be due to DRM issues or autoplay restrictions."
+            );
+        }
+    });
+
+    test("should log error for initialization_error event", () => {
+        const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => { });
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
+        window.onSpotifyWebPlaybackSDKReady();
+        const initErrorCall = mockPlayerMethods.addListener.mock.calls.find(
+            (call) => call[0] === "initialization_error"
+        );
+        expect(initErrorCall).toBeDefined();
+        if (initErrorCall) {
+            initErrorCall[1]({ message: "init error" });
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Initialisation error:", "init error");
+        }
+    });
+
+    test("should log error for authentication_error event", () => {
+        const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => { });
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
+        window.onSpotifyWebPlaybackSDKReady();
+        const authErrorCall = mockPlayerMethods.addListener.mock.calls.find(
+            (call) => call[0] === "authentication_error"
+        );
+        expect(authErrorCall).toBeDefined();
+        if (authErrorCall) {
+            authErrorCall[1]({ message: "auth error" });
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Authentication error:", "auth error");
+        }
+    });
+
+    test("should log error for account_error event", () => {
+        const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => { });
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
+        window.onSpotifyWebPlaybackSDKReady();
+        const accountErrorCall = mockPlayerMethods.addListener.mock.calls.find(
+            (call) => call[0] === "account_error"
+        );
+        expect(accountErrorCall).toBeDefined();
+        if (accountErrorCall) {
+            accountErrorCall[1]({ message: "account error" });
+            expect(consoleErrorSpy).toHaveBeenCalledWith("Account error:", "account error");
+        }
+    });
+
+    test("should call connect() on player when initialized", () => {
+        new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
+        window.onSpotifyWebPlaybackSDKReady();
         expect(mockPlayerMethods.connect).toHaveBeenCalled();
     });
 
     test("should call play() when play() is triggered", () => {
-        const mockAuthToken = "test-token";
-        const playerInstance = new SpotifyPlayer(mockAuthToken, mockSetDeviceID, mockHandleStateChange);
+        const instance = new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
         window.onSpotifyWebPlaybackSDKReady();
-
-        playerInstance.play();
+        instance.play();
         expect(mockPlayerMethods.resume).toHaveBeenCalled();
     });
 
     test("should call pause() when pause() is triggered", () => {
-        const mockAuthToken = "test-token";
-        const playerInstance = new SpotifyPlayer(mockAuthToken, mockSetDeviceID, mockHandleStateChange);
+        const instance = new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
         window.onSpotifyWebPlaybackSDKReady();
-
-        playerInstance.pause();
+        instance.pause();
         expect(mockPlayerMethods.pause).toHaveBeenCalled();
     });
 
     test("should call nextTrack() when nextTrack() is triggered", () => {
-        const mockAuthToken = "test-token";
-        const playerInstance = new SpotifyPlayer(mockAuthToken, mockSetDeviceID, mockHandleStateChange);
+        const instance = new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
         window.onSpotifyWebPlaybackSDKReady();
-
-        playerInstance.nextTrack();
+        instance.nextTrack();
         expect(mockPlayerMethods.nextTrack).toHaveBeenCalled();
     });
 
     test("should call previousTrack() when previousTrack() is triggered", () => {
-        const mockAuthToken = "test-token";
-        const playerInstance = new SpotifyPlayer(mockAuthToken, mockSetDeviceID, mockHandleStateChange);
+        const instance = new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
         window.onSpotifyWebPlaybackSDKReady();
-
-        playerInstance.previousTrack();
+        instance.previousTrack();
         expect(mockPlayerMethods.previousTrack).toHaveBeenCalled();
     });
 
     test("should set volume when setVolume() is triggered", () => {
-        const mockAuthToken = "test-token";
-        const playerInstance = new SpotifyPlayer(mockAuthToken, mockSetDeviceID, mockHandleStateChange);
+        const instance = new SpotifyPlayer("test-token", mockSetDeviceID, mockHandleStateChange);
         window.onSpotifyWebPlaybackSDKReady();
-
-        playerInstance.setVolume(50);
+        instance.setVolume(50);
         expect(mockPlayerMethods.setVolume).toHaveBeenCalledWith(0.5);
     });
 });

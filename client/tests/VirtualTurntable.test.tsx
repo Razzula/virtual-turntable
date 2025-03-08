@@ -10,21 +10,31 @@ import SpotifyAPI from '../src/Spotify/SpotifyAPI';
 
 // --- Mocks & Stubs ---
 
-// Stub SpotifyAPI.connect (others if needed)
+// Stub SpotifyAPI.connect
 vi.mock('../src/Spotify/SpotifyAPI', () => ({
     default: {
         connect: vi.fn(),
+        getInstance: vi.fn(), // We'll override per test
+        getAlbum: vi.fn(() => Promise.resolve({ id: 'album1', name: 'Album One' })),
+        playAlbum: vi.fn(),
     },
 }));
 
-// Stub SpotifyPlayer.getInstance to return a fake player with setVolume method
-const fakePlayer = { setVolume: vi.fn() };
+// Create a fake player with necessary methods.
+const fakePlayer = {
+    setVolume: vi.fn(),
+    play: vi.fn(),
+    pause: vi.fn(),
+    previousTrack: vi.fn(),
+    nextTrack: vi.fn()
+};
+// Default stub for getInstance returns fakePlayer.
 vi.spyOn(SpotifyPlayer, 'getInstance').mockReturnValue(fakePlayer);
 
-// Spy on WebSocketManagerInstance.send so we can check its calls
+// Spy on WebSocketManagerInstance.send so we can check its calls.
 vi.spyOn(WebSocketManagerInstance, 'send').mockImplementation(() => { });
 
-// Stub URL.createObjectURL to return a dummy blob URL
+// Stub URL.createObjectURL to return a dummy blob URL.
 const dummyBlobURL = 'blob:dummy';
 if (!URL.createObjectURL) {
     Object.defineProperty(URL, 'createObjectURL', {
@@ -35,8 +45,7 @@ if (!URL.createObjectURL) {
     vi.spyOn(URL, 'createObjectURL').mockReturnValue(dummyBlobURL);
 }
 
-
-// Stub fetch for centreLabel and capture endpoints
+// Stub fetch for centreLabel and capture endpoints.
 const centreLabelResponse = {
     imageData: btoa('dummydata'),
     metadata: { colour: 'black', marble: true },
@@ -129,12 +138,11 @@ const defaultPropsNonPremium = {
     setNeedToFetchCapture: vi.fn(),
 };
 
-// --- Test Suite ---
-describe('VirtualTurntable', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+beforeEach(() => {
+    vi.clearAllMocks();
+});
 
+describe('VirtualTurntable', () => {
     test('renders error view for non-premium user', () => {
         render(<VirtualTurntable {...defaultPropsNonPremium} />);
         expect(screen.getByText(/Spotify Premium required/i)).toBeInTheDocument();
@@ -142,7 +150,6 @@ describe('VirtualTurntable', () => {
 
     test('renders playback view for premium user', async () => {
         render(<VirtualTurntable {...defaultPropsPremium} />);
-        // Wait for body class change & key text
         await waitFor(() => {
             expect(document.body.className).toBe('projected');
             expect(screen.getByText(/Powered by/i)).toBeInTheDocument();
@@ -151,40 +158,116 @@ describe('VirtualTurntable', () => {
 
     test('handles ctrl+wheel event to adjust plate zoom', async () => {
         render(<VirtualTurntable {...defaultPropsPremium} />);
-        // Activate floating controls via mouse movement
-        fireEvent.mouseMove(window);
-        // Wait for a slider in the floating controls to appear.
+        act(() => {
+            window.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+        });
         const sliders = await screen.findAllByRole('slider');
-        // Assume the first slider (with min="10") is the zoom slider.
         const zoomSlider = sliders.find(input => input.getAttribute('min') === '10');
         expect(zoomSlider).toBeDefined();
         if (zoomSlider) {
-            // Initial plateZoom is 50. Simulate ctrl+wheel event that should reduce it by 5.
             act(() => {
                 window.dispatchEvent(new WheelEvent('wheel', { deltaY: 10, ctrlKey: true, bubbles: true }));
             });
-            // Wait for re-render; expect the zoom slider's value to be updated (e.g. "45")
             await waitFor(() => {
                 expect(zoomSlider).toHaveValue('45');
             });
         }
     });
 
+    test('handles shift+wheel event to adjust volume', async () => {
+        const setHostSettingsSpy = vi.fn((updater: any) => updater(dummySettings));
+        const props = { ...defaultPropsPremium, setHostSettings: setHostSettingsSpy };
+        render(<VirtualTurntable {...props} />);
+        act(() => {
+            window.dispatchEvent(new WheelEvent('wheel', { deltaY: 10, shiftKey: true, bubbles: true }));
+        });
+        expect(setHostSettingsSpy).toHaveBeenCalled();
+        const updater = setHostSettingsSpy.mock.calls[0][0];
+        const newSettings = updater(dummySettings);
+        expect(newSettings.volume).toBe(45);
+    });
+
     test('fetches centre label and displays image', async () => {
         render(<VirtualTurntable {...defaultPropsPremium} />);
-        // currentAlbum is provided so the centre label effect should run.
-        // Wait until an image with src equal to dummyBlobURL appears.
         await waitFor(() => {
             const labelImg = document.querySelector(`img[src="${dummyBlobURL}"]`);
             expect(labelImg).toBeInTheDocument();
         });
     });
 
+    test('fetches capture image when needToFetchCapture is true', async () => {
+        // Override getInstance to force isActive to true.
+        vi.spyOn(SpotifyPlayer, 'getInstance').mockImplementation((authToken, setDeviceID, handlePlayerStateChange) => {
+            setDeviceID('dummyDevice');
+            // Simulate a state with a current track.
+            handlePlayerStateChange({ paused: false, track_window: { current_track: dummyTrack } } as any);
+            return fakePlayer;
+        });
+        const setNeedToFetchCaptureSpy = vi.fn();
+        const props = { ...defaultPropsPremium, needToFetchCapture: true, setNeedToFetchCapture: setNeedToFetchCaptureSpy };
+        render(<VirtualTurntable {...props} />);
+        await waitFor(() => {
+            const captureImg = document.querySelector('img.albumImage');
+            // captureImg should be an HTMLImageElement.
+            expect(captureImg).toBeInTheDocument();
+            expect(captureImg?.getAttribute('src')).toBe(dummyBlobURL);
+        });
+        expect(setNeedToFetchCaptureSpy).toHaveBeenCalledWith(false);
+    });
+
     test('updates player volume when hostSettings volume changes', async () => {
         render(<VirtualTurntable {...defaultPropsPremium} />);
-        // useEffect should call fakePlayer.setVolume with the volume from hostSettings.
         await waitFor(() => {
             expect(fakePlayer.setVolume).toHaveBeenCalledWith(dummySettings.volume);
+        });
+    });
+
+    test('calls SpotifyAPI.connect on vinyl click when deviceID is defined', async () => {
+        vi.spyOn(SpotifyPlayer, 'getInstance').mockImplementation((authToken, setDeviceID, handlePlayerStateChange) => {
+            setDeviceID('dummyDevice');
+            handlePlayerStateChange({ paused: false, track_window: { current_track: dummyTrack } } as any);
+            return fakePlayer;
+        });
+        const connectSpy = vi.spyOn(SpotifyAPI, 'connect').mockImplementation(() => Promise.resolve());
+        render(<VirtualTurntable {...defaultPropsPremium} />);
+        const vinyl = document.querySelector('div.vinyl');
+        expect(vinyl).toBeDefined();
+        if (vinyl) {
+            fireEvent.click(vinyl);
+        }
+        await waitFor(() => {
+            expect(connectSpy).toHaveBeenCalledWith('token123', 'dummyDevice');
+        });
+    });
+
+    test('toggles settings display when settings button is clicked', async () => {
+        render(<VirtualTurntable {...defaultPropsPremium} />);
+        act(() => {
+            window.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+        });
+        await waitFor(() => {
+            expect(screen.getByAltText('Settings')).toBeInTheDocument();
+        });
+        const settingsButton = screen.getByAltText('Settings');
+        fireEvent.click(settingsButton);
+        await waitFor(() => {
+            const spinButtons = screen.getAllByRole('spinbutton');
+            expect(spinButtons.length).toBeGreaterThan(0);
+        });
+    });
+
+    test('updates client settings when input changes', async () => {
+        render(<VirtualTurntable {...defaultPropsPremium} />);
+        act(() => {
+            window.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+        });
+        fireEvent.click(screen.getByAltText('Settings'));
+        const spinButtons = screen.getAllByRole('spinbutton');
+        expect(spinButtons.length).toBeGreaterThan(0);
+        const baseplateWidthInput = spinButtons[0];
+        fireEvent.change(baseplateWidthInput, { target: { value: '30' } });
+        await waitFor(() => {
+            expect(baseplateWidthInput).toHaveValue(30);
         });
     });
 });
