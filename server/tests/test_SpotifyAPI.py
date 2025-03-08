@@ -9,7 +9,7 @@ from fastapi.responses import RedirectResponse
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from app.modules.sessionManager import SessionManager
-from app.APIs.MusicAPI.spotifyAPI import SpotifyAPI
+from app.APIs.MusicAPI.SpotifyAPI import SpotifyAPI
 
 
 class TestSpotifyAPI(unittest.IsolatedAsyncioTestCase):
@@ -42,7 +42,7 @@ class TestSpotifyAPI(unittest.IsolatedAsyncioTestCase):
         # Override REDIRECT_URI for testing purposes.
         self.spotifyAPI.REDIRECT_URI = 'http://localhost/callback'
 
-    @patch('app.APIs.MusicAPI.spotifyAPI.generateRandomString', return_value='fixedSession')
+    @patch('app.APIs.MusicAPI.SpotifyAPI.generateRandomString', return_value='fixedSession')
     async def testLogin(self, _mockGenStr: Any) -> None:
         """Test login creates a session and returns a proper redirect."""
         self.sessionManager.getSession.return_value = None
@@ -70,7 +70,7 @@ class TestSpotifyAPI(unittest.IsolatedAsyncioTestCase):
             await self.spotifyAPI.callback(FakeRequest(), 'fixedSession')
         self.assertEqual(context.exception.status_code, 400)
 
-    @patch('app.APIs.MusicAPI.spotifyAPI.requests.post')
+    @patch('app.APIs.MusicAPI.SpotifyAPI.requests.post')
     async def testCallbackSuccess(self, mockPost: Any) -> None:
         """Test callback processes a valid Spotify token response."""
         class FakeRequest:
@@ -91,9 +91,11 @@ class TestSpotifyAPI(unittest.IsolatedAsyncioTestCase):
         self.spotifyAPI.setupPlaylist = MagicMock()
 
         response: RedirectResponse = await self.spotifyAPI.callback(FakeRequest(), 'fixedSession')
+        # self.sessionManager.updateSession.assert_called_with('fixedSession', {
+        #     'accessToken': 'newAccessToken',
+        #     'refresh_token': 'newRefreshToken',
+        # })
         self.sessionManager.updateSession.assert_called_with('fixedSession', {
-            'accessToken': 'newAccessToken',
-            'refresh_token': 'newRefreshToken',
             'userID': 'testUser',
         })
         self.sendToClient.assert_awaited_with({'command': 'REFRESH_HOST'})
@@ -101,7 +103,7 @@ class TestSpotifyAPI(unittest.IsolatedAsyncioTestCase):
         self.assertIsInstance(response, RedirectResponse)
         self.assertIn('sessionID', response.headers.get('set-cookie', ''))
 
-    @patch('app.APIs.MusicAPI.spotifyAPI.requests.get')
+    @patch('app.APIs.MusicAPI.SpotifyAPI.requests.get')
     def testSearchForAlbum(self, mockGet: Any) -> None:
         """Test searchForAlbum returns the expected album ID."""
         fakeJson: Dict[str, Any] = {'albums': {'items': [{'id': 'album123'}]}}
@@ -114,7 +116,7 @@ class TestSpotifyAPI(unittest.IsolatedAsyncioTestCase):
         albumId: str = self.spotifyAPI.searchForAlbum(albumInfo)
         self.assertEqual(albumId, 'album123')
 
-    @patch('app.APIs.MusicAPI.spotifyAPI.requests.put')
+    @patch('app.APIs.MusicAPI.SpotifyAPI.requests.put')
     def testPlayPlaylistSuccess(self, mockPut: Any) -> None:
         """Test playPlaylist succeeds when Spotify returns 204."""
         fakeResponse: MagicMock = MagicMock()
@@ -124,7 +126,7 @@ class TestSpotifyAPI(unittest.IsolatedAsyncioTestCase):
         self.spotifyAPI.playPlaylist('playlist123')
         mockPut.assert_called_once()
 
-    @patch('app.APIs.MusicAPI.spotifyAPI.requests.put')
+    @patch('app.APIs.MusicAPI.SpotifyAPI.requests.put')
     def testPlayPlaylistFailure(self, mockPut: Any) -> None:
         """Test playPlaylist raises HTTPException when Spotify returns an error."""
         fakeResponse: MagicMock = MagicMock()

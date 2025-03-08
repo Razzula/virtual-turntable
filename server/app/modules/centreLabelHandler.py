@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 from fastapi import HTTPException
 
-from app.APIs.discogsAPI import DiscogsAPI
+from app.APIs.DiscogsAPI import DiscogsAPI
 
 
 def detectCircle(imagePath: str) -> np.ndarray[Any, np.dtype[np.integer[Any] | np.floating[Any]]]:

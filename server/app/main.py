@@ -14,13 +14,13 @@ from app.enums.StateKeys import Commands, StateKeys
 from app.modules.centreLabelHandler import CentreLabelHandler
 from app.modules.modelHandler import ModelHandler
 from app.APIs.MusicAPI.IMusicAPI import IMusicAPI
-from app.APIs.MusicAPI.spotifyAPI import SpotifyAPI
+from app.APIs.MusicAPI.SpotifyAPI import SpotifyAPI
 from app.modules.Hardware.piController import PiController
 from app.modules.sessionManager import SessionManager
 from app.utils import isHostIP
 from app.modules.websocketHandler import WebsocketHandler
 from app.routes import setupRoutes
-from app.APIs.discogsAPI import DiscogsAPI
+from app.APIs.DiscogsAPI import DiscogsAPI
 from modelling.models.ModelType import ModelType
 from app.modules.stateManager import StateManager
 
@@ -160,7 +160,7 @@ class Server:
                     'enableRemote': False,
                     'enforceSignature': True,
                 }
-            if (settings.get('enableRemote', False)):
+            if (not settings.get('enableRemote', False)):
                 print('Remote calls disabled. Call ignored.')
                 return
             if (settings.get('enforceSignature', True) and not requestIsFromHostUser):
@@ -303,7 +303,7 @@ class Server:
         ALBUM: Final = self.modelHandler.classes[result['predictedClass']]
 
         # FIND VENDOR'S ID
-        ALBUM_ID: Final = self.musicAPI.searchAlbumID(ALBUM)
+        ALBUM_ID: Final = self.musicAPI.searchForAlbum(ALBUM)
         if (ALBUM_ID is None):
             raise HTTPException(
                 status_code=404, detail=f'Album not found on {self.musicAPI.getProviderName()}.'

@@ -14,7 +14,7 @@ from app.modules.centreLabelHandler import (
     processImages,
     CentreLabelHandler,
 )
-from app.APIs.discogsAPI import DiscogsAPI  # Dummy discogs API for testing
+from app.APIs.DiscogsAPI import DiscogsAPI  # Dummy discogs API for testing
 
 
 # --- Tests for utility functions ---

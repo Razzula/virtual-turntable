@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 
 from unittest.mock import patch, MagicMock, mock_open
 
-from app.APIs.discogsAPI import DiscogsAPI
+from app.APIs.DiscogsAPI import DiscogsAPI
 
 
 class TestDiscogsAPI(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestDiscogsAPI(unittest.TestCase):
         self.contact: str = "test@example.com"
         self.discogs: DiscogsAPI = DiscogsAPI(self.apiKey, self.apiSecret, self.version, self.contact)
 
-    @patch("app.APIs.discogsAPI.requests.get")
+    @patch("app.APIs.DiscogsAPI.requests.get")
     def test_searchRelease_success(self, mockGet: Any) -> None:
         """Test searchRelease returns the top result when results are present."""
         # Prepare dummy response data.
@@ -39,7 +39,7 @@ class TestDiscogsAPI(unittest.TestCase):
         self.assertIn("year=2020", url)
         self.assertIn("format=Vinyl", url)
 
-    @patch("app.APIs.discogsAPI.requests.get")
+    @patch("app.APIs.DiscogsAPI.requests.get")
     def test_searchRelease_fallback(self, mockGet: Any) -> None:
         """Test searchRelease re-searches without extra params if no results found initially."""
         # First call: no results.
@@ -62,7 +62,7 @@ class TestDiscogsAPI(unittest.TestCase):
         self.assertEqual(result, dummyResult)
         self.assertEqual(mockGet.call_count, 2)
 
-    @patch("app.APIs.discogsAPI.requests.get")
+    @patch("app.APIs.DiscogsAPI.requests.get")
     def test_searchRelease_noResults(self, mockGet: Any) -> None:
         """Test searchRelease returns None if no results are found even after fallback."""
         dummyDataEmpty: Dict[str, Any] = {"results": []}
@@ -77,7 +77,7 @@ class TestDiscogsAPI(unittest.TestCase):
         self.assertIsNone(result)
         self.assertEqual(mockGet.call_count, 2)
 
-    @patch("app.APIs.discogsAPI.requests.get")
+    @patch("app.APIs.DiscogsAPI.requests.get")
     def test_getDataForRelease(self, mockGet: Any) -> None:
         """Test that getDataForRelease returns images and formatted metadata."""
         # Prepare dummy release data.
@@ -106,7 +106,7 @@ class TestDiscogsAPI(unittest.TestCase):
         url: str = args[0]
         self.assertIn("/releases/789", url)
 
-    @patch("app.APIs.discogsAPI.requests.get")
+    @patch("app.APIs.DiscogsAPI.requests.get")
     def test_downloadImage(self, mockGet: Any) -> None:
         """Test that downloadImage writes response content to a file."""
         dummyContent: bytes = b"image bytes"

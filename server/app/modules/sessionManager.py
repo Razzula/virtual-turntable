@@ -30,7 +30,8 @@ class SessionManager:
         """Update the session for the user."""
         session = self.getSession(sessionID)
         if (session):
-            self.sessions[sessionID].update(values)
+            for (key, value) in values.items():
+                self.sessions[sessionID][key] = value
 
         if (session.get('isHost')):
             if (values.get('userID')):
@@ -53,6 +54,7 @@ class SessionManager:
         return self.hostUserID
 
     def getHostToken(self) -> str | None:
+        """Return the access token for the host."""
         hostToken = None
         for session in self.sessions.values():
             if (session and session.get('isHost')):
@@ -63,7 +65,7 @@ class SessionManager:
         return hostToken
 
     def getToken(self, sessionID: str) -> str:
-        """Return the Spotify access token."""
+        """Return the access token."""
         SESSION: Final = self.getSession(sessionID)
         if (SESSION):
             ACCESS_TOKEN: Final = SESSION.get('accessToken', None)

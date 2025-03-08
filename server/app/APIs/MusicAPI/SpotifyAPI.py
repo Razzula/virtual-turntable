@@ -85,6 +85,8 @@ class SpotifyAPI(IMusicAPI):
         self.sessionManager.updateSession(sessionID, {
             'accessToken': accessToken,
             'refresh_token': BODY.get('refresh_token'),
+        })
+        self.sessionManager.updateSession(sessionID, {
             'userID': self.getUserID(sessionID),
         })
 
