@@ -523,5 +523,65 @@
         "name": "=",
         "artist": "Ed Sheeran",
         "year": 2021
+    },
+    {
+        "name": "The Very Best of Leo Sayer",
+        "artist": "Leo Sayer",
+        "year": "1979"
+    },
+    {
+        "name": "Remember You're A Womble",
+        "artist": "The Wombles",
+        "year": "1974"
+    },
+    {
+        "name": "Can't Slow Down",
+        "artist": "Lionel Richie",
+        "year": "1983"
+    },
+    {
+        "name": "Raindancing",
+        "artist": "Alison Moyet",
+        "year": "1987"
+    },
+    {
+        "name": "Fantastic",
+        "artist": "Wham!",
+        "year": "1983"
+    },
+    {
+        "name": "The Art Garfunkel Album",
+        "artist": "Art Garfunkel",
+        "year": "1984"
+    },
+    {
+        "name": "Idlewild",
+        "artist": "Everything But The Girl",
+        "year": "1988"
+    },
+    {
+        "name": "The Age of Consent",
+        "artist": "Bronski Beat",
+        "year": "1984"
+    },
+    {
+        "name": "I Do Not Want What I Haven't Got",
+        "artist": "Sinéad O'Connor",
+        "year": "1990"
+    },
+    {
+        "name": "Parade",
+        "artist": "Spandau Ballet",
+        "year": "1984"
+    },
+    {
+        "name": "Love Hurts",
+        "artist": "Elaine Paige",
+        "year": "1985"
+    },
+    {
+        "name": "The Style Council",
+        "artist": "The Style Council",
+        "year": "1983"
     }
 ]

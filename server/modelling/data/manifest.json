@@ -488,5 +488,165 @@
         "name": "=",
         "artist": "Ed Sheeran",
         "year": 2021
+    },
+    "TheVeryBestofLeoSayer_LeoSayer_1979": {
+        "name": "The Very Best of Leo Sayer",
+        "artist": "Leo Sayer",
+        "year": "1979"
+    },
+    "RememberYou'reAWomble_TheWombles_1974": {
+        "name": "Remember You're A Womble",
+        "artist": "The Wombles",
+        "year": "1974"
+    },
+    "Can'tSlowDown_LionelRichie_1983": {
+        "name": "Can't Slow Down",
+        "artist": "Lionel Richie",
+        "year": "1983"
+    },
+    "Raindancing_AlisonMoyet_1987": {
+        "name": "Raindancing",
+        "artist": "Alison Moyet",
+        "year": "1987"
+    },
+    "Fantastic_Wham!_1983": {
+        "name": "Fantastic",
+        "artist": "Wham!",
+        "year": "1983"
+    },
+    "TheArtGarfunkelAlbum_ArtGarfunkel_1984": {
+        "name": "The Art Garfunkel Album",
+        "artist": "Art Garfunkel",
+        "year": "1984"
+    },
+    "Idlewild_EverythingButTheGirl_1988": {
+        "name": "Idlewild",
+        "artist": "Everything But The Girl",
+        "year": "1988"
+    },
+    "TheAgeofConsent_BronskiBeat_1984": {
+        "name": "The Age of Consent",
+        "artist": "Bronski Beat",
+        "year": "1984"
+    },
+    "IDoNotWantWhatIHaven'tGot_SinéadO'Connor_1990": {
+        "name": "I Do Not Want What I Haven't Got",
+        "artist": "Sinéad O'Connor",
+        "year": "1990"
+    },
+    "Parade_SpandauBallet_1984": {
+        "name": "Parade",
+        "artist": "Spandau Ballet",
+        "year": "1984"
+    },
+    "TheStyleCouncil_TheStyleCouncil_1983": {
+        "name": "The Style Council",
+        "artist": "The Style Council",
+        "year": "1983"
+    },
+    "ComradesinSong_ColneValleyMaleVoiceChoir_1975": {
+        "name": "Comrades in Song",
+        "artist": "Colne Valley Male Voice Choir",
+        "year": "1975"
+    },
+    "RoadToNowhere_TalkingHeads_1985": {
+        "name": "Road To Nowhere",
+        "artist": "Talking Heads",
+        "year": "1985"
+    },
+    "IWannaDanceWithSomebody(WhoLovesMe)_WhitneyHouston_1987": {
+        "name": "I Wanna Dance With Somebody (Who Loves Me)",
+        "artist": "Whitney Houston",
+        "year": "1987"
+    },
+    "WishfulThinking_ChinaCrisis_1982": {
+        "name": "Wishful Thinking",
+        "artist": "China Crisis",
+        "year": "1982"
+    },
+    "LiveInBritain_BarryManilow_1982": {
+        "name": "Live In Britain",
+        "artist": "Barry Manilow",
+        "year": "1982"
+    },
+    "GottaGetYouHomeTonight_EugeneWilde_1987": {
+        "name": "Gotta Get You Home Tonight",
+        "artist": "Eugene Wilde",
+        "year": "1987"
+    },
+    "TwoTribes_FrankieGoestoHollywood_1984": {
+        "name": "Two Tribes",
+        "artist": "Frankie Goes to Hollywood",
+        "year": "1984"
+    },
+    "20OriginalDiscoHits_SoulCity_1978": {
+        "name": "20 Original Disco Hits",
+        "artist": "Soul City",
+        "year": "1978"
+    },
+    "TimeOutTimeFurtherOut_TheDaveBrubeckQuartet_19591961": {
+        "name": "Time Out / Time Further Out",
+        "artist": "The Dave Brubeck Quartet",
+        "year": "1959/1961"
+    },
+    "Part-TimeLover_StevieWonder_1985": {
+        "name": "Part-Time Lover",
+        "artist": "Stevie Wonder",
+        "year": "1985"
+    },
+    "BigBondMovieThemes_GeoffLoveandHisOrchestra_1975": {
+        "name": "Big Bond Movie Themes",
+        "artist": "Geoff Love and His Orchestra",
+        "year": "1975"
+    },
+    "SelectionsfromHMSPinafore,TheMikado&ThePiratesofPenzance_GilbertandSullivan_1977": {
+        "name": "Selections from HMS Pinafore, The Mikado & The Pirates of Penzance",
+        "artist": "Gilbert and Sullivan",
+        "year": "1977"
+    },
+    "20AllTimeChristmasHits_ReadersDigest_1984": {
+        "name": "20 All Time Christmas Hits",
+        "artist": "Reader's Digest",
+        "year": "1984"
+    },
+    "AnythingForYou_GloriaEstefanandMiamiSoundMachine_1988": {
+        "name": "Anything For You",
+        "artist": "Gloria Estefan and Miami Sound Machine",
+        "year": "1988"
+    },
+    "Joanna_Kool&theGang_1983": {
+        "name": "Joanna",
+        "artist": "Kool & the Gang",
+        "year": "1983"
+    },
+    "AGroovyKindofLove_PhilCollins_1988": {
+        "name": "A Groovy Kind of Love",
+        "artist": "Phil Collins",
+        "year": "1988"
+    },
+    "TheSkyeBoatSong_RodgerWhitakerandDesOConnor_1986": {
+        "name": "The Skye Boat Song",
+        "artist": "Rodger Whitaker and Des O'Connor",
+        "year": "1986"
+    },
+    "EveryLoserWins_NickBerry_1986": {
+        "name": "Every Loser Wins",
+        "artist": "Nick Berry",
+        "year": "1986"
+    },
+    "SlowRivers_EltonJohnandCliffRichard_1986": {
+        "name": "Slow Rivers",
+        "artist": "Elton John and Cliff Richard",
+        "year": "1986"
+    },
+    "AllIAskofYou_CliffRichardandSarahBrightman_1986": {
+        "name": "All I Ask of You",
+        "artist": "Cliff Richard and Sarah Brightman",
+        "year": "1986"
+    },
+    "IWanttoBreakFree_Queen_1984": {
+        "name": "I Want to Break Free",
+        "artist": "Queen",
+        "year": "1984"
     }
 }

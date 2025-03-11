@@ -1,4 +1,4 @@
-/data/art/*
+/data/art*
 /data/misc/*
 /bin/*
 /.venv/*
