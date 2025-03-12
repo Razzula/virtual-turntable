@@ -23,9 +23,13 @@ HEADERS = {
     'User-Agent': f"Virtual Turntable/{VERSION} ({CONTACT})"
 }
 
+IN_FILE = 'data/albums_phys.json'
+OUT_DIR = 'data/art_c_dig/'
+OUT_FILE = 'manifest_c_dig.json'
+
 index: dict[str, dict[str, str]] = {}
 
-with open(os.path.join(root, 'data/albums.json'), 'r', encoding='utf-8') as file:
+with open(os.path.join(root, IN_FILE), 'r', encoding='utf-8') as file:
     ALBUMS = json.load(file)
     # TODO: handle errors
 
@@ -73,7 +77,7 @@ def main() -> None:
         albumID = re.sub(r'[<>:"/\\|?*]', '', albumID)
         # we artifically create an ID for the album, based on its name, artist, and year
 
-        if (EXPRESS and os.path.exists(os.path.join(root, 'data/art/', albumID))):
+        if (EXPRESS and os.path.exists(os.path.join(root, OUT_DIR, albumID))):
             if (VERBOSITY > 2):
                 print(album.get('name'), album.get('artist'), album.get('year'))
             index[albumID] = album
@@ -152,13 +156,13 @@ def main() -> None:
 
         # DOWNLOAD IMAGE(S)
 
-        if (not os.path.exists(os.path.join(root, 'data/art/', artist, albumID))):
-            os.makedirs(os.path.join(root, 'data/art/', artist, albumID))
+        if (not os.path.exists(os.path.join(root, OUT_DIR, artist, albumID))):
+            os.makedirs(os.path.join(root, OUT_DIR, artist, albumID))
 
         if (frontURL is not None):
             validAlbum = True
             validImageCount += 1
-            path = os.path.join(root, 'data/art/', artist, albumID, 'front.png')
+            path = os.path.join(root, OUT_DIR, artist, albumID, 'front.png')
             if (os.path.exists(path)):
                 if (VERBOSITY > 2):
                     print('\t', frontURL, '[x]')
@@ -170,7 +174,7 @@ def main() -> None:
         if (backURL is not None):
             validAlbum = True
             validImageCount += 1
-            path = os.path.join(root, 'data/art/', artist, albumID, 'back.png')
+            path = os.path.join(root, OUT_DIR, artist, albumID, 'back.png')
             if (os.path.exists(path)):
                 if (VERBOSITY > 2):
                     print('\t', backURL, '[x]')
@@ -185,7 +189,7 @@ def main() -> None:
         if (validAlbum):
             validAlbumCount += 1
 
-    with open(os.path.join(root, 'data', 'manifest.json'), 'w', encoding='utf-8') as file:
+    with open(os.path.join(root, 'data', OUT_FILE), 'w', encoding='utf-8') as file:
         json.dump(index, file, ensure_ascii=False, indent=4)
 
     if (VERBOSITY > 0):
