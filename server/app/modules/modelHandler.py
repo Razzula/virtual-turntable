@@ -9,7 +9,7 @@ import torch.nn as nn
 from PIL import Image
 
 from modelling.models.ModelType import ModelType
-from modelling.models.Ouroboros import Ouroboros, transform
+from server.modelling.models.BabyOuroboros import BabyOuroboros, transform
 
 
 class ModelHandler:
@@ -39,7 +39,7 @@ class ModelHandler:
 
         match (modelType):
             case ModelType.OUROBOROS:
-                self.model = Ouroboros(classes=checkpoint['classes']) # artificial IDs
+                self.model = BabyOuroboros(classes=checkpoint['classes']) # artificial IDs
             case _:
                 raise TypeError(f'Model type ({modelTypeName}) not found.')
         if (self.model is None):

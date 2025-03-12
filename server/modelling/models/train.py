@@ -10,7 +10,7 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 from PIL import Image
 
-from server.modelling.models.Ouroboros import Ouroboros, transform
+from server.modelling.models.BabyOuroboros import BabyOuroboros, transform
 
 def train(model: nn.Module, trainLoader: DataLoader, criterion: nn.CrossEntropyLoss, optimiser: optim.Optimizer, epochs: int = 5) -> None:
     """_summary_
@@ -72,7 +72,7 @@ dataSet = ImageFolder(root=dataDir, transform=transform) # load each subdirector
 trainLoader = DataLoader(dataSet, batch_size=8, shuffle=True)
 
 # CREATE MODEL
-model = Ouroboros(classes=dataSet.classes)
+model = BabyOuroboros(classes=dataSet.classes)
 
 # LOSS FUNCTION
 # used to compute the error between the model's predictions and the true labels
