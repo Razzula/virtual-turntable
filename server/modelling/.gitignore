@@ -2,3 +2,4 @@
 /data/misc/*
 /bin/*
 /.venv/*
+*.pt
