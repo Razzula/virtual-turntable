@@ -1,0 +1,5 @@
+15 albums, 24 images, (α=1e-05, λ=0.001, B=8)
+
+Train F1: 0.9417
+Test F1: 0.5625
+Full Test F1: 0.2805

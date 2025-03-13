@@ -1,0 +1,8 @@
+131 albums, 195 images, (α=0.001, λ=0.0001, B=8)
+
+Train F1: ???
+Test F1: ???
+
+Full Test
+Without Augmentation: ???
+With Augmentation: ???
