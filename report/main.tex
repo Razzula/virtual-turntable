@@ -1,3 +1,5 @@
+%TC:envir temp [] 0
+
 %%%%%%%%%%%%%%%%%% USAGE INSTRUCTIONS %%%%%%%%%%%%%%%%%%
 % - Compile using LuaLaTeX and biber, unless there is a particular reason not to. Do not use the older LaTex/PDFLaTeX or BibTeX. (The fonts won't work correctly.)
 % - Font and the report 'year' must be specified when all \documentclass or the template won't work correctly. (There's no error checking/default cases!)
@@ -120,6 +122,8 @@
                                                      % Our courses are: Advanced Control and Systems Engineering, Advanced Control and Systems Engineering with Extended Research, Communications and Signal Processing, Communications and Signal Processing with Extended Research, Electrical Power Systems Engineering, Advanced Electrical Power Systems Engineering, Renewable Energy and Clean Technology, Renewable Energy and Clean Technology with Extended Research
     \submitdate{2025}                                  % regulations ask only for the year, not month
     \wordcount{TODO}		                           % use \wordcount{} to set the count, \thewordcount to print in the text
+    
+    %TC:ignore
     \maketitle
     
     
@@ -168,7 +172,7 @@
     Also, to my close friend Joshua Bond’s dissertation \cite{jdbond}, which I have yet to finish reading - but I am sure it is great.
     \end{uomacknowledgements}
     
-    
+    %TC:endignore
     
     %%%%%%%%%%%%%%%%%% SECTION 1 %%%%%%%%%%%%%%%%%%
     \section{Introduction}
@@ -229,7 +233,8 @@
             \begin{figure}[htbp]
                 \centering
                 \includegraphics[width=\linewidth]{images/vinyl_sales_2023.png}
-                \caption{Vinyl LP, Cassette, and CD Sales Revenue (1973–2020) \cite{vinylRevival}.}
+                \caption{Vinyl LP, Cassette, and CD Sales Revenue (1973–2020).}
+                \caption*{Sourced from \cite{vinylRevival}}
                 \label{fig:vinyl_sales}
             \end{figure}
     
@@ -284,7 +289,9 @@
         \subsubsection{Image Recognition}
     
             \begin{temp}
-                Dropout; GPU-utilisation; Data Augmentation; Visual Transformers; 
+                Dropout; GPU-utilisation; Data Augmentation; Visual Transformers (only good for VERY big);
+                
+                Y. LeCun and Y. Bengio, 1995, "Convolutional Networks for Images, Speech, and Time-Series". Brain theory neural networks, vol. 3361
             \end{temp}
     
             Image recognition is the creation of software and tools which can be used to identify objects, places, people, etc. in digital images, which has existed since at least 1946 \cite{hall1979computer}. However, in this brief time, the field has undergone several drastic changes as technology has advanced \cite{imagenetclasscnn}, and is still be redefined in the present day, particularly with the arrival of machine learning approaches, with new implementations being utilised across the field (e.g. \cite{RAMPRASAD2025100556}, 2025).
@@ -422,7 +429,12 @@
         \subsection{System Architecture} % high-level system overview
     
             \begin{temp}
-                System Architecture Diagram \ref{fig:networkDiagram}; Data Flow Diagram; Component Diagram
+                System Architecture Diagram \ref{fig:networkDiagram};
+                \begin{temp}Note from Sean: Discogs/Aspotify should be together\end{temp}
+                
+                Data Flow Diagram; Component Diagram;
+    
+                Hexagonal Architecture (Ports & Plugs); (modularity = Single Responsibility Principle)
             \end{temp}
         
             \subsubsection{Technology Stack}
@@ -453,7 +465,7 @@
                 \begin{figure}[h]
                     \centering
                     \includegraphics[width=\textwidth]{images/VTT_network.NetworkDiagram.pdf}
-                    \caption{Network diagram of system.}
+                    \caption{Network diagram of system. }
                     \label{fig:networkDiagram}
                 \end{figure}
         
@@ -489,6 +501,10 @@
                 \end{temp}
         
         \subsection{Back-end}
+    
+            \begin{temp}
+                Singleton Pattern;
+            \end{temp}
         
             \subsubsection{Metadata Retrieval}
                 % Discogs API
@@ -499,13 +515,21 @@
     
                 \begin{temp}
                     Simple Hardware Schematic Diagram (enough pins for specs)
+    
+                    Micro Metal Geared motor with Encoder - 6V 75RPM 210:1 \\ %https://thepihut.com/products/micro-metal-geared-motor-w-encoder-6v-75rpm-210-1?variant=27740943185&country=GB&currency=GBP&gad_source=1
+                    Raspberry Pi v2.1 8 MP 1080p Camera Module (not used) \\ %https://www.raspberrypi.com/documentation/accessories/camera.html
+                    Trust Trino HD webcam - Black \\ %https://dezlwerqy1h00.cloudfront.net/Media/Datasheets/18679-Trust-Trino-Datasheet_en.pdf
+                    KY-040 360 Degree Rotary Encoder Module with Knob Cap, 5V  \\ %https://eeshop.unl.edu/pdf/KEYES%20Rotary%20encoder%20module%20KY-040.pdf
+                    Button \\
+                    Hinge
                 \end{temp}
     
                 \begin{figure}[htbp]
                     \centering
                     \includegraphics[width=\linewidth]{images/raspberry-pi-5-pinout.png}
-                    \caption{Pinout configuration of Raspberry Pi 5, as per https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio}
+                    \caption{Pinout configuration of Raspberry Pi 5}
                     \label{fig:RPi5Pinout}
+                    \caption*{Source: \href{https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio}{Raspberry Pi Documentation}}
                 \end{figure}
         
         \subsection{Machine Learning Model Design}
@@ -513,12 +537,28 @@
                 % use of CoverArtArchive
         
             \subsubsection{Model Architecture}
+    
+                Ouroboros model. (Figure \ref{fig:ouroboros})
+                % https://commons.wikimedia.org/wiki/File:Serpiente_alquimica.jpg
+                % https://commons.wikimedia.org/wiki/File:Uroboros.png
+                
                 \begin{temp}
-                    Single-Head Model Diagram
+                    Single-Head Model Diagram (Figure \ref{fig:BabyOuroboros})
                 \end{temp}
+    
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/BabyOuroboros.pdf}
+                    \caption{Architecture for simple CNN model}
+                    \label{fig:BabyOuroboros}
+                \end{figure}
+    
+                Amphisbaena model. (Figure \ref{fig:amphisbaena})
+                % https://commons.wikimedia.org/wiki/File:Amphisbaena_British_Library_Harley_4751.jpg
     
                 \begin{temp}
                     Multi-Head Model Diagram
+                    % https://www.threads.net/@pun_bible/post/DB83pw3gZSh
                 \end{temp}
     
                 \begin{temp}
@@ -577,6 +617,10 @@
     
             \begin{temp}
                 All of the technologies used (TS, React, bun, Python, FastAPI, etc.), and why them specifically.
+    
+                Personal ownership (predicatbale nmoise overlays), and why this wasn't done
+    
+                Local file storage
             \end{temp}
         
             \subsubsection{Challenges Encountered}
@@ -604,13 +648,13 @@
             \end{figure}
     
             \begin{temp}
-                Real-time Communication Loop \ref{fig:statePropagationDiagram}
+                Real-time Communication Loop \ref{fig:statePropagationDiagram} (mention Observer Pattern)
             \end{temp}
     
             \begin{figure}[h]
                 \centering
                 \includegraphics[width=\textwidth]{images/VTT_states.DependencyGraph.pdf}
-                \caption{Dependency diagram showing state propagation model both between system and external components, allowing real-time reactivity to state changes from multiple sources.}
+                \caption{Dependency diagram showing state propagation model between both system and external components, allowing real-time reactivity to state changes from multiple sources.}
                 \label{fig:statePropagationDiagram}
             \end{figure}
         
@@ -647,6 +691,73 @@
             \begin{temp}
                 cite \cite{Mitchell_2019}
             \end{temp}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/NormalisedArts.png}
+                \caption{Example of normalised dataset batch.}
+                \label{fig:normalisedArts}
+                \caption*{
+                    Original artworks are © their respective copyright owners
+                    \footnotesize These images have been processed for research/educational purposes and do not intend to infringe upon the original copyrights.
+                }
+            \end{figure}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/SimpleCNN-Mini_Train.png}
+                \caption{TODO}
+                \label{fig:SimpleCNN-Mini_Train}
+                \caption*{Higher is better. Training of a SimpleCNN model on \ref{data:mini}; validated against \ref{data:val}.}
+            \end{figure}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/SimpleCNNs_TrainLoss.png}
+                \caption{Comparison of SimpleCNN architecture performance on different sized datasets}
+                \label{fig:SimpleCNNs_TrainLoss-Mini_Train}
+                \caption*{Lower is better. Trained on 'Mini' (\ref{data:mini}) and 'Large' (\ref{data:large}) datasets; both validated against \ref{data:val}.}
+            \end{figure}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/SimpleCNNs_PeakAccuracy.png}
+                \caption{Comparison of best-case SimpleCNN performance on different sized datasets}
+                \label{fig:SimpleCNNs_PeakAccuracy-Mini_Train}
+                \caption*{Trained on 'Mini' (\ref{data:mini}) and 'Large' (\ref{data:large}) datasets; both validated against \ref{data:val}.}
+            \end{figure}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/ResNetCNN_AugGrid.png}
+                \caption{Performance results of ResNet18 fine-tuned model hyperparamter grid search}
+                \caption*{Performed on \ref{data:aug} training set (1,176 images) with batch size of 8; validated against \ref{data:val}. Early stopping used when validation loss degraded, so not all configurations ran for equal epochs. Where multiple configurations have the same performance at the same epoch, a square marker indicates which colours are represented.}
+                \label{fig:ResNet_AugGrid}
+            \end{figure}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/ResNetCNN_AugGridHist.png}
+                \caption{Best-case performance results of ResNet18 fine-tuned model hyperparamter grid search}
+                \caption*{
+                    Full set of accuracies during training can be seen in Figure \ref{fig:ResNet_AugGrid}.
+                }
+                \label{fig:ResNet_AugGridHist}
+            \end{figure}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/CNNSize_Perf.png}
+                \caption{TODO}
+                \label{fig:CNNSize_Perf}
+            \end{figure}
+    
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/CNNSize_Time.png}
+                \caption{TODO}
+                \label{fig:CNNSize_Time}
+            \end{figure}
       
             \subsubsection{System Integration}
                 \begin{temp}
@@ -719,7 +830,7 @@
           % ideas for further work
           % big ideas; what could be done with my project?
     
-    
+    %TC:ignore
     %%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%
     %\clearpage % uncomment to start on a new page if wanted
     \printbibliography[title={References},heading=bibintoc] % a single list of references for the whole thesis
@@ -736,31 +847,65 @@
                 Project outline is a required appendix. Put here.
             \end{temp}
             
-            Vinyl is back! According to the \href{https://www.nme.com/news/music/uk-vinyl-sales-2023-reach-highest-level-since-1990-3563676}{NME}, UK sales of vinyl in 2023 were the highest seen since 1990. Vinyl has always remained popular among niche genres, but we are also seeing mainstream artists like Taylor Swift and Lana Del Rey releasing and selling large volumes of albums on the format. Vinyl records have also recently been added into the ONS "Basket of Goods and Services": a carefully selected set of items representative of the goods and services that UK consumers typically spend their money on (\href{https://www.ons.gov.uk/news/news/arecordrevivalthatscookingupastormvinylmusicandairfryersspintheirwayintothebasketofgoods}{ONS}).
+            % Vinyl is back! According to the \href{https://www.nme.com/news/music/uk-vinyl-sales-2023-reach-highest-level-since-1990-3563676}{NME}, UK sales of vinyl in 2023 were the highest seen since 1990. Vinyl has always remained popular among niche genres, but we are also seeing mainstream artists like Taylor Swift and Lana Del Rey releasing and selling large volumes of albums on the format. Vinyl records have also recently been added into the ONS "Basket of Goods and Services": a carefully selected set of items representative of the goods and services that UK consumers typically spend their money on (\href{https://www.ons.gov.uk/news/news/arecordrevivalthatscookingupastormvinylmusicandairfryersspintheirwayintothebasketofgoods}{ONS}).
             
-            Fans of the format claim better sound reproduction, with a fuller frequency range and a "warmth" lacking in digital formats such as CD. Playing vinyl requires specialist equipment: while the ritual of putting a disc on the turntable and dropping the needle is, for some, part of the experience, it can also be seen as an inconvenience.
+            % Fans of the format claim better sound reproduction, with a fuller frequency range and a "warmth" lacking in digital formats such as CD. Playing vinyl requires specialist equipment: while the ritual of putting a disc on the turntable and dropping the needle is, for some, part of the experience, it can also be seen as an inconvenience.
             
-            The aim of this project will be to develop an application that supports a blending of the physical and digital worlds. A physical artefact such as an LP is scanned using a camera. The information on the label or cover is then used to identify the release which can be played. This content could be retrieved from a streaming service such as Spotify or Apple Music, an artist site such as \href{https://bandcamp.com/}{Bandcamp}, or the user's own personal media library. This would then allow a user to "play" their records without a turntable. Although the audio quality may not match that of vinyl, such an application would appeal to those who like to collect vinyl for its own sake, or who appreciate the larger format artwork that comes with an old school LP. The application could run on a mobile phone or specialist hardware such as a Raspberry Pi equipped with a camera.
+            % The aim of this project will be to develop an application that supports a blending of the physical and digital worlds. A physical artefact such as an LP is scanned using a camera. The information on the label or cover is then used to identify the release which can be played. This content could be retrieved from a streaming service such as Spotify or Apple Music, an artist site such as \href{https://bandcamp.com/}{Bandcamp}, or the user's own personal media library. This would then allow a user to "play" their records without a turntable. Although the audio quality may not match that of vinyl, such an application would appeal to those who like to collect vinyl for its own sake, or who appreciate the larger format artwork that comes with an old school LP. The application could run on a mobile phone or specialist hardware such as a Raspberry Pi equipped with a camera.
             
-            Example methods that could be used for identification of the release include barcodes, QR codes or OCR acting on label text.
+            % Example methods that could be used for identification of the release include barcodes, QR codes or OCR acting on label text.
             
-            For a stretch goal, the application could be extended to cover other media: the cassette tape (\href{https://www.theguardian.com/music/2023/apr/20/fun-way-consume-music-why-sales-of-cassette-tapes-soaring}{Guardian}) is also experiencing a comeback, although the \href{https://en.wikipedia.org/wiki/8-track_cartridge}{eight-track} is unlikely to be retrieved from the dustbin of history.
+            % For a stretch goal, the application could be extended to cover other media: the cassette tape (\href{https://www.theguardian.com/music/2023/apr/20/fun-way-consume-music-why-sales-of-cassette-tapes-soaring}{Guardian}) is also experiencing a comeback, although the \href{https://en.wikipedia.org/wiki/8-track_cartridge}{eight-track} is unlikely to be retrieved from the dustbin of history.
             
-            The project should be considered as challenging. It will require integration of several technologies and some creativity.
+            % The project should be considered as challenging. It will require integration of several technologies and some creativity.
         
         \section{Risk assessment}
             \begin{temp}
                 Risk assessment is a required appendix. Put here.
             \end{temp}
     
-        \section{Model Card}
+        \section{Model Cards}
             \begin{temp}
                 TODO
             \end{temp}
+    
+        \section{Datasets}
+    
+            \subsection{Training Set 'Mini'} \label{data:mini}
+    
+            \subsection{Training Set 'Large'} \label{data:large}
+    
+            \subsection{Training Set Augmented} \label{data:aug}
+    
+            \subsection{Validation Set} \label{data:val}
+    
+            \subsection{Test Set} \label{data:test}
+    
+    
+        \section{Supplementary Information}
+    
+            \subsection{Mythological Inspiration: Ouroboros and Amphisbaena}
+    
+                \begin{figure}[h]
+                    \centering
+                    \includegraphics[width=0.6\textwidth]{images/Ouroborus.jpg}
+                    \caption{A drawing of an ouroboros, in an alchemical tract (1478)}
+                    \label{fig:ouroboros}
+                    \caption*{Source: \href{https://en.wikipedia.org/wiki/File:Serpiente_alquimica.jpg}{Wikipedia}}
+                \end{figure}
+    
+                \begin{figure}[h]
+                    \centering
+                    \includegraphics[width=0.6\textwidth]{images/Amphisbaena.png}
+                    \caption{An illustration of an amphisbaena (c. 1200)}
+                    \label{fig:amphisbaena}
+                    \caption*{Source: \href{https://www.abdn.ac.uk/bestiary/ms24/f68v}{The Aberdeen Bestiary, folio 68V.}}
+                \end{figure}
         
         %\section{Other appendices as necessary}
     \end{uomappendix}
     
     
     %%%%%%%%%%%%%%%%%% END MATTER %%%%%%%%%%%%%%%%%%
+    %TC:endignore
     \end{document}
