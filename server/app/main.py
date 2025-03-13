@@ -21,7 +21,7 @@ from app.utils import isHostIP
 from app.modules.websocketHandler import WebsocketHandler
 from app.routes import setupRoutes
 from app.APIs.DiscogsAPI import DiscogsAPI
-from modelling.models.ModelType import ModelType
+from server.modelling.models.utils.ModelType import ModelType
 from app.modules.stateManager import StateManager
 
 

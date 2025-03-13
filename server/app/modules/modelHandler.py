@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from PIL import Image
 
-from modelling.models.ModelType import ModelType
+from server.modelling.models.utils.ModelType import ModelType
 from server.modelling.models.BabyOuroboros import BabyOuroboros, transform
 
 

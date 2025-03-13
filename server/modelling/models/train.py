@@ -1,94 +1,120 @@
 """A script to train the SimpleCNN model."""
+import json
 import os
 from typing import Final
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
-from PIL import Image
 
-from server.modelling.models.BabyOuroboros import BabyOuroboros, transform
-
-def train(model: nn.Module, trainLoader: DataLoader, criterion: nn.CrossEntropyLoss, optimiser: optim.Optimizer, epochs: int = 5) -> None:
-    """_summary_
-
-    Args:
-        model (_type_): _description_
-        trainLoader (_type_): _description_
-        criterion (_type_): _description_
-        optimiser (_type_): _description_
-        epochs (int, optional): _description_. Defaults to 5.
-    """
-
-    # EPOCH LOOP
-    # an epoch is a complete pass through the dataset
-    # we do this several times, to allow the model to learn
-    for epoch in range(epochs):
-
-        model.train() # set the model to training mode (this is necessary for dropout and batch normalisation)
-
-        # initialsie some statistic-trackers
-        runningLoss = 0.0 # cumulative loss
-        correct, total = 0, 0 # correct predictions, total predictions
-
-        # TRAINING LOOP
-        for images, labels in trainLoader:
-            optimiser.zero_grad() # prevent accumulated gradients from previous iterations overflowing
-
-            # FORWARD PASS
-            # pass the images into the model, producing a prediction
-            outputs = model(images)
-
-            # COMPUTE LOSS
-            # compare the model's predictions to the true labels
-            loss = criterion(outputs, labels)
-
-            # BACKPROPAGATION
-            # compute the gradients of the loss, with respect to the model's parameters/weights
-            loss.backward()
-            # and update the model's weights accordingly
-            optimiser.step()
-
-            # track stats
-            runningLoss += loss.item()
-            _, predicted = torch.max(outputs, 1)
-
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-        print(f'(Epoch {epoch+1}) Loss: {runningLoss/len(trainLoader)}\t Accuracy: {correct/total}')
+from BabyOuroboros import BabyOuroboros
+from Ouroboros import Ouroboros, trainOuro, validateOuro
+from Amphisbaena import Amphisbaena
+from utils.ModelType import ModelType
+from utils.Transforms import globalTransformer, augmentedTransforms
+from utils.CustomDataset import CustomDataset, CustomDataset2, ArtificiallyAugmentedDataset
 
 # CONFIG
-MODEL_NAME: Final = 'Ouroboros'
+MODEL_NAME: Final = ModelType.BABY_OUROBOROS
 
-# LOAD DATASET
+ALPHA: Final = 1e-3
+LAMBDA: Final = 1e-4
+BATCH_SIZE: Final = 32
+MAX_EPOCHS: Final = 5
+NUM_AUGMENTATIONS: Final = 5
+UNFREEZE_LAYERS: Final = 2
+
+albumIndexes = {}
+artistIndexes = {}
+
+# LOAD DATASET(S)
 rootDir = os.path.dirname(os.path.abspath(__file__))
-dataDir = os.path.join(rootDir, '..', 'data', 'art')
-dataSet = ImageFolder(root=dataDir, transform=transform) # load each subdirectory as a class
+dataDir = os.path.join(rootDir, '..', 'data')
 
-# TODO: SPLIT DATA
-trainLoader = DataLoader(dataSet, batch_size=8, shuffle=True)
+trainDirs = [
+    os.path.join(dataDir, 'art_'),
+    os.path.join(dataDir, 'art_a_dig'),
+    os.path.join(dataDir, 'art_b_phys'),
+    os.path.join(dataDir, 'art_c_dig'),
+]
+if (MODEL_NAME == ModelType.AMPHISBAENA):
+    # the Amphisbaena model requires two label sets
+    vanillaDataset = CustomDataset2(trainDirs, albumIndexes, artistIndexes, transform=globalTransformer)
+else:
+    # the Ouroboros models only require one label set
+    vanillaDataset = CustomDataset(trainDirs, albumIndexes, transform=globalTransformer)
+dataset = ArtificiallyAugmentedDataset(vanillaDataset, augmentedTransforms, numAugmentations=4)
+
+valDirs = [
+    os.path.join(dataDir, 'art_c_phys'),
+]
+valDataset = CustomDataset(rootDirs=valDirs, transform=globalTransformer)
+
+testDirs = [
+    os.path.join(dataDir, 'art_c_phys'),
+    os.path.join(dataDir, 'art_x'),
+]
+testDataset = CustomDataset(rootDirs=testDirs, transform=globalTransformer)
+
+# VERIFY DATASET INTREGRITY
+with open(os.path.join(dataDir, 'manifest.json'), 'r', encoding='utf-8') as f:
+    trueClasses = json.load(f)
+
+error = False
+for i in range(len(dataset)):
+    try:
+        img, label = dataset[i]
+    except OSError as e:
+        error = True
+        print(trueClasses[dataset.albumLabels[label + 1]])
+if (error):
+    raise FileNotFoundError('Dataset is corrupted')
+
+# SPLIT and LOAD DATA
+trainLoader = DataLoader(dataset, batch_size=8, shuffle=True)
+validationLoader = DataLoader(valDataset, batch_size=8, shuffle=True)
 
 # CREATE MODEL
-model = BabyOuroboros(classes=dataSet.classes)
+if (MODEL_NAME == ModelType.BABY_OUROBOROS):
+    model = BabyOuroboros(classes=dataset.classes)
+elif (MODEL_NAME == ModelType.OUROBOROS):
+    model = Ouroboros(classes=dataset.classes, numLayers=UNFREEZE_LAYERS)
+elif (MODEL_NAME == ModelType.AMPHISBAENA):
+    model = Amphisbaena(classes=dataset.classes, numLayers=UNFREEZE_LAYERS)
+else:
+    raise ValueError(f'Invalid model type: {MODEL_NAME}')
 
-# LOSS FUNCTION
-# used to compute the error between the model's predictions and the true labels
-criterion = nn.CrossEntropyLoss()
+if (MODEL_NAME == ModelType.AMPHISBAENA):
+    # the Amphisbaena model requires two label sets
+    raise NotImplementedError
+else:
+    # the Ouroboros models only require one label set
+    trainOuro(
+        model=model,
+        trainLoader=trainLoader, validationLoader=validationLoader,
+        maxEpochs=MAX_EPOCHS, learningRate=ALPHA, weightDecay=LAMBDA,
+        patience=4,
+    )
 
-# OPTIMISER
-# updates the model's weights, based on gradients
-optimiser = optim.Adam(model.parameters(), lr=0.001)
+# LOAD MODEL FROM CHECKPOINT
+model = torch.load(os.path.join(rootDir, 'bin', f'{MODEL_NAME.value}-checkpoint.pt'))
 
-train(model, trainLoader, criterion, optimiser, epochs=5)
+# EVALUATE MODEL
+if (MODEL_NAME == ModelType.AMPHISBAENA):
+    # the Amphisbaena model requires two label sets
+    raise NotImplementedError
+else:
+    # the Ouroboros models only require one label set
+    validateOuro(model, valDataset, printResults=True)
+    validateOuro(model, testDataset, printResults=True)
 
 # SAVE THE MODEL
 torch.save(
     {
         'modelStateDict': model.state_dict(),
-        'classes': model.classes
+        'classes': model.classes,
     },
-    os.path.join(rootDir, 'bin', f'{MODEL_NAME}.pth')
+    os.path.join(rootDir, 'bin', f'{MODEL_NAME.value}.pth')
 )
