@@ -1,8 +1,8 @@
 import torchvision.transforms as transforms
 
-from models.utils import RandomFlip
+from utils.RandomFlip import RandomFlip
 
-globalTransformer = transforms.Compose([
+globalTransforms = [
     # ensure images are of uniform size
     # this is necessary for the neural network to be able to process the images
     transforms.Resize((224, 224)),
@@ -21,7 +21,7 @@ globalTransformer = transforms.Compose([
         mean=[0.485, 0.456, 0.406],
         std=[0.229, 0.224, 0.225]
     )
-])
+]
 
 augmentedTransforms = [
     transforms.RandomRotation(30),

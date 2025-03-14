@@ -1,8 +1,10 @@
 """A simple CNN for image classification."""
-from typing import List
+from typing import Final
 
 import torch
 import torch.nn as nn
+
+from utils.ModelType import ModelType
 
 class BabyOuroboros(nn.Module):
     """
@@ -11,13 +13,10 @@ class BabyOuroboros(nn.Module):
     It effectively learns the 'ID' of the image (albumName_artistName).
     """
 
-    classes: List[str] = []
+    name: Final[str] = ModelType.BABY_OUROBOROS.value
 
-    def __init__(self, classes: List[str]) -> None:
+    def __init__(self, numClasses: int) -> None:
         super(BabyOuroboros, self).__init__()
-
-        self.classes = classes
-        numClasses = len(classes)
 
         # This is the architecture of the neural network.
         # It is composed of two convolutional layers and two fully connected layers.

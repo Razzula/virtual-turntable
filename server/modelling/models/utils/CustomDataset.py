@@ -3,6 +3,7 @@ import os
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 from PIL import Image
+import torch
 
 def getLabelIndex(indexes: dict[str, int], albumID: str) -> int:
     """Get the index of the album in the dataset."""
@@ -62,7 +63,7 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx: int) -> tuple[Image.Image, str]:
         imgPath, albumLabel = self.data[idx]
         image = Image.open(imgPath).convert('RGB')  # Ensure RGB format
-        if self.transform:
+        if (not isinstance(image, torch.Tensor) and self.transform):
             image = self.transform(image)
         return image, albumLabel
 

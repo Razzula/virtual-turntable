@@ -1,5 +1,5 @@
 """A ResNet-based image classification model."""
-from typing import List
+from typing import Final
 import os
 
 from numpy import ndarray
@@ -14,6 +14,8 @@ import torch
 from sklearn.metrics import confusion_matrix, f1_score
 from utils.CustomDataset import CustomDataset
 
+from utils.ModelType import ModelType
+
 class Ouroboros(nn.Module):
     """
     This neural network utilises a pretrained ResNet-18 model.
@@ -21,7 +23,7 @@ class Ouroboros(nn.Module):
     ultimately learning the 'ID' of the image (albumName_artistName).
     """
 
-    classes: List[str] = []
+    name: Final[str] = ModelType.OUROBOROS.value
 
     def __init__(self, numClasses: int, numLayers: int = 1) -> None:
         super(Ouroboros, self).__init__()
@@ -29,6 +31,9 @@ class Ouroboros(nn.Module):
         # Load a ResNet-18 model pretrained on ImageNet
         weights = models.ResNet18_Weights.IMAGENET1K_V1
         self.resnet = models.resnet18(weights=weights)
+
+        # This is the architecture of the neural network.
+        # conv1 -> bn1 -> relu -> maxpool -> layer1 -> layer2 -> layer3 -> layer4 -> avgpool -> fc
 
         # Freeze all layers initially
         for param in self.resnet.parameters():
@@ -52,11 +57,12 @@ class Ouroboros(nn.Module):
             for param in self.resnet.layer1.parameters():
                 param.requires_grad = True
 
-        # This is the architecture of the neural network.
-        # conv1 -> bn1 -> relu -> maxpool -> layer1 -> layer2 -> layer3 -> layer4 -> avgpool -> fc
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Pass the input through the network."""
+        return self.resnet(x)
 
 def trainOuro(
-    model: nn.Module,
+    model: Ouroboros,
     trainLoader: DataLoader, validationLoader: DataLoader,
     maxEpochs: int = 5, learningRate: float = 1e-3, weightDecay: float = 1e-4,
     patience: int = 4, overallBestValLoss: float = float('inf'),
@@ -64,7 +70,7 @@ def trainOuro(
     """
     Train the model and evaluate on validation data each epoch.
     """
-    print('\n', f'Training... (α={learningRate}, λ={weightDecay}, B={trainLoader.batch_size})')
+    print(f'\nTraining... (α={learningRate}, λ={weightDecay}, B={trainLoader.batch_size})')
 
     # LOSS FUNCTION
     # used to compute the error between the model's predictions and the true labels
@@ -91,6 +97,9 @@ def trainOuro(
             optimiser.zero_grad()
             outputs = model(images)
             loss = criterion(outputs, labels)
+            if (torch.isnan(loss)):
+                print('Early stopping triggered! (Training loss is NaN!)')
+                return float('inf')
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0) # prevent exploding gradients
             optimiser.step()
@@ -137,10 +146,10 @@ def trainOuro(
                 rootDir = os.path.dirname(os.path.abspath(__file__))
                 torch.save({
                     'epoch': epoch + 1,
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimiser.state_dict(),
-                    'val_loss': valLoss,
-                }, os.path.join(rootDir, 'bin', 'Ouroboros-checkpoint.pt'))
+                    'modelStateDict': model.state_dict(),
+                    'optimiserStateDict': optimiser.state_dict(),
+                    'valLoss': valLoss,
+                }, os.path.join(rootDir, 'bin', f'{model.name}-checkpoint.pt'))
         else:
             epochsSinceBest += 1
 
