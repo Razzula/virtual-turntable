@@ -19,11 +19,11 @@ from modelling.models.utils.Transforms import globalTransforms, augmentedTransfo
 from modelling.models.utils.CustomDataset import CustomDataset, CustomDataset2, ArtificiallyAugmentedDataset
 
 # CONFIG
-MODEL_NAME: Final = ModelType.BABY_OUROBOROS
+MODEL_NAME: Final = ModelType.AMPHISBAENA
 
-ALPHA: Final = 1e-3
+ALPHA: Final = 1e-4
 LAMBDA: Final = 1e-4
-BATCH_SIZE: Final = 8
+BATCH_SIZE: Final = 32
 MAX_EPOCHS: Final = 100
 NUM_AUGMENTATIONS: Final = 5
 UNFREEZE_LAYERS: Final = 2
@@ -41,7 +41,7 @@ globalTransformer = transforms.Compose(globalTransforms)
 
 trainDirs = [
     os.path.join(dataDir, 'art_'),
-    # os.path.join(dataDir, 'art_a_dig'),
+    os.path.join(dataDir, 'art_a_dig'),
     os.path.join(dataDir, 'art_b_phys'),
     os.path.join(dataDir, 'art_c_dig'),
 
@@ -101,9 +101,9 @@ validationLoader = DataLoader(valDataset, batch_size=8, shuffle=True)
 if (MODEL_NAME == ModelType.BABY_OUROBOROS):
     model = BabyOuroboros(classes=albumIndexes)
 elif (MODEL_NAME == ModelType.OUROBOROS):
-    model = Ouroboros(numClasses=len(albumIndexes), numLayers=UNFREEZE_LAYERS)
+    model = Ouroboros(classes=albumIndexes, numLayers=UNFREEZE_LAYERS)
 elif (MODEL_NAME == ModelType.AMPHISBAENA):
-    model = Amphisbaena(numAlbums=len(albumIndexes), numArtists=len(artistIndexes), numLayers=UNFREEZE_LAYERS)
+    model = Amphisbaena(albumClasses=albumIndexes, artistClasses=artistIndexes, numLayers=UNFREEZE_LAYERS)
 else:
     raise ValueError(f'Invalid model type: {MODEL_NAME}')
 print(f'Created {MODEL_NAME.value} model')
