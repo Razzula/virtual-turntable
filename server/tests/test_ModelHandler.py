@@ -12,8 +12,8 @@ import torch.nn as nn
 from PIL import Image
 from unittest.mock import MagicMock, patch
 
-from server.modelling.models.utils.ModelType import ModelType
-from server.modelling.models.BabyOuroboros import BabyOuroboros, transform  # transform will be patched in tests
+from modelling.models.utils.ModelType import ModelType
+from modelling.models.BabyOuroboros import BabyOuroboros, transform  # transform will be patched in tests
 from app.modules.modelHandler import ModelHandler
 
 

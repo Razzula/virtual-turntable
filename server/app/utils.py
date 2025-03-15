@@ -43,6 +43,8 @@ def getLocalIPs() -> list[str]:
 
 def isHostIP(ip: str | None) -> bool:
     """Check if the given IP is a local IP address."""
+    if (ip == '127.0.0.1'):
+        return True
     return (ip is not None and ip in getLocalIPs())
 
 

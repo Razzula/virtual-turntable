@@ -21,7 +21,7 @@ from app.utils import isHostIP
 from app.modules.websocketHandler import WebsocketHandler
 from app.routes import setupRoutes
 from app.APIs.DiscogsAPI import DiscogsAPI
-from server.modelling.models.utils.ModelType import ModelType
+from modelling.models.utils.ModelType import ModelType
 from app.modules.stateManager import StateManager
 
 
@@ -118,7 +118,7 @@ class Server:
             os.makedirs(os.path.join(self.ROOT_DIR, 'data'))
 
         # load model
-        self.modelHandler.loadModel(ModelType.OUROBOROS, 'Ouroboros-alpha.pth')
+        self.modelHandler.loadModel(ModelType.BABY_OUROBOROS, 'BabyOuroboros-mini.pth')
 
         # configure endpoints
         self.setupRoutes()

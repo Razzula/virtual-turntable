@@ -79,5 +79,5 @@ class StateManager:
             },
         }
         if (self.hardwareController is not None):
-            self.hardwareController.setMotorSpeed(0)
+            self.hardwareController.setMotorSpeed(100)
             self.hardwareController.setMotorState(0)

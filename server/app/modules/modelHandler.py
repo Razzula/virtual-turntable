@@ -7,9 +7,13 @@ from typing import Dict, Final, Union
 import torch
 import torch.nn as nn
 from PIL import Image
+import torchvision.transforms as transforms
 
-from server.modelling.models.utils.ModelType import ModelType
-from server.modelling.models.BabyOuroboros import BabyOuroboros, transform
+from modelling.models.utils.ModelType import ModelType
+from modelling.models.utils.Transforms import globalTransforms
+from modelling.models.BabyOuroboros import BabyOuroboros
+from modelling.models.Ouroboros import Ouroboros
+from modelling.models.Amphisbaena import Amphisbaena
 
 
 class ModelHandler:
@@ -21,13 +25,14 @@ class ModelHandler:
         self.MODELS_PATH: Final = modelsPath
 
         self.model: nn.Module | None = None
+        self.globalTransformer = transforms.Compose(globalTransforms)
         self.classes: dict[str, dict[str, str]] = {}
 
 
     def loadModel(self, modelType: ModelType, modelName: str) -> None:
         """Load a pre-trained model."""
         try:
-            modelTypeName = modelType.name
+            modelTypeName = modelType.value
         except AttributeError:
             modelTypeName = modelType
 
@@ -38,8 +43,15 @@ class ModelHandler:
         checkpoint = torch.load(modelPath)
 
         match (modelType):
+            case ModelType.BABY_OUROBOROS:
+                self.model = BabyOuroboros(classes=checkpoint['albumClasses']) # artificial IDs
             case ModelType.OUROBOROS:
-                self.model = BabyOuroboros(classes=checkpoint['classes']) # artificial IDs
+                self.model = Ouroboros(numClasses=len(checkpoint['albumClasses']))
+            case ModelType.AMPHISBAENA:
+                self.model = Amphisbaena(
+                    numAlbums=len(checkpoint['albumClasses']),
+                    numArtists=len(checkpoint['artistClasses']),
+                )
             case _:
                 raise TypeError(f'Model type ({modelTypeName}) not found.')
         if (self.model is None):
@@ -78,7 +90,7 @@ class ModelHandler:
         """Helper function to predict the class of a single image."""
 
         testImage = Image.open(imagePath).convert('RGB')
-        testImage = transform(testImage).unsqueeze(0)  # add batch dimension
+        testImage = self.globalTransformer(testImage).unsqueeze(0)  # add batch dimension
 
         with torch.no_grad():
             OUTPUTS: Final = self.model(testImage)
@@ -87,7 +99,7 @@ class ModelHandler:
 
         result = {
             'image': os.path.basename(imagePath),
-            'predictedClass': self.model.classes[int(PREDICTED_CLASS.item())],
+            'predictedClass': self.model.classes.get(int(PREDICTED_CLASS.item()), '_null'),
             'predictedProb': PREDICTED_PROB.item()
         }
         

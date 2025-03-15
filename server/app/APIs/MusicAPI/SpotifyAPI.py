@@ -271,19 +271,48 @@ class SpotifyAPI(IMusicAPI):
     def searchForAlbum(self, album: dict[str, str]) -> str:
         """TODO"""
         AUTH_TOKEN: Final = self.sessionManager.getHostToken()
-        PARAMS: Final = {
-            'q': f'{album["name"]} artist:{album["artist"]} year:{album["year"]}',
-            'type': 'album',
+        
+        for medium in ['album']:
+            for query in [
+                f'{album["name"]} artist:{album["artist"]} year:{album["year"]}',
+                f'{album["name"]} artist:{album["artist"]}',
+            ]:
+                params = {
+                    'q': query,
+                    'type': medium,
+                    'limit': 1,
+                }
+                request = requests.get(
+                    f'https://api.spotify.com/v1/search/?{urlencode(params)}',
+                    headers={
+                        'Authorization': f'Bearer {AUTH_TOKEN}',
+                    },
+                    timeout=10,
+                )
+
+                request.raise_for_status()
+                response = request.json()
+
+                if (len(response['albums']['items']) > 0):
+                    return str(response['albums']['items'][0]['id'])
+        
+        params = {
+            'q': f'{album["name"]}',
             'limit': 1,
         }
-        REQUEST: Final = requests.get(
-            f'https://api.spotify.com/v1/search/?{urlencode(PARAMS)}',
+        request = requests.get(
+            f'https://api.spotify.com/v1/search/?{urlencode(params)}',
             headers={
                 'Authorization': f'Bearer {AUTH_TOKEN}',
             },
             timeout=10,
         )
 
-        REQUEST.raise_for_status()
-        RESPONSE: Final = REQUEST.json()
-        return str(RESPONSE['albums']['items'][0]['id'])
+        request.raise_for_status()
+        response = request.json()
+
+        print(response)
+        if (len(response['albums']['items']) > 0):
+            return str(response['albums']['items'][0]['id'])
+
+        return None
