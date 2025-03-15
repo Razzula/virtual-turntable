@@ -12,9 +12,9 @@ import torch.nn as nn
 import torch
 
 from sklearn.metrics import confusion_matrix, f1_score
-from utils.CustomDataset import CustomDataset
+from modelling.models.utils.CustomDataset import CustomDataset
 
-from utils.ModelType import ModelType
+from modelling.models.utils.ModelType import ModelType
 
 class Amphisbaena(nn.Module):
     """
@@ -25,8 +25,13 @@ class Amphisbaena(nn.Module):
 
     name: Final[str] = ModelType.AMPHISBAENA.value
 
-    def __init__(self, numAlbums: int, numArtists: int, numLayers: int = 1):
+    def __init__(self, albumClasses: dict[str, int], artistClasses: dict[str, int], numLayers: int = 1):
         super().__init__()
+
+        self.albumClasses: Final[dict[str, int]] = albumClasses
+        self.artistClasses: Final[dict[str, int]] = artistClasses
+        numAlbums: Final[int] = len(albumClasses)
+        numArtists: Final[int] = len(artistClasses)
 
         # Load a ResNet-18 model pretrained on ImageNet
         weights = models.ResNet18_Weights.IMAGENET1K_V1

@@ -1,6 +1,6 @@
 import torchvision.transforms as transforms
 
-from utils.RandomFlip import RandomFlip
+from modelling.models.utils.RandomFlip import RandomFlip
 
 globalTransforms = [
     # ensure images are of uniform size

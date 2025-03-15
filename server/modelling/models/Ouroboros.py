@@ -12,9 +12,9 @@ import torch.nn as nn
 import torch
 
 from sklearn.metrics import confusion_matrix, f1_score
-from utils.CustomDataset import CustomDataset
+from modelling.models.utils.CustomDataset import CustomDataset
 
-from utils.ModelType import ModelType
+from modelling.models.utils.ModelType import ModelType
 
 class Ouroboros(nn.Module):
     """
@@ -25,8 +25,11 @@ class Ouroboros(nn.Module):
 
     name: Final[str] = ModelType.OUROBOROS.value
 
-    def __init__(self, numClasses: int, numLayers: int = 1) -> None:
+    def __init__(self, classes: dict[str, int], numLayers: int = 1) -> None:
         super(Ouroboros, self).__init__()
+
+        self.classes: Final[dict[str, int]] = classes
+        numClasses: Final[int] = len(classes)
 
         # Load a ResNet-18 model pretrained on ImageNet
         weights = models.ResNet18_Weights.IMAGENET1K_V1
