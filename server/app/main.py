@@ -79,7 +79,7 @@ class Server:
             os.path.join(self.ROOT_DIR, 'data'), self.discogsAPI
         )
         if (GPIO_ACCESS is None or GPIO_ACCESS != 'off'):
-            self.hardwareController = PiController()
+            self.hardwareController = PiController(self.handleMotorStall)
             print('Hardware controller configured.')
         else:
             self.hardwareController = None
@@ -272,6 +272,16 @@ class Server:
                 })  # serve image to host client
 
         await self.predictAndPlayAlbum('captures')  # run album prediction, and serve to host
+
+    async def handleMotorStall(self) -> None:
+        """TODO"""
+        currentState = self.getState()
+        if (
+            currentState
+            and currentState.get(StateKeys.PLAY_STATE.value)
+            and currentState.get(StateKeys.SETTINGS.value, {}).get('enableMotor', False)
+        ):
+            await self.togglePlayState()
 
     async def predictAndPlayAlbum(self, fileName: str) -> JSONResponse:
         """TODO"""

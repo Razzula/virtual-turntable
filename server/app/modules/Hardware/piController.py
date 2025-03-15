@@ -1,5 +1,6 @@
 """Hardware controller for Raspberry Pi."""
 import asyncio
+import time
 from typing import Awaitable, Callable, Optional
 
 import cv2
@@ -11,7 +12,12 @@ from app.modules.Hardware.IHardwareController import IHardwareController
 class PiController(IHardwareController):
     """Hardware controller for Raspberry Pi."""
 
-    def __init__(self) -> None:
+    def __init__(self,
+        onMotorStall: Optional[Callable[[], Awaitable[None]]] = None,
+    ) -> None:
+
+        self.onMotorStall = onMotorStall
+
         # DEFINE CONTROL PINS
         # (numbers are GPIO value, not pin number)
 
@@ -72,6 +78,8 @@ class PiController(IHardwareController):
                 lgpio.gpio_write(self.h, self.MTR_FWD, 0)
                 lgpio.gpio_write(self.h, self.MTR_REV, 1)
 
+            asyncio.create_task(self.reactToEncoderStall())
+
     def setMotorSpeed(self, speed: int) -> None:
         """Set motor speed (% duty cycle)."""
         speed = min(100, speed)  # clamp
@@ -79,6 +87,7 @@ class PiController(IHardwareController):
 
         if (speed > 0):
             lgpio.tx_pwm(self.h, self.MTR_PWM, frequency, speed)  # start PWM
+            asyncio.create_task(self.reactToEncoderStall())
         else:
             lgpio.tx_pwm(self.h, self.MTR_PWM, frequency, 0)  # start PWM
 
@@ -144,6 +153,25 @@ class PiController(IHardwareController):
             buttonWasDown = buttonDown
             lastState = clkState
             await asyncio.sleep(0.01)  # small delay to avoid CPU overload
+
+    async def reactToEncoderStall(self) -> None:
+        """React to motor stall events."""
+        if (self.onMotorStall is None):
+            return
+
+        lastState = lgpio.gpio_read(self.h, self.MTR_ENC_A)
+        lastTime = time.time()
+        while True:
+            clkState = lgpio.gpio_read(self.h, self.MTR_ENC_A)
+            if (clkState != lastState):
+                lastTime = time.time()
+
+            if (time.time() - lastTime > 1):
+                await self.onMotorStall()
+                return
+
+            lastState = clkState
+            await asyncio.sleep(0.1)
 
     # HINGE
     def getIsHingeClosed(self) -> bool:
