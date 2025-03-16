@@ -193,7 +193,7 @@ class Server:
                 await self.websocketHandler.sendToHost({'command': command})
                 return
 
-        for key in [Commands.PLAY_ALBUM, Commands.PLAY_PLAYLIST]:
+        for key in [Commands.PLAY_ALBUM, Commands.PLAY_TRACK, Commands.PLAY_PLAYLIST]:
             if (command == key.value):
                 await self.websocketHandler.sendToHost({'command': command, 'value': value})
                 return
@@ -313,27 +313,30 @@ class Server:
         ALBUM: Final = self.modelHandler.classes[result['predictedClass']]
 
         # FIND VENDOR'S ID
-        ALBUM_ID: Final = self.musicAPI.searchForAlbum(ALBUM)
-        if (ALBUM_ID is None):
+        RESULT_DATA: Final = self.musicAPI.searchForAlbum(ALBUM)
+        if (RESULT_DATA is None):
             raise HTTPException(
                 status_code=404, detail=f'Album not found on {self.musicAPI.getProviderName()}.'
             )
-        print(ALBUM_ID)
+        print(RESULT_DATA)
+
+        isAlbum = (RESULT_DATA['medium'] == 'album')
+        COMMAND: Final = Commands.PLAY_ALBUM if isAlbum else Commands.PLAY_TRACK
 
         # ADD TO PLAYLIST
-        self.musicAPI.addAlbumToPlaylist(ALBUM_ID, self.sessionManager.getHostPlaylistID())
+        self.musicAPI.addToPlaylist(RESULT_DATA['id'], self.sessionManager.getHostPlaylistID(), isAlbum=isAlbum)
         await self.websocketHandler.broadcast({
             'command': Commands.REFRESH_PLAYLIST.value,
             'value': self.sessionManager.getHostPlaylistID(),
         })
 
-        # SEND TO CLIENTM
+        # SEND TO CLIENT
         await self.websocketHandler.sendToHost({
-            'command': Commands.PLAY_ALBUM.value,
-            'value': ALBUM_ID,
+            'command': COMMAND.value,
+            'value': RESULT_DATA['id'],
         })
 
-        return JSONResponse(content={'album': ALBUM_ID})
+        return JSONResponse(content={'album': RESULT_DATA})
 
     # Setup FastAPI endpoints
     def setupRoutes(self) -> None:

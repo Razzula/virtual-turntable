@@ -220,31 +220,40 @@ class SpotifyAPI(IMusicAPI):
         # return ID
         return str(userData['id'])
 
-    def addAlbumToPlaylist(self, albumID: str, playlistID: str) -> None:
+    def addToPlaylist(self, albumID: str, playlistID: str, isAlbum: bool = True) -> None:
         """Add an album to a Spotify playlist."""
         HEADERS: Final = {
             'Authorization': f'Bearer {self.sessionManager.getHostToken()}',
             'Content-Type': 'application/json',
         }
 
-        # get tracks
-        albumUrl = f'https://api.spotify.com/v1/albums/{albumID}/tracks'
-        response = requests.get(albumUrl, headers=HEADERS, timeout=10)
-        response.raise_for_status()
-        tracks = response.json().get('items', [])
+        if (isAlbum):
+            # get tracks
+            albumUrl = f'https://api.spotify.com/v1/albums/{albumID}/tracks'
+            response = requests.get(albumUrl, headers=HEADERS, timeout=10)
+            response.raise_for_status()
+            tracks = response.json().get('items', [])
 
-        if (not tracks):
-            raise ValueError(f"No tracks found for album ID '{albumID}'")
+            if (not tracks):
+                raise ValueError(f"No tracks found for album ID '{albumID}'")
 
-        # extract URIs
-        trackUris = [track['uri'] for track in tracks]
+            # extract URIs
+            trackUris = [track['uri'] for track in tracks]
 
-        # add tracks in batches of 100 (Spotify API limitation)
-        addTracksUrl = f'https://api.spotify.com/v1/playlists/{playlistID}/tracks'
-        for i in range(0, len(trackUris), 100):
-            payload = {'uris': trackUris[i : i + 100]}
+            # add tracks in batches of 100 (Spotify API limitation)
+            addTracksUrl = f'https://api.spotify.com/v1/playlists/{playlistID}/tracks'
+            for i in range(0, len(trackUris), 100):
+                payload = {'uris': trackUris[i : i + 100]}
+                response = requests.post(
+                    addTracksUrl, headers=HEADERS, json=payload, timeout=10
+                )
+                response.raise_for_status()
+        else:
+            # add single track
+            payload = {'uris': [f'spotify:track:{albumID}']}
             response = requests.post(
-                addTracksUrl, headers=HEADERS, json=payload, timeout=10
+                f'https://api.spotify.com/v1/playlists/{playlistID}/tracks',
+                headers=HEADERS, json=payload, timeout=10
             )
             response.raise_for_status()
 
@@ -268,15 +277,16 @@ class SpotifyAPI(IMusicAPI):
                 status_code=response.status_code, detail=response.json()
             )
 
-    def searchForAlbum(self, album: dict[str, str]) -> str:
+    def searchForAlbum(self, album: dict[str, str]) -> dict[str, str] | None:
         """TODO"""
         AUTH_TOKEN: Final = self.sessionManager.getHostToken()
-        
-        for medium in ['album']:
-            for query in [
-                f'{album["name"]} artist:{album["artist"]} year:{album["year"]}',
-                f'{album["name"]} artist:{album["artist"]}',
-            ]:
+
+        for query in [
+            f'{album["name"]} artist:{album["artist"]} year:{album["year"]}',
+            f'{album["name"]} artist:{album["artist"]}',
+            album["name"],
+        ]:
+            for medium in ['album', 'track']:
                 params = {
                     'q': query,
                     'type': medium,
@@ -293,26 +303,9 @@ class SpotifyAPI(IMusicAPI):
                 request.raise_for_status()
                 response = request.json()
 
-                if (len(response['albums']['items']) > 0):
-                    return str(response['albums']['items'][0]['id'])
-        
-        params = {
-            'q': f'{album["name"]}',
-            'limit': 1,
-        }
-        request = requests.get(
-            f'https://api.spotify.com/v1/search/?{urlencode(params)}',
-            headers={
-                'Authorization': f'Bearer {AUTH_TOKEN}',
-            },
-            timeout=10,
-        )
-
-        request.raise_for_status()
-        response = request.json()
-
-        print(response)
-        if (len(response['albums']['items']) > 0):
-            return str(response['albums']['items'][0]['id'])
-
+                if (len(response[f'{medium}s']['items']) > 0):
+                    return {
+                        'medium': medium,
+                        'id': str(response[f'{medium}s']['items'][0]['id'])
+                    }
         return None

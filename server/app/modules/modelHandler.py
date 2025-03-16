@@ -31,6 +31,7 @@ class ModelHandler:
 
     def loadModel(self, modelType: ModelType, modelName: str) -> None:
         """Load a pre-trained model."""
+        self.modelType = modelType
         try:
             modelTypeName = modelType.value
         except AttributeError:

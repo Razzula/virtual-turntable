@@ -202,6 +202,12 @@ function App() {
                         SpotifyAPI.setShuffle(authToken, false);
                     }
                 }
+                else if (message.command === 'playTrack') {
+                    if (authToken !== undefined && authToken !== null) {
+                        SpotifyAPI.playTrack(authToken, message.value);
+                        SpotifyAPI.setShuffle(authToken, false);
+                    }
+                }
                 else if (message.command === 'playPlaylist') {
                     if (authToken !== undefined && authToken !== null) {
                         SpotifyAPI.playPlaylist(authToken, message.value);

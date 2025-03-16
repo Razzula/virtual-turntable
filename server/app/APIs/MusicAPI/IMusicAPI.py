@@ -64,7 +64,7 @@ class IMusicAPI(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def addAlbumToPlaylist(self, albumID: str, playlistID: str) -> None:
+    def addToPlaylist(self, albumID: str, playlistID: str, isAlbum: bool) -> None:
         """Add an album to a playlist."""
         raise NotImplementedError
 
@@ -74,6 +74,6 @@ class IMusicAPI(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def searchForAlbum(self, query: str) -> str:
+    def searchForAlbum(self, query: str) -> dict[str, str] | None:
         """Search for an album and return its ID."""
         raise NotImplementedError

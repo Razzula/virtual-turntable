@@ -13,6 +13,7 @@ class Commands(Enum):
     PLAY_NEXT = 'playNext'
     PLAY_PREVIOUS = 'playPrevious'
     PLAY_ALBUM = 'playAlbum'
+    PLAY_TRACK = 'playTrack'
     PLAY_PLAYLIST = 'playPlaylist'
     FAST_FORWARD = 'forwards'
     REWIND = 'reverse'

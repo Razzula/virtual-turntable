@@ -39,6 +39,21 @@ class SpotifyAPI implements IMusicAPI {
         });
     }
 
+    public async playTrack(authToken: string, trackID: string, offset: number = 0, position_ms: number = 0): Promise<void> {
+        fetch('https://api.spotify.com/v1/me/player/play', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+                uris: [`spotify:track:${trackID}`],
+                offset: { position: offset },
+                position_ms: position_ms
+            }),
+        });
+    }
+
     public async playPlaylist(authToken: string, playlistID: string, offset: number = 0, position_ms: number = 0): Promise<void> {
         fetch('https://api.spotify.com/v1/me/player/play', {
             method: 'PUT',

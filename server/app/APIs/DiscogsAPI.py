@@ -58,15 +58,19 @@ class DiscogsAPI:
         metadata = {}
 
         formats = data['formats']
-        for format in formats:
-            if (format['name'] == 'Vinyl'):
-                text = format.get('text')
+        for medium in formats:
+            if (medium['name'] == 'Vinyl'):
+                text = medium.get('text')
                 if (text is not None):
                     text  = text.lower()
                     metadata['colour'] = text.split(' ')[0]
 
                     if ('marble' in text):
                         metadata['marble'] = True
+
+                for description in medium.get('descriptions', []):
+                    if ('rpm' in description.lower()):
+                        metadata['rpm'] = int(description.split(' ')[0])
 
         return data['images'], metadata
 
