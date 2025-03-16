@@ -33,7 +33,7 @@ function App() {
     const [currentAlbum, setCurrentAlbum] = useState<Album | null>(null);
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
 
-    const [needToFetchCapture, setNeedToFetchCapture] = useState<boolean>(false);
+    const [needToFetchCapture, setNeedToFetchCapture] = useState<'capture' | 'upload' | null>(null);
     const [needToRefreshPlaylist, setNeedToRefreshPlaylist] = useState<boolean>(false);
 
     const [settings, setSettings] = useState<Settings>({
@@ -208,8 +208,8 @@ function App() {
                         SpotifyAPI.setShuffle(authToken, true);
                     }
                 }
-                else if (message.command === 'capture') {
-                    setNeedToFetchCapture(true);
+                else if (message.command === 'capture' || message.command === 'upload') {
+                    setNeedToFetchCapture(message.command);
                 }
 
                 // side controller commands
@@ -256,6 +256,7 @@ function App() {
             // direct File upload (from file input)
             await uploadFile(input);
         }
+        WebSocketManagerInstance.send(JSON.stringify({ command: 'upload' }));
     }
 
     async function uploadFile(data: File | Blob) {

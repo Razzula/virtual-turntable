@@ -117,7 +117,7 @@ const defaultPropsPremium = {
     setHostSettings: vi.fn(),
     isHostSettingsUpdateLocal: { current: false },
     hostUserID: 'user1',
-    needToFetchCapture: false,
+    needToFetchCapture: null,
     setNeedToFetchCapture: vi.fn(),
 };
 
@@ -134,7 +134,7 @@ const defaultPropsNonPremium = {
     setHostSettings: vi.fn(),
     isHostSettingsUpdateLocal: { current: false },
     hostUserID: 'user1',
-    needToFetchCapture: false,
+    needToFetchCapture: null,
     setNeedToFetchCapture: vi.fn(),
 };
 
@@ -212,7 +212,7 @@ describe('VirtualTurntable', () => {
             expect(captureImg).toBeInTheDocument();
             expect(captureImg?.getAttribute('src')).toBe(dummyBlobURL);
         });
-        expect(setNeedToFetchCaptureSpy).toHaveBeenCalledWith(false);
+        expect(setNeedToFetchCaptureSpy).toHaveBeenCalledWith(null);
     });
 
     test('updates player volume when hostSettings volume changes', async () => {

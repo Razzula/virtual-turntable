@@ -46,11 +46,11 @@ class ModelHandler:
             case ModelType.BABY_OUROBOROS:
                 self.model = BabyOuroboros(classes=checkpoint['albumClasses']) # artificial IDs
             case ModelType.OUROBOROS:
-                self.model = Ouroboros(numClasses=len(checkpoint['albumClasses']))
+                self.model = Ouroboros(classes=checkpoint['albumClasses'])
             case ModelType.AMPHISBAENA:
                 self.model = Amphisbaena(
-                    numAlbums=len(checkpoint['albumClasses']),
-                    numArtists=len(checkpoint['artistClasses']),
+                    albumClasses=checkpoint['albumClasses'],
+                    artistClasses=checkpoint['artistClasses'],
                 )
             case _:
                 raise TypeError(f'Model type ({modelTypeName}) not found.')
@@ -102,6 +102,6 @@ class ModelHandler:
             'predictedClass': self.model.classes.get(int(PREDICTED_CLASS.item()), '_null'),
             'predictedProb': PREDICTED_PROB.item()
         }
-        
+
         print(f"Predicted: {result['predictedClass']} ({result['predictedProb']}) for {result['image']}")
         return result

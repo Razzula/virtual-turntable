@@ -52,6 +52,7 @@ function RemoteController({
             fetch('/virtual-turntable/server/playlist')
                 .then((response) => {
                     if (response.ok) {
+                        setLibraryPlaylistID(null);
                         response.json().then((data) => {
                             setLibraryPlaylistID(data.playlistID);
                             setNeedToRefreshPlaylist(false);
@@ -177,7 +178,7 @@ function RemoteController({
 
                 <div className='panel'>
                     {/* SIDEBAR */}
-                    { currentAlbum !== null &&
+                    { library.length > 0 &&
                         <div className='sidebar'>
                             {/* <h2>Your Collection</h2> */}
                             {

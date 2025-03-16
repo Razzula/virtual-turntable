@@ -78,12 +78,34 @@ def servingRoutes(server: 'Server') -> None:
 
     # CAMERA
     @app.get('/capture')
-    async def captureGet() -> JSONResponse:
+    async def captureGet(sessionID: str = Cookie(None)) -> JSONResponse:
         """
         This endpoint serves the camera capture.
         """
+        if (not server.sessionManager.getSession(sessionID).get('isHost', False)):
+            raise HTTPException(403, 'Unauthorised')
+
         data = None
         filePath = os.path.join(server.ROOT_DIR, 'data', 'captures', 'capture0.jpg')
+        if (os.path.exists(filePath)):
+            with open(filePath, 'rb') as labelFile:
+                data = base64.b64encode(labelFile.read()).decode('utf-8')
+
+        response = {
+            'imageData': data,
+        }
+        return JSONResponse(content=response)
+
+    @app.get('/upload')
+    async def uploadGet(sessionID: str = Cookie(None)) -> JSONResponse:
+        """
+        This endpoint serves the camera capture.
+        """
+        if (not server.sessionManager.getSession(sessionID).get('isHost', False)):
+            raise HTTPException(403, 'Unauthorised')
+
+        data = None
+        filePath = os.path.join(server.ROOT_DIR, 'data', 'upload.png')
         if (os.path.exists(filePath)):
             with open(filePath, 'rb') as labelFile:
                 data = base64.b64encode(labelFile.read()).decode('utf-8')

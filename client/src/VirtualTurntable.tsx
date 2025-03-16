@@ -22,8 +22,8 @@ type VirtualTurntableProps = {
     setHostSettings: (settings: Settings) => void;
     isHostSettingsUpdateLocal: React.MutableRefObject<boolean>;
     hostUserID: string | null;
-    needToFetchCapture: boolean;
-    setNeedToFetchCapture: (needToFetchCapture: boolean) => void;
+    needToFetchCapture: 'capture' | 'upload' | null;
+    setNeedToFetchCapture: (needToFetchCapture: 'capture' | 'upload' | null) => void;
 };
 
 type ClientSettings = {
@@ -39,7 +39,7 @@ const BUILD_MODE = import.meta.env.MODE;
 function VirtualTurntable({
     authToken,
     userProfile,
-    isPlaying, currentAlbum,
+    isPlaying, currentAlbum, currentTrack,
     setIsPlaying, setCurrentAlbum, setCurrentTrack,
     hostSettings, setHostSettings, isHostSettingsUpdateLocal,
     hostUserID,
@@ -269,7 +269,7 @@ function VirtualTurntable({
 
             try {
                 // HANDLED BY SERVER
-                const response = await fetch('/virtual-turntable/server/capture', {
+                const response = await fetch(`/virtual-turntable/server/${needToFetchCapture}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -298,7 +298,7 @@ function VirtualTurntable({
                 console.error('Error fetching capture:', error);
                 setCaptureSource(null); // prevent stale image
             }
-            setNeedToFetchCapture(false);
+            setNeedToFetchCapture(null);
         };
 
         fetchImage();
@@ -626,6 +626,44 @@ function VirtualTurntable({
                                 </div>
                             </div>
                         }
+                    </div>
+                }
+
+                { showInteractive &&
+                    <div className='floating topRight'>
+                        <div className='row' onClick={(e) => e.stopPropagation()}>
+
+                            {currentAlbum !== null &&
+                                <div className='row'>
+                                    <a href={currentAlbum.external_urls.spotify} target='_blank' rel='noreferrer'>
+                                        <img className='albumArtMini'
+                                            src={currentAlbum.images[0].url} alt='Album Cover'
+                                        />
+                                    </a>
+                                    <div style={{ marginLeft: '10px' }}>
+                                        <h1>{currentAlbum?.name}</h1>
+                                        <h2>{currentTrack?.name}</h2>
+                                        <div className='controls'>
+                                            <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'playPrevious'}))}>
+                                                <img src='/virtual-turntable/icons/previous.svg' alt='Previous' />
+                                            </button>
+                                            <button
+                                                onClick={() => WebSocketManagerInstance.send(JSON.stringify({
+                                                    command: 'playState',
+                                                    value: isPlaying ? false : true
+                                                }))}
+                                            >
+                                                <img src={isPlaying ? '/virtual-turntable/icons/pause.svg' : '/virtual-turntable/icons/play.svg'} alt='Play/Pause' />
+                                            </button>
+                                            <button onClick={() => WebSocketManagerInstance.send(JSON.stringify({command: 'playNext'}))}>
+                                                <img src='/virtual-turntable/icons/next.svg' alt='Next' />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
                     </div>
                 }
 

@@ -18,3 +18,4 @@ class Commands(Enum):
     REWIND = 'reverse'
     SEEK = 'seek'
     REFRESH_PLAYLIST = 'refreshPlaylist'
+    GET_UPLOAD = 'upload'

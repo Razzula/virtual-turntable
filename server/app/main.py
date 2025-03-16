@@ -118,7 +118,7 @@ class Server:
             os.makedirs(os.path.join(self.ROOT_DIR, 'data'))
 
         # load model
-        self.modelHandler.loadModel(ModelType.BABY_OUROBOROS, 'BabyOuroboros-mini.pth')
+        self.modelHandler.loadModel(ModelType.OUROBOROS, 'Ouroboros-large.pth')
 
         # configure endpoints
         self.setupRoutes()
@@ -188,7 +188,7 @@ class Server:
             return
 
         # remote-to-host commands
-        for key in [Commands.PLAY_NEXT, Commands.PLAY_PREVIOUS]:
+        for key in [Commands.PLAY_NEXT, Commands.PLAY_PREVIOUS, Commands.GET_UPLOAD]:
             if (command == key.value):
                 await self.websocketHandler.sendToHost({'command': command})
                 return

@@ -115,8 +115,7 @@ artistClasses: dict[int, str] = {}
 
 if (MODEL_NAME == ModelType.AMPHISBAENA):
     # the Amphisbaena model requires two label sets
-    for (key, value) in vanillaDataset.reverseArtistLabels.items():
-        artistClasses[value] = key
+    artistClasses = vanillaDataset.reverseArtistLabels
 
     trainAmphi(
         model=model,
