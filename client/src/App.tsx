@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import WebSocketManagerInstance from './WebSocketManager';
-import { Album, Track, User } from './types/Spotify'
+import { Album, Track, User } from './types/Music'
 
 import './styles/App.css'
-import SpotifyAPI from './Spotify/SpotifyAPI';
+import SpotifyAPI from './APIs/Spotify/SpotifyAPI';
 import VirtualTurntable from './VirtualTurntable';
 import RemoteController from './RemoteController';
-import SpotifyPlayer from './Spotify/SpotifyPlayer';
+import SpotifyPlayer from './APIs/Spotify/SpotifyPlayer';
 import { base64ToBlob } from './utils/blob';
+import { vendors } from './types/vendor';
 
 export type Settings = {
     enableMotor: boolean;
@@ -43,6 +44,8 @@ function App() {
         volume: 50,
     });
     const isSettingsUpdateLocal = useRef(false);
+
+    const vendor = vendors.Spotify;
 
     const fetchAuthToken = useCallback(async () => {
         // get auth token
@@ -155,7 +158,7 @@ function App() {
                 .then((data: Album) => {
                     setCurrentAlbum(data);
                 }
-                );
+            );
         }
     }, [currentTrack, authToken]);
 
@@ -168,7 +171,7 @@ function App() {
                     });
                 }
             }
-            );
+        );
     }
 
     function handleWebSocketMessage(e: MessageEvent) {
@@ -291,6 +294,7 @@ function App() {
                     hostSettings={settings} setHostSettings={setSettings} isHostSettingsUpdateLocal={isSettingsUpdateLocal}
                     hostUserID={hostUserID}
                     needToFetchCapture={needToFetchCapture} setNeedToFetchCapture={setNeedToFetchCapture}
+                    vendor={vendor}
                 />
             );
         }

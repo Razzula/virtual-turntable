@@ -1,10 +1,11 @@
 """This module contains the FastAPI routes for the server."""
 import base64
+import json
 import os
 from typing import Final, TYPE_CHECKING
 
 from fastapi import Cookie, FastAPI, HTTPException, Request, WebSocket
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 
 from app.utils import isHostIP
 
@@ -15,6 +16,17 @@ if (TYPE_CHECKING):
 def setupRoutes(server: 'Server') -> None:
     """Setup the FastAPI routes."""
     app: FastAPI = server.app
+
+    def generateAllowedTracks() -> dict[str, str]:
+        audioDir = os.path.join(server.ROOT_DIR, 'data', 'audio')
+        allowedTracks = {}
+        for fileName in os.listdir(audioDir):
+            if fileName.endswith('.mp3'):
+                trackName = os.path.splitext(fileName)[0]
+                allowedTracks[trackName] = fileName
+        return allowedTracks
+
+    allowedTracks = generateAllowedTracks()
 
     @app.get('/')
     async def root() -> JSONResponse:
@@ -34,7 +46,7 @@ def setupRoutes(server: 'Server') -> None:
     authRoutes(server)
     websocketRoutes(server)
     processingRoutes(server)
-    servingRoutes(server)
+    servingRoutes(server, allowedTracks)
 
 
 def authRoutes(server: 'Server') -> None:
@@ -72,7 +84,7 @@ def authRoutes(server: 'Server') -> None:
         return RedirectResponse(url='/')
 
 
-def servingRoutes(server: 'Server') -> None:
+def servingRoutes(server: 'Server', allowedTracks: dict[str, str]) -> None:
     """Setup the FastAPI serving routes."""
     app: FastAPI = server.app
 
@@ -157,6 +169,29 @@ def servingRoutes(server: 'Server') -> None:
             'hostUserID': server.sessionManager.getHostUserID(),
             'provider': server.musicAPI.getProviderName(),
         })
+
+    @app.get('/track/{trackName}')
+    async def getTrack(trackName: str) -> FileResponse:
+        """
+        This endpoint serves the track data back to the client.
+        """
+        if (trackName not in allowedTracks):
+            raise HTTPException(status_code=404, detail='Track not found')
+        filePath = os.path.join(server.ROOT_DIR, 'data', 'audio', allowedTracks[trackName])
+        if not os.path.isfile(filePath):
+            raise HTTPException(status_code=404, detail='File not found')
+        return FileResponse(filePath, media_type="audio/mpeg", filename=allowedTracks[trackName])
+
+    @app.get('/track/meta/{trackName}')
+    async def getTrackMeta(trackName: str) -> JSONResponse:
+        """
+        This endpoint serves the track metadata back to the client.
+        """
+        if (trackName not in allowedTracks):
+            raise HTTPException(status_code=404, detail='Track not found')
+        with open(os.path.join(server.ROOT_DIR, 'data', 'audio', f'{trackName}.json'), 'r') as file:
+            data = json.load(file)
+        return JSONResponse(content=data)
 
 
 def processingRoutes(server: 'Server') -> None:

@@ -1,11 +1,11 @@
-import { Album, Track, User } from './types/Spotify.ts';
+import { Album, Track, User } from './types/Music.ts';
 
 import React, { useEffect, useState } from 'react';
 import { Settings } from './App.tsx';
 import { Dialogue, DialogueContent } from './common/Dialogue';
 import { Tooltip, TooltipContent, TooltipTrigger } from './common/Tooltip.tsx';
 import WebcamCapture from './common/WebcamCapture.tsx';
-import SpotifyAPI from './Spotify/SpotifyAPI.ts';
+import SpotifyAPI from './APIs/Spotify/SpotifyAPI.ts';
 import './styles/App.css';
 import WebSocketManagerInstance from './WebSocketManager';
 

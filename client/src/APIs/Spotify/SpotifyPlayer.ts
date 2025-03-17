@@ -1,3 +1,4 @@
+import { PlaybackState } from '../../types/PlaybackState';
 import MusicPlayer from '../IMusicPlayer';
 
 type WebPlaybackPlayer = {
@@ -15,7 +16,7 @@ export class SpotifyPlayer extends MusicPlayer {
 
     private player: Spotify.Player | null = null;
 
-    protected constructor(authToken: string, setDeviceID: (player: string) => void, handlePlayerStateChange: (state: Spotify.PlaybackState) => void) {
+    protected constructor(authToken: string, setDeviceID: (player: string) => void, handlePlayerStateChange: (state: PlaybackState) => void) {
         super();
         console.log('Creating Spotify Player instance');
 

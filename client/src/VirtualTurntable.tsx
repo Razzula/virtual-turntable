@@ -1,13 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ColorName, colornames } from 'color-name-list';
 
-import SpotifyPlayer from './Spotify/SpotifyPlayer.ts'
+import SpotifyPlayer from './APIs/Spotify/SpotifyPlayer.ts'
 import { Album, Track, User } from './types/Spotify'
 
 import './styles/App.css'
-import SpotifyAPI from './Spotify/SpotifyAPI.ts';
+import SpotifyAPI from './APIs/Spotify/SpotifyAPI.ts';
 import WebSocketManagerInstance from './WebSocketManager.ts';
 import { Settings } from './App.tsx';
+import { vendors, vendorType } from './types/vendor.ts';
+import { vendorType } from './types/vendor';
+import IMusicPlayer from './APIs/IMusicPlayer.ts';
+import LocalPlayer from './APIs/Local/LocalPlayer.ts';
+import { PlaybackState } from './types/PlaybackState.ts';
 
 type VirtualTurntableProps = {
     authToken: string;
@@ -24,6 +29,7 @@ type VirtualTurntableProps = {
     hostUserID: string | null;
     needToFetchCapture: 'capture' | 'upload' | null;
     setNeedToFetchCapture: (needToFetchCapture: 'capture' | 'upload' | null) => void;
+    vendor: vendorType;
 };
 
 type ClientSettings = {
@@ -44,12 +50,13 @@ function VirtualTurntable({
     hostSettings, setHostSettings, isHostSettingsUpdateLocal,
     hostUserID,
     needToFetchCapture, setNeedToFetchCapture,
+    vendor,
 }: VirtualTurntableProps): JSX.Element {
 
     const [deviceID, setDeviceID] = useState<string | undefined>(undefined);
     const [isActive, setIsActive] = useState<boolean>(false);
 
-    const [player, setPlayer] = useState<SpotifyPlayer | null>(null);
+    const [player, setPlayer] = useState<IMusicPlayer | null>(null);
 
     const [centreLabelSource, setCentreLabelSource] = useState<string | null>(null);
     const [vinylDetails, setVinylDetails] = useState<any>(null);
@@ -137,8 +144,10 @@ function VirtualTurntable({
     }, []);
 
     useEffect(() => {
-        function handlePlayerStateChange(state: Spotify.PlaybackState) {
+        function handlePlayerStateChange(state: PlaybackState) {
+            console.log(state)
             if (state) {
+                setIsActive(state.track_window.current_track !== null);
                 if (state.paused) {
                     setIsPlaying(false);
                 }
@@ -146,23 +155,30 @@ function VirtualTurntable({
                     setIsPlaying(true);
                 }
                 setCurrentTrack(state.track_window.current_track);
-                setIsActive(state.track_window.current_track !== null);
             }
             else {
                 setIsActive(false);
                 setCurrentTrack(null);
             }
         }
-        setPlayer(SpotifyPlayer.getInstance(authToken, setDeviceID, handlePlayerStateChange));
+
+        if (vendor === vendors.Spotify) {
+            setPlayer(SpotifyPlayer.getInstance(authToken, setDeviceID, handlePlayerStateChange));
+        }
+        else if (vendor === vendors.local) {
+            setPlayer(LocalPlayer.getInstance(handlePlayerStateChange))
+        }
     }, [authToken, setCurrentTrack, setDeviceID, setIsPlaying]);
 
     const handleActivation = useCallback(async () => {
-        if (authToken) {
-            if (deviceID !== undefined) {
-                SpotifyAPI.connect(authToken, deviceID);
-            }
-            else {
-                console.warn('Cannot activate player without device ID');
+        if (vendor === vendors.Spotify) {
+            if (authToken) {
+                if (deviceID !== undefined) {
+                    SpotifyAPI.connect(authToken, deviceID);
+                }
+                else {
+                    console.warn('Cannot activate player without device ID');
+                }
             }
         }
     }, [authToken, deviceID]);
@@ -170,7 +186,6 @@ function VirtualTurntable({
     useEffect(() => {
         if (hostUserID && userProfile?.id) {
             if (hostUserID !== userProfile.id) {
-                console.log('erere');
                 setIsActive(false);
             }
         }
@@ -184,12 +199,12 @@ function VirtualTurntable({
         }
     }, [authToken, deviceID, handleActivation]);
 
-    useEffect(() => {
-        if (!isActive) {
-            setCurrentAlbum(null);
-            setCurrentTrack(null);
-        }
-    }, [isActive, setCurrentAlbum, setCurrentTrack]);
+    // useEffect(() => {
+    //     if (!isActive) {
+    //         setCurrentAlbum(null);
+    //         setCurrentTrack(null);
+    //     }
+    // }, [isActive, setCurrentAlbum, setCurrentTrack]);
 
     useEffect(() => {
         WebSocketManagerInstance.send(JSON.stringify({ command: 'settings', value: hostSettings }));
