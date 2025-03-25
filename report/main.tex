@@ -430,18 +430,14 @@
     
             \begin{temp}
                 System Architecture Diagram \ref{fig:networkDiagram};
-                \begin{temp}Note from Sean: Discogs/Aspotify should be together\end{temp}
+                \begin{temp}Note from Sean: Discogs/Spotify should be together\end{temp}
                 
                 Data Flow Diagram; Component Diagram;
     
-                Hexagonal Architecture (Ports & Plugs); (modularity = Single Responsibility Principle)
-            \end{temp}
-        
-            \subsubsection{Technology Stack}
+                Hexagonal Architecture (Ports \& Plugs); (modularity = Single Responsibility Principle)
     
-                \begin{temp}
-                    All of the technologies used, and why them specifically.
-                \end{temp}
+                Single-page application
+            \end{temp}
         
             \subsubsection{Design Choices}
                 % unique 1-1/1-many relation
@@ -458,9 +454,15 @@
                     Design philosophy of being an non-reliant on Spotify (or any other singular API) as possible
                 \end{temp}
     
-                It was decided to create a physical device that utilised online music streaming. This would allow it to have the convenience of a digital player with easy library availability and playing to the strengths of virtual playback for modern tracks, whilst still encouraging the ownership of physical mediums, and leaning into the physicality in its design and interaction mechanisms. Since the background research showed that there is an existing demographic of consumers who purchase both physical and digital copies (or subscriptions) simultaneously, this meant this design strategy would be beneficial. 
+                Initially, the project was envisioned to be a native desktop/mobile application, with a goal of supporting a range of devices. Since, for many, music is now a personal and individual consumption, bringing the idea of the vinyl system into one's pocket seemed like the most practical and intuitive approach. Furthermore, since having a portable system would allow for an incredibly large and diverse of albums being scanned, it was decided to use streaming services and APIs in order to maximise the breadth of the available 'library' for the application. Since this initial design focused on being device-agnostic and using live audio streaming, it was decided that a web architecture was most fitting, as frameworks already exist to serve web content on various devices, and because most audio APIs/SDKs require (or work best with) these technologies. Prior experience with Android Java development and the Spotify Web and Android SDKs, specifically, also made this an appealing decision.
     
-                In order to utilise nostalgia, the device was designed to make use of a stylish mahogany wood with brass controls. Research shows that, in one survey, wood is the most frequently cited material in nostalgic household items, appearing in 34\% of nostalgic objects (with metal second at 21\%) \cite{Skinner2022}. These materials were ubiquitous in classic mid-20th-century audio equipment, so they instantly call to mind ``the charm of a bygone era'' \cite{LookInTheAttic2024}.
+                However, shortly into the development period, since the background research showed that there is a strong attraction of existing vinyl users for the medium due to its physical nature: it was decided to instead create a single physical device, whilst still utilising online music streaming. This would still allow it to have the convenience of a digital player with easy library availability and playing to the strengths of virtual playback for modern tracks, whilst also encouraging the ownership of physical mediums, and leaning into the physicality in its design and interaction mechanisms. Additionally, the research showed that there is an existing demographic of consumers who purchase both physical and digital copies (or subscriptions) simultaneously - making this combinatorial design viable with a target audience of consumers. Despite being a single, localised device, in order to integrate the streaming services seamlessly, it was still required to use a webstack, and so, the design became to run both the server and client on the same device, locally. Deviating from the exact technologies used in a previous project was also seen as a good opportunity to develop new and additional skills and familiarity with other technologies.
+    
+                So, the final architecture design was to create a web application with a single, central server running on the physical device, that could be interfaced with from both physical analogue controls, in addition to exposed REST endpoints. The device would also locally run a web client in order to stream the audio and display visuals for the user, communicating through the server with both traditional server calls, but, also, a bi-directional Websocket connection, allowing both the server and client to instantaneously broadcast to each other. This broadcasting mechanic is useful, as it allows the server to inform the client of state changes, such as if the audio should be paused due to a physical button being pressed.
+                
+                The device was designed to use a motor to spin a disc during playback -- to replicate how an original vinyl system spins the vinyl itself -- and the host client's interface would be projected, vertically-downwards onto the system, making the physic disc be textured likea vinyl, whilst also giving live information such as the current user in a holographic-like style.
+    
+                It was later decided, further into development, that the network architecture should be extended to allow for 'remote clients' (that is, devices other than the one running the server) to also connect, to allow easy and communal remote control of the device. In order to accommodate this, the server was updated to handle multiple websocket connections simultaneously (see Figure \ref{fig:networkDiagram}).
     
                 \begin{figure}[h]
                     \centering
@@ -468,13 +470,48 @@
                     \caption{Network diagram of system. }
                     \label{fig:networkDiagram}
                 \end{figure}
+    
+            \subsubsection{Pillars of Design Philosophy}
+    
+                Some core principles were adopted in the design phase:
+    
+                \begin{itemize}
+                    \item \textbf{Platform Agnosticism} A core design philosophy of the project was to, where possible, make the system as robust as possible by preventing it from becoming overly reliant on any one external component. This was largely done by implementing the system through 'hexagonal programming' (or, 'plugs and adapters') techniques, allowing components to conform to common interfaces, such that they could be easily switched, on demand. In addition to just being flexible for services, it was also a priority to make the application accessible across a multitude of devices; supporting as many OSes and architectures as possible.
+                \end{itemize}
+    
+                \begin{itemize}
+                    \item \textbf{Physicality First} The device should lean into its physical nature, and, where possible, utilise this, to best make use of the nostalgia and enjoyment people have for physical vinyl players.
+                \end{itemize}
+    
+                \begin{itemize}
+                    \item \textbf{Digital Completeness} Whilst the system was designed to function with physicality first and foremost, a secondary core design principle was to make everything the physical components could do also be achievable through digital means. This is particularly important to consider so that those with physical impairments are still accommodated for and not marginalised by the system.
+                \end{itemize}
+    
+                \begin{itemize}
+                    \item \textbf{Open Source} Whilst not inherently imperative for most design decisions, as firm believers in the importance and value of the open source community, it was decided that this project would a contributor. Under the confirmation that publicising the code for the project in its entirety would not in infringement of academic malpractice rules, the repository was made public. Additionally, open-source offerings were favoured when selecting which services and technologies to use.
+                \end{itemize}
+        
+            \subsubsection{Technology Stack}
+    
+                This project utilises a range of technologies, each chosen for their relevance to the project’s requirements:
+                
+                \begin{itemize}
+                    \item \textbf{Music Vendor:} Spotify Web Playback SDK --- used as the main audio stream provider. Spotify was chosen due to the existing Premium subscription requirement, unlike alternatives (e.g.\ Apple Music). Prior experience with the SDK also influenced this choice.
+    
+                    \item \textbf{Frontend:} React, TypeScript --- used to support streaming SDKs. TypeScript ensures type safety, while React provides efficient reactivity to data changes from multiple sources.
+                    
+                    \item \textbf{Backend:} Python, FastAPI --- selected for its strong machine learning library support and familiarity. FastAPI was chosen for its simplicity, lightweight nature, and ease of use.
+                    
+                    \item \textbf{Build Tool:} Bun \& Vite --- Bun was chosen for its speed, with Vite used on top to enable rapid testing and network hosting.
+    
+                    \item \textbf{Hardware:} Raspberry Pi 5 --- a Raspberry Pi board was chosen for easy GUI interfacing with simultaneous modularity for physical components; the latest board available at the time was used to maximise performance of the neural network.
+                \end{itemize}
         
         \subsection{Front-end}
             \subsubsection{Primary User Interface}
                 % lofi designs
     
                 \begin{temp}
-                    - Minimal-UI approach \\
                     - Physical user interaction controls
                 \end{temp}
     
@@ -482,61 +519,91 @@
                     UI Wireframes / Mockups
                 \end{temp}
     
+                The initial aim to create a device-agnostic platform made web technologies an ideal choice, and out of the available frameworks, React was selected due to having good support for reactive UI updates from multiple sources. This feature is especially useful, as the host client application is responsible for interfacing with the streaming service(s), and needs to handle state changes from not only its own UI controls, but also from the vendor itself, and from the server's websocket connection (relaying both commands from physical controls, and from remote devices). In addition to this, prior experience with the framework was also an influence.
                 
             
             \subsubsection{Audio Playback}
                 % Spotify Playback SDK
                 % Spotify Web API
+    
+                In order to keep with the goal of being platform-agnostic, all API connections for the music playback and metadata retrieval was done through object-oriented programming interfaces and abstract classes, forcing all implementations to inherit and conform to these, enforcing uniformity and allowing the interfacing system, such as the host client, to seamlessly use any of them, as a black-box system.
+    
+                However, for this project, only one external streaming API was selected to be implemented. After considering various options, Spotify was chosen due to past experiences with the system making it faster to integrate. In addition, most services required a subscription with the service in order to stream them; a pre-requisite already met for Spotify. For these reasons, Spotify was chosen for the audio streaming in the front end component, and thus, the corresponding back-end systems also used Spotify.
+    
+            \subsubsection{Minimal UI}
+    
+                Once it was decided to create a single physical device, the emphasis became to use physical controls over virtual UI buttons, where possible. A primary goal was to make the interface be entirely usable without the need for a mouse or keyboard, once configured. In order to emphasise this, the host client system was designed to be as minimal in UI components as possible, such that it would essentially be in a read-only state -- only showing data, and not controls, unless explicitly requested. To achieve this, buttons and sliders are hidden on the host client, unless the mouse was recently in motion.
+    
+                However, once the user indicates they are interfacing through the client, by moving the mouse, it was important to ensure that the UI offered no less control and/or information as the physical controls did.
+    
+                In addition to playback controls, the host client also has access to settings, which are fed to the server. These settings control who can remotely access the system (if at all), as well as making the motor component optional by disabling it. These options are provided exclusively on the host system.
         
             \subsubsection{Remote Clients}
     
                 \begin{temp}
-                    - 'Remote Control' UI from an external device (mobile, etc.)
-                    
-                    - Gains that this system provides: accessibility (mobility, etc), convinience, scanning of out-of-house albums, etc.
-    
                     - for convineince, the need for (33-45) adapter  can be cited
                     % https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fnotesonvinyl.com%2Fwp-content%2Fuploads%2F2022%2F04%2Fspeeds-of-the-different-record-types-1.png&f=1&nofb=1&ipt=7d1e31af8468ae7ae70f11be6bd40c897a73cf0c42aa194a5e09309f9af25945&ipo=images
                     % https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.bluescentric.com%2Fimages%2Fproduct%2Flarge%2F557_2_.jpg&f=1&nofb=1&ipt=1cd939744050d9f13eb7f581b786a2f22d3787cf30dd60c2a6975a816043546f&ipo=images
                 \end{temp}
+    
+                During development, it was decided to not only allow web browser to locally connect to the server, on the host device, but to expand the system to allow 'remote devices' such as external mobile phones and computers. This was decided on the basis of both accessibility and general convenience. As people with physical conditions could struggle to use physical controls, a remote connection from a phone would allow them still be able to operate the device. In addition, this also provides technological accessibility, as those without the required hardware (such as a camera) would be able to now use their phone's camera, to scan albums, as needed.
+    
+                This could also be used to bring a further communal aspect, as multiple people could connect to, and use, the device simultaneously, allowing an authorised individual to control playback or enqueue a song to share with the host and others.
+    
+                Rather than implement a separate front-end or routing system, the front end is a single-page application, using calls to the server to determine if the device is the host or external. The client then displays the correct form of UI to the user.
+    
+                The remote client UI includes buttons to play, pause, skip and return to previous tracks; it provides a volume slider; displays the album art of the track; allows scanning of an album; and even displays to the user the host's library of previously-scanned albums, which can be set to play individually, or shuffled as a whole collection. These controls allow the remote user to do everything a user physically interacting could.
         
         \subsection{Back-end}
     
-            \begin{temp}
-                Singleton Pattern;
-            \end{temp}
+            In order to allow multiple devices to connect with the host device, a centralised server system was needed. Not only would this server be responsible for handling communication between its clients, but it would also need to handle the physical control system, the album detection logic (discussed separately in Section \ref{sec:mlDesign}), authentication (see \ref{sec:security}) and any additional logic.
+    
+            Python was selected as a robust and easy-to-use high-level language to best accommodate all of these; especially since it has a very rich suite of machine learning libraries. FastAPI was selected as the framework for the server, using Uvicorn, as this is known for being fast and lightweight.
+    
+            The server was created using the singleton pattern, to ensure that the machine learning model(s) are only initialised a single time at startup and across all requests, for optimal performance.
+    
+            The server follows the Single Responsibility Principle, meaning functionalities are broken down into classes with each one handling one, and only one, functionality. This makes the REST endpoint routing, for example, easily separable from the APIs, and from the authentication protocols. This design ensures the code is more readable and maintainable.
+    
+            As the server also handles the physical controls (in addition to needing to relay commands from the remote clients), the server needed to be able to instantaneously communicate with the host client. Rather than relying on inefficient polling, or the one-way, text-only approach of using Server-Sent Events. Websockets provide great flexibility in allowing the client and host to both communicate with each other, bi-directionally, with minimal delay and resource usage.
         
             \subsubsection{Metadata Retrieval}
                 % Discogs API
-                % assert Discogs ToS compliance (not used for AI) 
+                % assert Discogs ToS compliance (not used for AI)
+    
+                Traditionally, when a track or album is playing, online streaming services show the cover art to the user. Since this project relies on scanning a cover art in order to play the music, it seemed redundant to broadcast the current track by showing the user the same artwork they have in their hands. So, in order to lean more into the physical vinyl concept, the server was designed to fetch the centre label of the corresponding vinyl, in order to show this on the disc, instead.
+    
+                In order to fetch this, Discogs' API was used, as they maintain a carefully curated library of many images for vinyls, including high-quality images of these labels. Whilst Discogs do not allow their images to be used in AI systems, these images are never fed into the machine learning model, and are strictly processed by traditional CV methods.
+    
+                The system was designed to simply, upon playback of a track, fetch images from the Discogs library, and find the best-matching circular image, using Hough Circle detection, and then cropping the image to serveto the front-end.
           
-            \subsubsection{Hardware Interaction}
-                % RPi
+        \subsection{Machine Learning Model Design} \label{sec:mlDesign}
     
-                \begin{temp}
-                    Simple Hardware Schematic Diagram (enough pins for specs)
-    
-                    Micro Metal Geared motor with Encoder - 6V 75RPM 210:1 \\ %https://thepihut.com/products/micro-metal-geared-motor-w-encoder-6v-75rpm-210-1?variant=27740943185&country=GB&currency=GBP&gad_source=1
-                    Raspberry Pi v2.1 8 MP 1080p Camera Module (not used) \\ %https://www.raspberrypi.com/documentation/accessories/camera.html
-                    Trust Trino HD webcam - Black \\ %https://dezlwerqy1h00.cloudfront.net/Media/Datasheets/18679-Trust-Trino-Datasheet_en.pdf
-                    KY-040 360 Degree Rotary Encoder Module with Knob Cap, 5V  \\ %https://eeshop.unl.edu/pdf/KEYES%20Rotary%20encoder%20module%20KY-040.pdf
-                    Button \\
-                    Hinge
-                \end{temp}
-    
-                \begin{figure}[htbp]
-                    \centering
-                    \includegraphics[width=\linewidth]{images/raspberry-pi-5-pinout.png}
-                    \caption{Pinout configuration of Raspberry Pi 5}
-                    \label{fig:RPi5Pinout}
-                    \caption*{Source: \href{https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio}{Raspberry Pi Documentation}}
-                \end{figure}
+            In light of the background research, it was decided that using a machine-learning neural network approach would be better for this project, than traditional tailored OCR or feature extraction techniques.
         
-        \subsection{Machine Learning Model Design}
             \subsubsection{Dataset Collection}
                 % use of CoverArtArchive
+    
+                In order to train the model, a dataset of albums was required. Manual collection of images would be a slow process, and could introduce bias, when testing. Whilst there is wide abundance of these images on platforms such as Spotify and Discogs, their terms strictly prohibit the use of their served content from being fed into AI systems.
+    
+                One option was Last.fm, whose terms had no explicit prohibition of these use cases, and so was subject only to copyright law and fair dealings.
+    
+                However, the Internet Archive's (in collaboration with Musicbrainz) Cover Art Archive provides its images, with no restrictions on AI systems, either. In addition to being a viable option, this library also provides images of the backs of albums, which none of the other surveyed systems did, and, is an open-source solution, and so was selected to be the primary source of dataset collection.
+    
+                However, manual images were still collected to add to this dataset. This was essential to ensure that model validation could be done without bias.
+    
+            \subsubsection{Solution Design}
+    
+                The high-level solution to the album detection problem was to use the model trained on album images to classify which album was being scanned. In addition, the model should ideally be able to detect when the input image is not of an album at all. This could be done by feeding random images in during training as a 'null' class.
+    
+                However, as a fallback system, it was decided to use the model to classify, and in cases where the model could not confidently give a prediction, it would use an OCR system, as a second attempt.
+    
+                In addition to OCR, barcode scanning was also decided to be used.
         
             \subsubsection{Model Architecture}
+    
+                Based off of the research, it was decided to use a convolutional neural network, due to their excellence in image classification tasks.
+    
+                An educational approach was taken in designing the models, wherein the goal was to create a fully self-made solution with a simple architecture. Then, the model would be expanded upon and deepened, as needed, to get the best results, through experimentation informed by the literature.
     
                 Ouroboros model. (Figure \ref{fig:ouroboros})
                 % https://commons.wikimedia.org/wiki/File:Serpiente_alquimica.jpg
@@ -565,7 +632,53 @@
                     Decision Flowchart for Image Recognition
                 \end{temp}
         
-        \subsection{Security Considerations}
+        \subsection{Hardware}
+    
+            It was decided to run this system on a Raspberry Pi 5, in order to have a flexible and easy-to-use system, whilst still having decent processing power for the neural network. However, rather than just running the device, aesthetics were considered.
+    
+            In order to best utilise nostalgia, the device was designed to make use of a stylish mahogany wood with brass controls. Research shows that, in one survey, wood is the most frequently cited material in nostalgic household items, appearing in 34\% of nostalgic objects (with metal second at 21\%) \cite{Skinner2022}. These materials were ubiquitous in classic mid-20th-century audio equipment, so they instantly call to mind ``the charm of a bygone era'' \cite{LookInTheAttic2024}.
+    
+            \subsubsection{Hardware Components}
+    
+                \begin{temp}
+                    Simple Hardware Schematic Diagram (enough pins for specs)
+    
+                    Micro Metal Geared motor with Encoder - 6V 75RPM 210:1 \\ %https://thepihut.com/products/micro-metal-geared-motor-w-encoder-6v-75rpm-210-1?variant=27740943185&country=GB&currency=GBP&gad_source=1
+                    Raspberry Pi v2.1 8 MP 1080p Camera Module (not used) \\ %https://www.raspberrypi.com/documentation/accessories/camera.html
+                    Trust Trino HD webcam - Black \\ %https://dezlwerqy1h00.cloudfront.net/Media/Datasheets/18679-Trust-Trino-Datasheet_en.pdf
+                    KY-040 360 Degree Rotary Encoder Module with Knob Cap, 5V  \\ %https://eeshop.unl.edu/pdf/KEYES%20Rotary%20encoder%20module%20KY-040.pdf
+                    Button \\
+                    Hinge
+                \end{temp}
+    
+                During the design phase, it was crucial to ensure that the plans could be accommodated by the Raspberry Pi, as it only has a limited number of GPIO pins (see \ref{fig:RPi5Pinout}).
+    
+                It was decided that the core functionality could be covered by:
+    
+                \begin{itemize}
+                    \item \textbf{DC Motor} (with PWM) (x pins) --- allows the spinning of the disc.
+                    \item \textbf{Rotary Encoder} (for motor) (x pins) --- enables the detection of motor stalls, allowing reactivity.
+                    \item \textbf{Rotary Encoder Switch} (x pins) --- allows the changing of volume, track, and toggling playstate.
+                    \item \textbf{Button} (for motor) (x pins) --- enables camera triggering, removing the need for polling.
+                \end{itemize}
+    
+                \begin{figure}[htbp]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/raspberry-pi-5-pinout.png}
+                    \caption{Pinout configuration of Raspberry Pi 5}
+                    \label{fig:RPi5Pinout}
+                    \caption*{Source: \href{https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio}{Raspberry Pi Documentation}}
+                \end{figure}
+    
+                In addition to this, a camera was needed for the scanning. It was decided to use a regular USB webcam, as opposed to the standard RPi camera modules, to further prevent dependance on RPi solutions. Additionally, the RPi 5 allows support for 2x ribbon connections, and up to 4 USb connections, meaning both options allowed for dual-cameras (front and back of album).
+    
+            \subsubsection{Operating System}
+    
+                Raspberry Pi OS (formerly Raspbian), is an operating system produced by the the Raspberry Pi Foundation as the official OS for their chipboards. This makes interfacing with components such as GPIO pins seamless and easy. However, in order to make the system as hardware-agnostic as possible, a standard Ubuntu kernel was used for the project. This forced solutions to not rely on native Raspberry Pi interfaces, and so, whilst it made certain aspects more challenging, it means than the project is not locked to the RPi hardware.
+    
+                Additionally, Ubuntu is fully open-source, whereas RPiOS has some proprietary aspects.
+    
+        \subsection{Security Considerations} \label{sec:security}
             % handling of auth tokens (transient)
             % off-handing of persistence tasks
             % network hosting
@@ -873,14 +986,27 @@
     
             \subsection{Training Set 'Mini'} \label{data:mini}
     
+                15 albums; 24 data points
+    
             \subsection{Training Set 'Large'} \label{data:large}
+    
+                \ref{data:mini}
+                
+                + 68 classes; + 133 data points (a_dig)
+    
+                + 20 classes; + 39 data points (b_phys)
     
             \subsection{Training Set Augmented} \label{data:aug}
     
+                \ref{data:large} * 6
+    
             \subsection{Validation Set} \label{data:val}
+    
+                14 albums; 16 data points
     
             \subsection{Test Set} \label{data:test}
     
+                \ref{data:val} + 1 class (\_null); + 20 data points
     
         \section{Supplementary Information}
     
