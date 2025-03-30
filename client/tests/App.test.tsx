@@ -13,7 +13,7 @@ vi.mock('../src/RemoteController', () => ({
 }));
 
 // --- Stub SpotifyAPI ---
-vi.mock('../src/Spotify/SpotifyAPI', () => ({
+vi.mock('../src/APIs/Spotify/SpotifyAPI', () => ({
     default: {
         getOwnProfile: vi.fn(() =>
             Promise.resolve({

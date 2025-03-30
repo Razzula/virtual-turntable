@@ -1,5 +1,5 @@
 import { vi, describe, test, expect, beforeEach } from "vitest";
-import SpotifyAPI from "../src/Spotify/SpotifyAPI";
+import SpotifyAPI from "../src/APIs/Spotify/SpotifyAPI";
 import { Album, User } from "../src/types/Spotify";
 
 // Mock global fetch

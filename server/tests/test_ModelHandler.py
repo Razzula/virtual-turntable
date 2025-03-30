@@ -13,7 +13,7 @@ from PIL import Image
 from unittest.mock import MagicMock, patch
 
 from modelling.models.utils.ModelType import ModelType
-from modelling.models.BabyOuroboros import BabyOuroboros, transform  # transform will be patched in tests
+from modelling.models.BabyOuroboros import BabyOuroboros
 from app.modules.modelHandler import ModelHandler
 
 
@@ -76,7 +76,7 @@ class TestModelHandler(unittest.TestCase):
         """Test that loadModel successfully loads a model and reads the manifest."""
         # Prepare a dummy checkpoint.
         dummyCheckpoint: Dict[str, Any] = {
-            "classes": ["class0", "class1"],
+            "albumClasses": {"0": "class0", "1": "class1"},
             "modelStateDict": {}
         }
         mockTorchLoad.return_value = dummyCheckpoint
@@ -89,7 +89,7 @@ class TestModelHandler(unittest.TestCase):
             f.write("dummy model content")
 
         # Patch Ouroboros to return a dummy model.
-        with patch("app.modules.modelHandler.Ouroboros", return_value=DummyModel(dummyCheckpoint["classes"])) as mockOuro:
+        with patch("app.modules.modelHandler.Ouroboros", return_value=DummyModel(dummyCheckpoint["albumClasses"])) as mockOuro:
             self.handler.loadModel(ModelType.OUROBOROS, "dummy.pt")
             self.assertIsNotNone(self.handler.model)
             # Check that the manifest was loaded.
@@ -143,7 +143,7 @@ class TestModelHandler(unittest.TestCase):
             actual: List[str] = [res["file"] for res in results]  # type: ignore
             self.assertEqual(actual, expected)
 
-    @patch("app.modules.modelHandler.transform")
+    @patch("modelling.models.utils.Transforms.globalTransforms")
     def testPredictImage(self, mockTransform: Any) -> None:
         """Test _predictImage returns a prediction dictionary."""
         # Create a dummy image file.
@@ -156,7 +156,8 @@ class TestModelHandler(unittest.TestCase):
         try:
             # Create a dummy model that returns a fixed tensor.
             dummyOutput: torch.Tensor = torch.tensor([[10.0, 0.0]])
-            dummyModel: DummyModel = DummyModel(["class0", "class1"])
+            dummyModel: DummyModel = DummyModel({0: "class0", 1: "class1"})
+
             # Patch the model call to return our dummy output.
             dummyModel.__call__ = MagicMock(return_value=dummyOutput)
             self.handler.model = dummyModel

@@ -51,7 +51,7 @@ class TestStateManager(unittest.IsolatedAsyncioTestCase):
 
         self.stateManager.resetState()
         self.assertFalse(self.stateManager.getState()['playState'])
-        self.hardwareController.setMotorSpeed.assert_called_with(0)
+        self.hardwareController.setMotorSpeed.assert_called_with(100)
         self.hardwareController.setMotorState.assert_called_with(0)
         # resetState doesn't trigger a broadcast
         self.websocketHandler.broadcast.assert_not_called()

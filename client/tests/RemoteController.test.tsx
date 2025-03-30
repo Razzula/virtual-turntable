@@ -4,11 +4,11 @@ import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { vi, describe, test, expect, beforeEach } from "vitest";
 import RemoteController from "../src/RemoteController";
-import SpotifyAPI from "../src/Spotify/SpotifyAPI";
+import SpotifyAPI from "../src/APIs/Spotify/SpotifyAPI";
 import WebSocketManagerInstance from "../src/WebSocketManager";
 
 // Use the correct module path for mocking SpotifyAPI
-vi.mock("../src/Spotify/SpotifyAPI", () => ({
+vi.mock("../src/APIs/Spotify/SpotifyAPI", () => ({
     default: {
         getUserProfile: vi.fn(),
         getPlaylistAlbums: vi.fn(),
@@ -16,16 +16,21 @@ vi.mock("../src/Spotify/SpotifyAPI", () => ({
 }));
 
 // Mock fetch for the playlist call
-const mockPlaylistResponse = { playlistID: "playlist123" };
+const dummyPlaylist = {
+    id: "playlist123",
+    name: "Test Playlist"
+};
+
 global.fetch = vi.fn().mockImplementation((url) => {
     if (url === "/virtual-turntable/server/playlist") {
         return Promise.resolve({
             ok: true,
-            json: () => Promise.resolve(mockPlaylistResponse),
+            json: () => Promise.resolve(dummyPlaylist),
         });
     }
     return Promise.resolve({ ok: false });
 });
+
 
 // Spy on WebSocket send
 vi.spyOn(WebSocketManagerInstance, "send").mockImplementation(() => { });
@@ -40,9 +45,11 @@ describe("RemoteController", () => {
 
     const dummyHostUserProfile = {
         id: "host1",
-        display_name: "Host One",
-        external_urls: { spotify: "https://open.spotify.com/user/host1" },
-        images: [{ url: "host1.jpg" }],
+        display_name: "Host User",
+        external_urls: { spotify: "https://spotify.com" },
+        images: [{ url: "https://image.url" }],
+        product: "premium",
+        type: "user",
     };
 
     const dummyAlbum = {
@@ -71,6 +78,8 @@ describe("RemoteController", () => {
             enforceSignature: false,
         },
         isHostSettingsUpdateLocal: { current: false } as React.MutableRefObject<boolean>,
+        needToRefreshPlaylist: false,
+        setNeedToRefreshPlaylist: vi.fn(),
     };
 
     beforeEach(() => {
@@ -121,7 +130,7 @@ describe("RemoteController", () => {
         if (sidebarAlbum) {
             fireEvent.click(sidebarAlbum);
             expect(WebSocketManagerInstance.send).toHaveBeenCalledWith(
-                JSON.stringify({ command: "playAlbum", value: dummyAlbum.id })
+                JSON.stringify({ command: "playPlaylist", value: dummyPlaylist.id })
             );
         }
     });

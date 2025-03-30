@@ -113,7 +113,7 @@ class TestSpotifyAPI(unittest.IsolatedAsyncioTestCase):
         mockGet.return_value = fakeResponse
 
         albumInfo: Dict[str, str] = {'name': 'Test Album', 'artist': 'Test Artist', 'year': '2021'}
-        albumId: str = self.spotifyAPI.searchForAlbum(albumInfo)
+        albumId: str = self.spotifyAPI.searchForAlbum(albumInfo)['id']
         self.assertEqual(albumId, 'album123')
 
     @patch('app.APIs.MusicAPI.SpotifyAPI.requests.put')

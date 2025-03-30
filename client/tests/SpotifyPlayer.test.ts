@@ -1,5 +1,5 @@
 import { vi, describe, test, expect, beforeEach } from "vitest";
-import { SpotifyPlayer } from "../src/Spotify/SpotifyPlayer";
+import { SpotifyPlayer } from "../src/APIs/Spotify/SpotifyPlayer";
 
 // --- Global Mocks for Spotify SDK ---
 const mockPlayerMethods = {
