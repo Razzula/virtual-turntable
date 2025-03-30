@@ -1029,7 +1029,15 @@
     
                 \subsubsection{Model Experiments}
     
-                    Initially, the ResNet18 model's weights were frozen entirely, with only the append 'classifier head' being tuned. This was done to ensure that no heavy biasing or loss of previously learnt information occurred. This approach yielder better results than the in-house DeepCNN model, immediately. However, additional experiments were also run with unfreezing and fine-tuning different aspects and combinations of the base model, to further improve performance.
+                    Initially, all ResNet18 weights were frozen, with only the appended classifier head being trained. This approach was intended to avoid heavy biasing and retain pre-trained knowledge, and it already outperformed the in-house DeepCNN model. Further experiments involved selectively unfreezing and fine-tuning varying numbers of layers from the base model to inspect the affect this had on performance.
+    
+                    \begin{figure}
+                        \centering
+                        \includegraphics[width=\textwidth]{images/ResNetLayerTests.png}
+                        \caption{Boxplot showing the distribution of F1 scores across training epochs for different numbers of unfrozen layers in a fine-tuned ResNet18.} \label{fig:ResNetLayers}
+                    \end{figure}
+                    
+                    As shown in Figure \ref{fig:ResNetLayers}, the highest validation and test scores were achieved when fine-tuning two layers of the base model. This configuration was therefore preferred in most tests. However, while the 2-layer setup yielded the highest peak results, it also exhibited a broad and low-spread distribution across training epochs. This highlights the importance of choosing the right number of training epochs: stopping too early or training for too long can significantly degrade performance, and so particular care had to be taken in other experimental scenarios using this configuration, to ensure that epoch count was not the deciding factor influencing results.
         
                     \paragraph{Model Hyperparamaterisation}
         
