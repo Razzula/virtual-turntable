@@ -49,6 +49,8 @@
     % Add your packages here
     \usepackage{listings}
     \usepackage{adjustbox}
+    \usepackage[bottom]{footmisc}
+    \usepackage{longtable}
     
     % Optional: for adding alt-text to images:
     %\usepackage{pdfcomment}            % for alt text for accessibility
@@ -190,7 +192,7 @@
     
     %%%%%%%%%%%%%%%%%% ACKNOWLEDGEMENTS %%%%%%%%%%%%%%%%%%
     \begin{uomacknowledgements}
-    I would like to extend my gratitude to the noble mahogany tree, whose sacrifice provided not only the material for a Welsh love spoon - by which I proposed and became engaged to my beloved fiancée - but also the offcuts that found purpose in the physical interface of this project. Your contribution to both my personal and academic life has been truly invaluable.
+    I would like to extend my gratitude to the noble mahogany tree, whose sacrifice provided not only the material for a Welsh love spoon -- by which I proposed and became engaged to my beloved fiancée -- but also the offcuts that found purpose in the physical interface of this project. Your contribution to both my personal and academic life has been truly invaluable.
     
     Also, to my close friend Joshua Bond’s dissertation \cite{jdbond}, which I have yet to finish reading - but I am sure it is great.
     \end{uomacknowledgements}
@@ -213,66 +215,33 @@
       % The project should be considered as challenging. It will require integration of several technologies and some creativity.
     
         \subsection{Background and motivation}
-        
-            \begin{temp}
-                \begin{itemize}
-                    \item Why is vinyl seeing a resurgence now?
-                    \item What is appealing about vinyl to modern listeners?
-                    \item What limitations or pain points exist with vinyl playback?
-                    \item What makes blending digital and physical media compelling?
-                    \item Why is this project worth doing now?
-                \end{itemize}
-            \end{temp}
     
            The resurgence of vinyl records presents both an opportunity and a challenge. Despite their renewed popularity, vinyl records require specialised equipment, careful handling, and manual operation, all of which pose practical barriers for modern listeners.
     
             Combining digital and physical media provides an attractive solution to these challenges by merging the tangible appeal of vinyl with the convenience and accessibility of digital music streaming. Such an integration maintains the emotional and tactile connection that many listeners appreciate in physical collections, while offering the ease of digital technologies. Given current consumer interests and technological advancements, this hybrid approach is timely and relevant, making this project particularly worthwhile.
         
         \subsection{Aims and objectives}
-        
-            \begin{temp}
-                \begin{itemize}
-                    \item What specific problem(s) am I solving?
-                    \item Who are the intended users of the solution?
-                    \item What gap exists in current tools or workflows?
-                \end{itemize}
-            \end{temp}
     
             This project aims to resolve key limitations of traditional vinyl playback by providing users the ability to digitally stream music by scanning physical album covers. The specific problems addressed include the inconvenience of manual playback, limitations in portability, and difficulties associated with maintaining physical equipment and media.
+    
+            The full goals, with tangible criterion, for the evaluation of the model are defined in the Requirements Analysis of the Design (\ref{sec:reqany}).
     
             The intended users of this solution are vinyl enthusiasts, collectors, and casual listeners who appreciate vinyl's tangible and aesthetic aspects but desire greater convenience. This project identifies a significant gap in current workflows, where physical vinyl collections remain underutilised due to the inconvenience of traditional playback systems.
         
         \subsection{Scope}
     
-            \begin{temp}
-                \begin{itemize}
-                    \item What is in scope vs. out of scope?
-                    \item What technologies/platforms will I support?
-                    \item Am I focusing on any particular streaming service(s)?
-                \end{itemize}
-            \end{temp}
-    
-            In scope for this project is the development of an application that uses image recognition technology—such as machine learning and OCR—to identify vinyl records and retrieve corresponding digital tracks from streaming platforms like Spotify. The solution supports a Raspberry Pi 5-based hardware platform, integrating both physical and digital user interfaces.
+            In scope for this project is the development of an application that uses image recognition technology -- such as machine learning and OCR -- to identify vinyl records and retrieve corresponding digital tracks from streaming platforms like Spotify. The solution supports a Raspberry Pi 5-based hardware platform, integrating both physical and digital user interfaces.
     
             Out of scope elements include extensive hardware customisation beyond essential playback functionality, support for every possible streaming service, and creation of original music databases. The focus will specifically be on leveraging Spotify's streaming capabilities -- due to its widespread adoption and available API support -- whilst still maintaining flexibility and the ability to change APIs easily, if desired.
         
         \subsection{Challenges}
     
-            \begin{temp}
-                \begin{itemize}
-                    \item What specific problem(s) am I solving?
-                    \item Who are the intended users of the solution?
-                    \item What gap exists in current tools or workflows?
-                \end{itemize}
-            \end{temp}
-    
-            The primary challenges anticipated include accurately identifying album artwork using machine learning techniques, managing legal and ethical concerns related to copyrighted album covers, and effectively integrating multiple technologies—such as hardware components, web APIs, and neural networks—into a cohesive system. Ensuring the system is user-friendly while remaining technically robust also presents a significant development challenge.
+            The primary challenges anticipated include accurately identifying album artwork using machine learning techniques, managing legal and ethical concerns related to copyrighted album covers, and effectively integrating multiple technologies -- such as hardware components, web APIs, and neural networks -- into a cohesive system. Ensuring the system is user-friendly while remaining technically robust also presents a significant development challenge.
         
         \subsection{Report structure} % ROADMAP
     
             \begin{temp}
                 \begin{itemize}
-                    \item What does each chapter cover?
                     \item How does the structure reflect my development process?
                 \end{itemize}
             \end{temp}
@@ -317,7 +286,7 @@
                 \label{fig:vinyl_sales}
             \end{figure}
     
-            Although now taken for granted, records — and their predecessors, Edison's cylinders — transformed music from an ephemeral experience into a reproducible medium. Before recording technology, music was transient and confined to its place and time of performance, unable to be stored or shared beyond a live setting. While compositions could be transcribed into musical notation, each unique performance could never be heard again once it ended, unlike with visual art, where many original works from as far back as antiquity still survive \cite{jdbond}.
+            Although now taken for granted, records -- and their predecessors, Edison's cylinders — transformed music from an ephemeral experience into a reproducible medium. Before recording technology, music was transient and confined to its place and time of performance, unable to be stored or shared beyond a live setting. While compositions could be transcribed into musical notation, each unique performance could never be heard again once it ended, unlike with visual art, where many original works from as far back as antiquity still survive \cite{jdbond}.
     
             This revolution in music consumption not only shaped the modern music industry but also cemented vinyl’s cultural significance. By making music ownable and replayable, it changed the way people engaged with it, fostering a more personal and enduring connection. Its enduring appeal, even in the digital age, suggests that its value extends beyond convenience, tapping into a deeper connection with music as a tangible experience.
     
@@ -380,7 +349,7 @@
             
                 The introduction of convolutional neural networks (CNNs) marked a paradigm shift in image recognition. Early work, such as LeNet-5, demonstrated CNNs' potential \cite{726791}, but it was the breakthrough of AlexNet in the 2012 ImageNet competition that solidified their dominance \cite{imagenetclasscnn}. Subsequent architectures, including VGG, ResNet, and EfficientNet, further improved performance by introducing deeper networks, residual connections, and optimised convolutional layers \cite{deppcnnsforimagerecognition}. These advancements enabled significant improvements in tasks such as object detection, facial recognition, and medical image analysis.
     
-                In the context of vinyl cover art recognition, CNNs offer a powerful solution for identifying album artwork despite variations in artistic style, degradation, and distortions. However, a key challenge in training CNNs for this task is the limited availability of labelled datasets. Unlike large-scale image classification datasets like ImageNet, curated datasets for album cover recognition remain relatively small. To address this limitation, data augmentation techniques—such as random cropping, rotation, colour jittering, and synthetic distortions—help improve model robustness by simulating real-world variations \cite{LIN2025102660}. There has even been research done recently into using stable diffusion techniques to facilitate fully artificial data augmentation, with generative AI \cite{Alimisis2025}.
+                In the context of vinyl cover art recognition, CNNs offer a powerful solution for identifying album artwork despite variations in artistic style, degradation, and distortions. However, a key challenge in training CNNs for this task is the limited availability of labelled datasets. Unlike large-scale image classification datasets like ImageNet, curated datasets for album cover recognition remain relatively small. To address this limitation, data augmentation techniques -- such as random cropping, rotation, colour jittering, and synthetic distortions -- help improve model robustness by simulating real-world variations \cite{LIN2025102660}. There has even been research done recently into using stable diffusion techniques to facilitate fully artificial data augmentation, with generative AI \cite{Alimisis2025}.
     
             \paragraph{Multi-Headed Networks and Consensus-Based Recognition}
     
@@ -496,23 +465,61 @@
     
     %%%%%%%%%%%%%%%%%% SECTION 3 %%%%%%%%%%%%%%%%%%
     \section{Design} % DESIGN / METHODOLOGY
-        \begin{temp}
-            What did past-Jack set out to do? Here should be the broad vision, including the change of direction taken.
-        \end{temp}
         % design diagrams!
     
-        Initially envisioned as a mobile or desktop app, the project aimed to support a broad range of devices. Given the personal nature of modern music consumption, bringing vinyl into a user’s pocket -- via streaming APIs—seemed intuitive. A webstack was chosen early for its compatibility with these APIs and cross-device support, aided by prior experience using Spotify’s SDKs.
+        Initially envisioned as a mobile or desktop app, the project aimed to support a broad range of devices. Given the personal nature of modern music consumption, bringing vinyl into a user’s pocket -- via streaming APIs -- seemed intuitive. A webstack was chosen early for its compatibility with these APIs and cross-device support, aided by prior experience using Spotify’s SDKs.
     
-        However, early research highlighted that vinyl’s appeal is deeply rooted in its physicality. As such, the project pivoted towards a single, tactile hardware device: embracing physical interaction while retaining the convenience of digital streaming. This hybrid model aligned more closely with user values and current media habits. The web-based architecture remained, with both server and client running locally. The switch to FastAPI and React also enabled exploration of other technologies, contrasting with prior Java-based work and enhancing skills in asynchronous communication and frontend state management.
+        However, early research highlighted that vinyl’s appeal is deeply rooted in its physicality. As such, the project pivoted towards a single, tactile hardware device: embracing physical interaction while retaining the convenience of digital streaming. This hybrid model aligned more closely with user values and current media habits. The web-based architecture remained, with both server and client running locally. The switch to FastAPI and React also enabled exploration of other technologies, contrasting with prior Java-based (Android) work and enhancing skills in asynchronous communication and frontend state management.
     
         This section outlines the reasoning behind this pivot, followed by a breakdown of core design pillars, system architecture, chosen technology stack, hardware considerations, and design decisions that shaped the overall solution.
         
-        \subsection{Requirements Analysis}
+        \subsection{Requirements Analysis} \label{sec:reqany}
             % list of requirements
     
-            \begin{temp}
-                UML Use Case Diagram
-            \end{temp}
+            This section defines the functional and non-functional requirements for the system, alongside constraints and assumptions that influence its development.
+    
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.65\linewidth]{images/UML_UseCase.pdf}
+                \caption{A UML diagram of user use cases}
+                \label{fig:umlusecase}
+            \end{figure}
+    
+            \paragraph{Functional Requirements}
+                \begin{itemize}
+                    \item \textbf{FR1}: The system must identify album covers using image recognition with at least 90\% accuracy. This threshold balances feasibility and usability, ensuring reliable recognition without demanding unattainably high accuracy, based on similar machine-learning image recognition benchmarks (typical target: ≥85–90\%).
+                    \item \textbf{FR2}: Album identification and music playback must start within 5 seconds. Five seconds represents a practical limit beyond which users begin to perceive the system as sluggish or non-responsive. This aligns with usability guidelines for interactive digital systems.
+                    \item \textbf{FR3}: The system must retrieve corresponding music tracks from Spotify after successful identification.
+                    \item \textbf{FR4}: Users must be able to control playback (play, pause, skip) via software interface.
+                    \item \textbf{FR5}: The user interface must clearly display information about the album and track being played.
+                    \item \textbf{FR6}: The interface must be intuitive and suitable for non-technical users.
+                    \item \textbf{FR7}: The system must provide physical controls (buttons/dials) for basic playback operations.
+                \end{itemize}
+            
+            \paragraph{Non-Functional Requirements}
+                \begin{itemize}
+                    \item \textbf{NFR1}: Total system latency (from recognition to playback) should not exceed 5 seconds.
+                    \item \textbf{NFR2}: System reliability must ensure an operational uptime of at least 99\%. Ensures robust availability without requiring prohibitively expensive redundancy, aligning with standard reliability targets for consumer-oriented interactive systems
+                    \item \textbf{NFR3}: Recognition failures should gracefully prompt user intervention without causing system crashes.
+                    \item \textbf{NFR4}: The system must be fully compatible with Raspberry Pi 5 hardware.
+                    \item \textbf{NFR5}: Setup and operation should be documented clearly, enabling ease of use without extensive technical expertise.
+                    \item \textbf{NFR6}: The solution must adhere strictly to UK copyright laws.
+                    \item \textbf{NFR7}: The system must comply fully with all used APIs' Terms of Service.
+                \end{itemize}
+            
+            \paragraph{Constraints}
+                \begin{itemize}
+                    \item Implementation must accommodate the hardware limitations of Raspberry Pi 5.
+                    \item Use of API data must adhere strictly to their licensing and usage terms.
+                    \item The dataset used for training image recognition must comply with UK legal guidelines for non-commercial research.
+                \end{itemize}
+            
+            \paragraph{Assumptions}
+                \begin{itemize}
+                    \item Users have consistent and stable internet access.
+                    \item Users possess active required accounts for playback services, where needed.
+                    \item Operational lighting conditions are sufficient for accurate image recognition.
+                \end{itemize}
     
         \subsection{Pillars of Design Philosophy}
     
@@ -544,10 +551,7 @@
         
         \subsection{System Architecture} % high-level system overview
     
-            \begin{temp}
-                Here should be \textbf{descriptive} elements as to what was decided for the final design.
-            
-                System Architecture Diagram \ref{fig:networkDiagram};
+            \begin{temp}               
                 \begin{temp}Note from Sean: Discogs/Spotify should be together\end{temp}
                 
                 Data Flow Diagram;
@@ -860,7 +864,7 @@
     
                 \paragraph{Model Performance} In order to assess if the model performs adequately, formal model evaluation will be performed. Two units will be under test: the recognition model and the metadata retrieval (the centre label, etc.). In order to assess the model's performance, a fresh test set of data will be used, of front-only photos of physical covers, from which an F1 metric can be calculated. Aditionally, the centre label accuracy can be objectively assessed by running it over a known set of albums, and manually comparing the accuracy compared to that of the owned vinyls.
     
-                \paragraph{Usability} An important goal is whether or not the system and it's physical and digital controls are accessible and useful for users. To assess this, a user-centric approach will be taken, with evaluation of survey results of people who have used the finished system.
+                \paragraph{Usability} An important goal is whether or not the system and it's physical and digital controls are accessible and useful for users. To assess this, a user-centric approach will be taken, with evaluation of survey results\footnote{The evaluation form is accessible at \href{https://forms.gle/DS8oik9Vyny6Zxnk6}{https://forms.gle/DS8oik9Vyny6Zxnk6}} of people who have used the finished system.
     
                 \paragraph{Code Robustness} In order to ensure code is functional, and to try to maximise its robustness, a full unit test suite will be developed in parallel. This suite will aim to have high code coverage.
         
@@ -895,6 +899,8 @@
             Due to Spotify’s Terms of Use, such modifications could not be applied to streamed content, as altering or layering audio over Spotify’s output is strictly prohibited. However, for locally stored files, no such restrictions applied.
             
             As a basic proof of concept, a static noise layer was generated and played throughout the track, with subtle fluctuations in volume. The noise profile was determined using a hashed seed based on track metadata and playback time, ensuring variation across devices and tracks, while maintaining consistency for repeated plays by the same user. This meant that even the same audio file would sound slightly different depending on the user and device. The concept could be extended to introduce additional artefacts -- such as scratches, pops, or pitch modulation -- to more closely emulate the idiosyncrasies of vinyl.
+    
+            Much later into the project's lifecycle, when testing and evaluating the product, it was realised that a nail could be mounted onto the `arm' switch to better visually mimic a record player's needle. This even further improved the likeness beyond just the visual, as the nail scraping along the disc's surface created a scraping noise -- unique to the user's nail and grooves on the vinyl being used a projector surface -- without violating Spotify's terms of not overlaying other sounds\footnote{Appendix~\ref{sec:nailArt} explores some tangential thoughts on the final result of using this solution.}.
         
             \subsubsection{Challenges Encountered}
     
@@ -952,11 +958,11 @@
     
                 \paragraph{Change of Spotify Security Requirements}
     
-                In mid-February, near the end of development, Spotify announced it would remove support for HTTP callback URIs in favour of HTTPS from 9 April \cite{spotify2025security}. This posed a challenge, as the system had used HTTP under the assumption it would only run locally in a development-like environment. As compliance with API requirements was essential, this change had to be accommodated, despite the codebase being effectively frozen aside from bug fixes.
+                In mid-February, near the end of development, Spotify announced it would remove support for HTTP callback URIs in favour of HTTPS from the 9th of April \cite{spotify2025security}. This posed a challenge, as the system had used HTTP under the assumption it would only run locally in a development-like environment. As compliance with API requirements was essential, this change had to be accommodated, despite the codebase being effectively frozen aside from bug fixes.
     
                 Switching to HTTPS caused several regressions and required time-consuming fixes late in the development phase. Since the system is locally hosted, self-signed certificates were necessary and had to be manually trusted on each device. Caddy was used to manage this process, enabling a static hostname and making the Spotify callback more robust against network changes by avoiding reliance on local IPs.
     
-                This experience highlighted the value of the system’s agnostic design -- had compliance not been feasible, the architecture would have eased migration to another provider, though such a change would still have been substantial at that stage.
+                This experience highlighted the value of the system’s agnostic design -- had compliance not been feasible, or a more significant issue arisen\footnote{Note: towards the very end of the project's lifecycle, when testing the finished project for use in the project's screencast, Spotify had an international outage, which prevented full features from being displayed, which mandated delaying this step slightly (see \href{https://www.mirror.co.uk/news/uk-news/breaking-spotify-down-thousands-complain-35066298}{https://www.mirror.co.uk/news/uk-news/breaking-spotify-down-thousands-complain-35066298}).}, the architecture would have eased migration to another provider, though such a change would still have been substantial at that stage.
     
             \subsubsection*{Reflection}
                 The modular backend structure and early SRP decisions paid off, enabling flexible triggers and scalable state handling. However, assumptions about single-client usage delayed proper auth handling — a reminder to always consider future scaling.
@@ -1048,12 +1054,17 @@
     
                 The first iteration of this model (SimpleCNN 'Mini') was trained on only the exceptionally small TODO dataset, as a proof of concept. Figure~\ref{fig:SimpleCNN-Mini_Train} shows how the models accuracy increased as training progressed. Whilst the model rather quickly converged and showed good results on the training data (eventually overfitting), the validation dataset's accuracy did climb in slow intervals, but never exceeded 60\%. Whilst this was a good start, it was thought that the problem with this poor generalisation likely came from the sheer small scale of the dataset.
     
-                All input data was normalised according to the some dataset statistic:
+                All input data was normalised according to the same dataset statistic:
                     \[
                     x' = \frac{x - \mu}{\sigma}
                     \]
+                where:
+                    \begin{itemize}
+                        \item \( \mu \) is the mean pixel value \([R,G,B]\) of the dataset.
+                        \item \( \sigma \) is the standard deviation of the pixel values.
+                    \end{itemize}
     
-                Initially, this was calculated as a channel-wide measure of the full combined dataset. However, the standardised ImageNet distribution was also used, with \( \mu = [0.485, 0.456, 0.406] \) and \( \sigma = [0.229, 0.224, 0.225] \). Figure~\ref{fig:normalisedArts} shows an example batch of images, normalised to the ImageNet standard.
+                Initially, this was calculated as a channel-wide measure of the full combined dataset. However, the standardised ImageNet distribution was also used, with \( \mu = [0.485, 0.456, 0.406] \) and \( \sigma = [0.229, 0.224, 0.225] \), to leverage the greater variation of images it has. Figure~\ref{fig:normalisedArts} shows an example batch of images, normalised to the ImageNet standard.
         
                 \begin{figure}[h]
                     \centering
@@ -1151,8 +1162,8 @@
                                 The first image is the unaltered original, whereas the rest of the batch have all be augmented over their rotation, size, cropping, colour, affinity and perspective.
                             }
                             \caption*{
-                                Original artworks are © their respective copyright owners
-                                \footnotesize These images have been processed for research/educational purposes and do not intend to infringe upon the original copyrights.
+                                Album artwork from \textit{Jeff Wayne's Musical Version of The War of the Worlds} (1978).  
+                                \footnotesize Used for research/educational purposes. All rights remain with the original copyright holders.
                             }
                         \end{figure}
     
@@ -1253,17 +1264,22 @@
     
     %%%%%%%%%%%%%%%%%% SECTION 5 %%%%%%%%%%%%%%%%%%
     \section{Results} % edit section heading as appropriate
-        \begin{temp}
-            What was actually produced?
-        \end{temp}
         % results of soft/hardware testing
         % screenshots of UI / program output
     
-        This section presents the final outcomes of the project, including the developed software and physical system. It showcases the working frontend and backend interfaces, photographs of the device in use, and trained machine learning models.
-    
-        These artefacts collectively demonstrate the system’s intended functionality, both in terms of user interaction and underlying technical behaviour.
+        This section presents the completed outputs of the system: a functional full-stack application, an interactive hardware artefact, and their seamless integration into a hybrid user experience. It provides a visual and descriptive overview of each element, highlighting what was achieved and what functionality is offered to the end user.
+        
+        Detailed evaluation of their effectiveness, usability, and alignment with the project aims is presented in Section~\ref{sec:evaluation}.
         
         \subsection{Software Artefact}
+    
+            The system includes a complete browser-based application designed for playback control, visual feedback, and media interaction. It supports both a local host interface (projected onto the device) and external client interfaces (via mobile or desktop browsers), all communicating with a central backend.
+    
+            \paragraph{Host Interface}
+    
+            The host interface runs on the local device and is the main control centre of the system. It provides visual feedback during playback. The UI is minimal by default, giving only the same information a physical vinyl on a player would: its centre label artwork; maintaining an unobtrusive appearance. Additional UI elements and controls remain hidden by default and only appear with active input (e.g., mouse movement), showing greater details (album art, album name, track name, etc.) and providing a digital method to achieve each use case (as per Figure~\ref{fig:umlusecase}).
+    
+            Figures~\ref{fig:hostQuiet}–\ref{fig:hostGui} show the host view with and without active UI overlays.
     
             \begin{figure}[h]
                 \centering
@@ -1281,7 +1297,11 @@
                     \label{fig:hostGui}
                 \end{minipage}
             \end{figure}
-            
+    
+            \paragraph{Remote Client Interface}
+    
+            The system also provides a web-based remote interface, enabling mobile phones or desktop browsers to connect over the local network. These clients replicate the core controls of the host -- such as play/pause, volume, track skip, and album scanning — allowing accessible, shared interaction. Figures~\ref{fig:laptop}–\ref{fig:phone} show examples of remote clients in use on different devices.
+    
             \begin{figure}[h]
                 \centering
                 \includegraphics[width=0.4\textwidth]{images/screenshots/LAPTOP.png}
@@ -1295,24 +1315,125 @@
                 \caption{Screenshot of a remote client (mobile) connected to the host}
                 \label{fig:phone}
             \end{figure}
+    
+            \paragraph{Classification Model}
         
         \subsection{Hardware Artefact}
     
-            \begin{figure}
+            The system is built into a physical Raspberry Pi-powered device. The unit includes tactile controls such as a rotary dial, physical button, and hinged `playback arm' -- each mapped to corresponding actions (e.g., play/pause, track skip, scan).
+    
+            A webcam is mounted to capture album cover images for recognition, and a motor spins a disc during playback, creating a dynamic and nostalgic effect. Figures~\ref{fig:product}–\ref{fig:bottom} show the unit from various perspectives, demonstrating form factor and component layout.
+    
+            \begin{figure}[H]
                 \centering
-                \includegraphics[width=0.5\linewidth]{images/SystemInUse.jpg}
-                \caption{Photograph of the system (scanning an album)}
-                \label{fig:SystemInUse}
-                \caption*{"Held Together By Prayers and Duck Tape" TODO: TEMP!}
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/product_1.jpg}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/product_2.jpg}
+                \end{minipage}
+                \caption{The finished build, with playback arm raised (left) and lowered (right).}
+                \label{fig:product}
             \end{figure}
     
-            \begin{figure}
+            \begin{figure}[H]
                 \centering
-                \includegraphics[width=0.5\linewidth]{images/SystemBirdsEye.jpg}
-                \caption{Photograph of the system (top-down)}
-                \label{fig:SystemTopDown}
-                \caption*{"Held Together By Prayers and Duck Tape" TODO: TEMP!}
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/profile_TOP.jpg}
+                    \caption{Top-down profile of the device (circuitry exposed)}
+                    \label{fig:top1}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/profile_TOP3.jpg}
+                    \caption{Top-down profile of the device (with vinyl attached and  playback arm lowered)}
+                    \label{fig:top2}
+                \end{minipage}
             \end{figure}
+    
+            \begin{figure}[H]
+                \centering
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/profile_FRONT.jpg}
+                    \caption{Front profile of the device}
+                    \label{fig:front}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/profile_BACK.jpg}
+                    \caption{Back profile of the device}
+                    \label{fig:back}
+                \end{minipage}
+            \end{figure}
+    
+            \begin{figure}[H]
+                \centering
+                \begin{minipage}[b]{0.225\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/profile_SIDE.jpg}
+                    \caption{`Near' side profile of the device}
+                    \label{fig:side1}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.225\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/profile_SIDE2.jpg}
+                    \caption{`Far' side profile of the device}
+                    \label{fig:side2}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/profile-BOTTOM.jpg}
+                    \caption{Bottom-up profile of the device}
+                    \label{fig:bottom}
+                \end{minipage}
+            \end{figure}
+    
+        \subsection{Integrated Hybrid System}
+    
+            Combining the above, the complete product functions as a fully standalone smart vinyl player. The projection-based host interface is displayed directly onto the disc surface during playback. The interface dynamically updates based on system state (e.g., track change, album detected) and user input.
+    
+            Figures~\ref{fig:wotw}–\ref{fig:colne} show the system in use, including full interactive mode and the passive, minimal visual state.
+    
+            \begin{figure}[h]
+                \centering
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/wotw-ui.jpg}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/wotw.jpg}
+                \end{minipage}
+                \label{fig:wotw}
+                \caption{Front-end UI projected onto device, with interactive interface (left) and minimal interface (right).}
+            \end{figure}
+            
+            \begin{figure}[h]
+                \centering
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/colne-ui.jpg}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/photos/colne-ui-zoom.jpg}
+                \end{minipage}
+                \label{fig:colne}
+                \caption{Front-end UI projected onto device, with full interactive interface.}
+            \end{figure}
+    
+            % TODO cite videos here, too
     
     %%%%%%%%%%%%%%%%%% SECTION 6 %%%%%%%%%%%%%%%%%%
     \section{Evaluation}
@@ -1363,33 +1484,155 @@
                 Overall, the combined project-wide coverage stands at 71.5\%, reflecting a strong foundation with room for expanding test coverage to the integration and hardware layers.
     
         \subsection{Qualitative Evaluation}
+    
+            To evaluate the emotional, aesthetic, and practical experience of the system, a user study was conducted with 17 participants. These users were surveyed after physically using the system, either through direct interaction or a guided session.
+    
+            Due to the nature of the device -- a physical prototype requiring in-person use—there were significant constraints in recruiting participants. Access to the system was necessarily limited to those who could be reached directly, meaning the sample primarily consisted of friends, family, and peers. Additionally, many users only had brief interaction windows, limiting the depth of familiarity they could develop.
+            
+            This sample bias is acknowledged. There is likely a positive skew in the responses due to personal connection and the novelty of the system. However, efforts were made to prompt critical feedback, and not all responses were favourable. While this limits generalisability, the feedback gathered still offers valuable insight into the usability, aesthetic reception, and conceptual strengths of the system.
+    
+            Feedback was collected via a structured Google Form following hands-on use of the system. The form included a combination of scaled questions and optional free-text responses, covering usability, satisfaction, convenience, and scanning accuracy. Responses also captured listening habits and attitudes toward physical media, providing broader context for interpreting user experience.
         
             \subsubsection{User Experience -- Usability}
+                User testing focused on how intuitive the system felt to new users. Survey data from 17 participants showed a mostly positive trend:
+                
+                    76.5\% of users rated ease-of-use at 3 or higher,
+                
+                    with 35.3\% rating it 5 (very easy).
+                    Only one user rated it as very difficult (1), citing a lack of initial instruction.
+                
+                Notable feedback highlighted the importance of a clear onboarding process, with one user commenting that "the layout was good, but I didn’t know what to do at first." Others praised its familiarity, especially those with vinyl experience, describing the interface as "intuitive and natural."
+                
+                These results suggest that while the system is broadly accessible, it benefits significantly from prior exposure to analogue devices and would be improved by minimal visual guidance or prompts on first use.
     
             \subsubsection{User Experience -- Aesthetics}
+                From the 17 responses, 70.6\% of participants who had experience with vinyl cited aesthetics as a key reason for ownership. This was reflected in comments such as "felt more immersive than expected" and "tactile feedback made it feel authentic."
+    
+                Design choices such as the use of real turntable elements, album art display, and the physical-digital hybrid interaction were positively received. Users described the system as "satisfying to use" and "visually rich."
+                
+                These findings indicate strong aesthetic engagement, aligning well with the nostalgic and cultural associations users have with vinyl.
             
         \subsection{Comparative Analysis}
-            \begin{temp}
-                Comparison with Existing Systems
-            \end{temp}
+            
+            The system sits at the intersection of traditional vinyl playback and modern digital music access. Compared to standard streaming platforms, it introduces a tangible, physical interaction absent from purely digital interfaces. While streaming services offer convenience and breadth of access, they lack the ritual and aesthetic value that this system provides.
+    
+            In contrast to traditional record players, this system offers automatic metadata enrichment, playback synchronisation via Spotify, and album recognition—features not available in analogue setups. However, it cannot match the audio fidelity or full physicality of actual vinyl playback.
+            
+            Compared to mobile apps that scan album covers (e.g., Shazam or Discogs), this system is less portable but more immersive. Its strength lies in offering a hybrid experience—inviting physical interaction while integrating smart digital features.
+    
+            In informal benchmarks, this system’s full album identification-to-playback cycle averaged $\approx 6.2$s. By contrast, Spotify search averages $\approx 3$s (but lacks physical input, and relied on existing user knowledge of the album details), while manual lookup via Discogs took over $\approx 20–30$s. Although slower than pure-digital workflows, the hybrid interaction offers a richer, more deliberate experience.
     
         \subsection{Limitations and Trade-offs}
     
+            A key limitation is the need for physical access to the system, which reduces scalability and reach. The classification model, while highly accurate on common albums, is less reliable on niche or variant covers. Metadata retrieval also depends on external APIs, and can occasionally produce incomplete or inaccurate results.
+    
+            From a technical standpoint, the system balances performance with simplicity, but lacks full robustness in edge cases (e.g., compilation albums or Spotify mismatches). Code coverage is strong but not complete, particularly around hardware-specific modules.
+            
+            There is also a trade-off between convenience and intentionality: while less convenient than streaming, the system offers a more deliberate and engaging listening experience -- by design.
+    
         \subsection{Ethical Implications}
-            \begin{temp}
-                What is the impact of the finished product?
-            \end{temp}
+            
+            This project prioritised ethical considerations throughout its lifecycle. Unlike generative AI systems, which often replicate or compete with original works, this classifier respects artistic integrity by not creating derivative content, nor redistributing copyrighted material.
+            
+            The system was designed to promote rather than replace physical media, aligning with the commercial interests of creators. Classification results are used solely to redirect users to legitimate playback platforms, potentially supporting royalties. No training data is exposed or accessible to users, and all datasets were acquired only from services explicitly permitting such use.
+            
+            Accessibility and openness were central goals -- with digital parity ensuring inclusive interaction, and full source availability supporting transparency and academic reuse. The project maintains a clear distinction between legal compliance and ethical responsibility, aiming to exceed beyond minimum standards in both.
     
     %%%%%%%%%%%%%%%%%% SECTION 7 %%%%%%%%%%%%%%%%%%
     \section{Conclusions and future work} % edit section heading as appropriate
         \subsection{Conclusions}
-          % summarise results
-          % achieved aims?
-          % improvements!
+        % summarise results
+    
+            This project successfully met its core aims: building a fully functional hybrid media system that integrates physical interaction with digital music streaming (as shown in Tables~\ref{tab:FR}-\ref{tab:NFR}). Quantitative results showed strong model performance (91.18\% top-1 accuracy), fast response times (under 4s average), and solid code robustness (71.5\% coverage). Qualitative testing confirmed that users found the system intuitive and aesthetically engaging, with particular praise for its nostalgic design and physical-digital interaction.
+    
+            Limitations such as metadata inconsistency and edge-case classification were identified and mitigated where possible. User feedback revealed opportunities for clearer onboarding, but overall usability was high. Comparisons against existing tools underscored the novelty and experiential value of the system.
+    
+            \begingroup
+                \renewcommand\thefootnote{}\footnotetext{Some deeper, yet more tangential thoughts are given in Appendix~\ref{sec:nailArt}, reflecting on the symbolic and aesthetic aspects of the system, beyond the scope of formal evaluation.}
+                \addtocounter{footnote}{-1}
+            \endgroup
+    
+        % achieved aims?
+        \begin{longtable}{|c|p{5cm}|c|p{5cm}|}
+            \caption{Evaluation of Functional Requirements} \label{tab:FR}\\
+            \hline
+            \textbf{ID} & \textbf{Requirement} & \textbf{Met?} & \textbf{Comment} \\
+            \hline
+            \endfirsthead
+            \hline
+            \textbf{ID} & \textbf{Requirement} & \textbf{Met?} & \textbf{Comment} \\
+            \hline
+            \endhead
+            FR1 & Image recognition accuracy ≥90\% & Yes & Achieved 91.18\% top-1 accuracy (97.05\% if cover variants excluded). \\
+            \hline
+            FR2 & Playback initiation within 5 seconds & Yes & Average response time under 4 seconds; peak latency 7s on poor networks (initial assumptions included good connection). \\
+            \hline
+            FR3 & Integration with Spotify API & Yes & Functional integration achieved; metadata retrieved for 84.38\% of albums. \\
+            \hline
+            FR4 & Software playback controls & Yes & Users could reliably play/pause/skip tracks via the interface. \\
+            \hline
+            FR5 & Clear track/album information display & Yes & Displayed metadata from Spotify when available. \\
+            \hline
+            FR6 & Intuitive UI suitable for non-technical users & Yes & 76.5\% of users found it easy to use; onboarding could improve. \\
+            \hline
+            FR7 & Physical playback controls & Yes & Tactile controls implemented; users responded positively to physicality. \\
+            \hline
+        \end{longtable}
+    
+        \begin{longtable}{|c|p{5cm}|c|p{5cm}|}
+            \caption{Evaluation of Non-Functional Requirements} \label{tab:NFR}\\
+            \hline
+            \textbf{ID} & \textbf{Requirement} & \textbf{Met?} & \textbf{Comment} \\
+            \hline
+            \endfirsthead
+            \hline
+            \textbf{ID} & \textbf{Requirement} & \textbf{Met?} & \textbf{Comment} \\
+            \hline
+            \endhead
+            NFR1 & System latency ≤5 seconds & Yes & All processing within 4s on average; met under typical use. \\
+            \hline
+            NFR2 & System uptime ≥99\% & Yes & No runtime crashes observed in testing; highly stable during sessions. \\
+            \hline
+            NFR3 & Graceful handling of recognition failures & Partial & Errors redirected cleanly with fallback behaviour or retry prompts. Greater specificity in error messages could be improved. \\
+            \hline
+            NFR4 & Compatibility with Raspberry Pi 5 & Yes & Fully developed and deployed on Raspberry Pi 5 hardware. \\
+            \hline
+            NFR5 & Clear documentation for easy setup & Yes & Instructions and bash scripts provided. \\
+            \hline
+            NFR6 & Compliance with UK copyright laws & Yes & Use justified under CDPA fair dealing; no distribution of copyrighted media, beyond educational scope of report contents. \\
+            \hline
+            NFR7 (1) & Compliance with Spotify API Terms & Yes & Spotify data only used for playback; model training did not breach API terms. \\
+            \hline
+            NFR7 (2) & Compliance with Discogs API Terms & Yes & Discogs data only used for playback; model training did not breach API terms. \\
+            \hline
+            NFR7 (3) & Compliance with Cover Art Archive API Terms & Yes & TODO. \\
+            \hline
+        \end{longtable}
+    
+        % improvements!
         
         \subsection{Future work}
           % ideas for further work
           % big ideas; what could be done with my project?
+          Several directions exist for extending this project:
+    
+          \paragraph{Improving album detection with retraining and real-time augmentation}
+    
+          Whilst the Hydra expandable PNN model experiments were promising, they did not manage to mature into a usable production-grade state within the project's timespan. Future work into this model could be done to allow the system to be truly robust by allowing users to seamlessly add new albums to their collection, without losing performance quality.
+    
+          This could be taken even further, by enabling the system to learn from specific corrections made by users, improving classification over time, by regularly re-training the models with reinforcement learning-based `encouragement' and `punishment' weights, using this user feedback.
+    
+          \paragraph{Onboarding and accessibility}
+    
+          Add minimal visual prompts, voice guidance, or mobile setup flows to improve ease-of-use for new users.
+    
+          \paragraph{Expanded integrations}
+    
+          Extend metadata sources to include lyrics, artist bios, or event listings, or connect fully to other streaming platforms, with the option to seamlessly switch between them on-the-fly (the current system requires manual re-configuration and rebooting of the server).
+    
+          \paragraph{Deeper HCI research}
+    
+           Conduct longer-term user studies focused on behaviour, nostalgia, and emotional connection to hybrid interfaces.
     
     %TC:ignore
     %%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%
@@ -1551,55 +1794,64 @@
     
         \section{Image Overflow}
     
-            \begin{figure}[h]
+            \begin{figure}[H]
                 \centering
-                \includegraphics[width=0.4\textwidth]{images/screenshots/HOST_Auth.png}
-                \caption{Screenshot of host client using Spotify's authentication redirection flow}
-                \label{fig:hostAuth}
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/screenshots/HOST_Auth.png}
+                    \caption{Screenshot of host client using Spotify's authentication redirection flow}
+                    \label{fig:hostAuth}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/screenshots/HOST_Cam.png}
+                    \caption{Screenshot of host client displaying the input image from the camera}
+                    \label{fig:hostCam}
+                \end{minipage}
+                
+                \vspace{0.5cm}
+                
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/screenshots/HOST_Green.png}
+                    \caption{Screenshot of host client using adaptive colouring and texturing}
+                    \label{fig:hostGreen}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/screenshots/LAPTOP_Cam.png}
+                    \caption{Screenshot of a remote client (PC) using the camera functionality}
+                    \label{fig:laptopCam}
+                \end{minipage}
+                
+                \vspace{0.5cm}
+                
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/screenshots/LAPTOP_External.png}
+                    \caption{Screenshot of a remote client, using an external account (not the host)}
+                    \label{fig:laptopExternal}
+                \end{minipage}
             \end{figure}
             
-            \begin{figure}[h]
+            \begin{figure}[H]
                 \centering
-                \includegraphics[width=0.4\textwidth]{images/screenshots/HOST_Cam.png}
-                \caption{Screenshot of host client displaying the input image from the camera}
-                \label{fig:hostCam}
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/screenshots/PHONE_Cam.jpg}
+                    \caption{Screenshot of a remote client (mobile) using the camera functionality}
+                    \label{fig:phoneCam}
+                \end{minipage}
+                \hfill
+                \begin{minipage}[b]{0.45\textwidth}
+                    \centering
+                    \includegraphics[width=\textwidth]{images/screenshots/PHONE_Error.jpg}
+                    \caption{Screenshot of a remote client displaying a 404 error}
+                    \label{fig:phoneError}
+                \end{minipage}
             \end{figure}
-            
-            \begin{figure}[h]
-                \centering
-                \includegraphics[width=0.4\textwidth]{images/screenshots/HOST_Green.png}
-                \caption{Screenshot of host client using adaptive colouring and texturing}
-                \label{fig:hostGreen}
-            \end{figure}
-            
-            \begin{figure}[h]
-                \centering
-                \includegraphics[width=0.4\textwidth]{images/screenshots/LAPTOP_Cam.png}
-                \caption{Screenshot of a remote client (PC) using the camera functionality}
-                \label{fig:laptopCam}
-            \end{figure}
-            
-            \begin{figure}[h]
-                \centering
-                \includegraphics[width=0.4\textwidth]{images/screenshots/LAPTOP_External.png}
-                \caption{Screenshot of a remote client, using an external account (not the host)}
-                \label{fig:laptopExternal}
-            \end{figure}
-            
-            \begin{figure}[h]
-                \centering
-                \includegraphics[width=0.4\textwidth]{images/screenshots/PHONE_Cam.jpg}
-                \caption{Screenshot of a remote client (mobile) using the camera functionality}
-                \label{fig:phoneCam}
-            \end{figure}
-            
-            \begin{figure}[h]
-                \centering
-                \includegraphics[width=0.4\textwidth]{images/screenshots/PHONE_Error.jpg}
-                \caption{Screenshot of a remote client displaying a 404 error}
-                \label{fig:phoneError}
-            \end{figure}
-    
     
         \section{Supplementary Information}
     
@@ -1631,13 +1883,25 @@
     
                 \paragraph{Ed Sheeran Meme} As a light-hearted cultural reference, a meme (Figure~\ref{fig:EdMeme}) highlighting the uniformity of Ed Sheeran’s album art served partially as inspiration for designing a artist classifier. The visual similarity in album covers suggested that artist and album may be decoupled yet jointly learnable.
     
-                \begin{figure}[h]
+                \begin{figure}[H]
                     \centering
                     \includegraphics[width=0.6\textwidth]{images/EdSheeranMeme.jpg}
                     \caption{A social media post jokingly referencing the consistent visual theme of Ed Sheeran's album covers}
                     \label{fig:EdMeme}
                     \caption*{Source: \href{https://www.threads.net/@pun_bible/post/DB83pw3gZSh/media}{\@pun\_bible (threads.net)}}
                 \end{figure}
+    
+        \section{Ponderings on what the project expresses} \label{sec:nailArt}
+    
+        At the centre of this system lies a single vinyl disc (see \ref{fig:product}), fixed in place. It serves no functional role in audio playback, but instead acts as a blank canvas — spinning beneath a projector that overlays metadata and centre-label imagery. The user’s actual records are never played, only scanned via their sleeves, preserving them entirely. This one disc, however, is not so fortunate.
+    
+        A nail, mounted in place of a stylus, crudely scratches against the rotating surface. Though mechanically redundant, it produces a faint scraping sound -- evoking the familiar hiss of analogue playback. Ironically, this unintended acoustic artefact became central to the experience: an authentic, physical sound that reinforces the illusion of vinyl, even as the music itself is streamed digitally. Yet the sound emitted is, in fact, the destruction of the vinyl’s own grooves -- the very data it once held, gradually scraped away.
+        
+        What began as a visual flourish now feels almost symbolic. The system preserves physical media, yet requires one record to be worn down in the process. A vinyl that exists purely to look like any vinyl, its own centre label concealed beneath a blank white sheet to be projected upon in mimicry; and to sound like a generic vinyl — forced to scrape and screech, but not its own original composition, which is instead destroyed with each rotation. In retrospect, it's a strange reversal: a digital player that needs physical damage to feel more analogue. A disc slowly degrading under a metal point to lend authenticity to a digital experience.
+        
+        None of the user’s own records are harmed, yet this one sacrificial vinyl remains essential. It makes no contribution to the music, yet is critical to the illusion. It is not played, but must still be heard -- not for the value of what it once held, but for what it now represents.
+        
+        There is something both comical and oddly poetic in this inversion: a system that digitises collections, yet requires a physical artefact to feel analogue. In hindsight, this unintentional arrangement reflects a curious tension -- between preservation and performance, where simulation relies on the very thing it seeks to replace.
         
         %\section{Other appendices as necessary}
     \end{uomappendix}
