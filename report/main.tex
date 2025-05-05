@@ -55,6 +55,9 @@
     \usepackage{longtable}
     \usepackage{tikz}
     \usepackage{varwidth} % For automatic width inside tikz nodes
+    \hypersetup{pdfborder={0 0 0}}
+    \setlength{\fboxsep}{0pt}
+    \setlength{\fboxrule}{0pt}
     
     % Optional: for adding alt-text to images:
     %\usepackage{pdfcomment}            % for alt text for accessibility
@@ -130,6 +133,9 @@
         \normalcolor % Reset text color
     }
     
+    \pdfcompresslevel=9
+    \pdfobjcompresslevel=3
+    
     %%%%%%%%%%%%%%%%%% START DOCUMENT %%%%%%%%%%%%%%%%%%
     
     % Don't edit these lines, title and author are automatically taken from the document meta-data defined above
@@ -143,7 +149,7 @@
     \course{Computer Science}  % "Master of Science in" is added automatically
                                                      % Our courses are: Advanced Control and Systems Engineering, Advanced Control and Systems Engineering with Extended Research, Communications and Signal Processing, Communications and Signal Processing with Extended Research, Electrical Power Systems Engineering, Advanced Electrical Power Systems Engineering, Renewable Energy and Clean Technology, Renewable Energy and Clean Technology with Extended Research
     \submitdate{2025}                                  % regulations ask only for the year, not month
-    \wordcount{TODO}		                           % use \wordcount{} to set the count, \thewordcount to print in the text
+    \wordcount{14,993}		                           % use \wordcount{} to set the count, \thewordcount to print in the text
     
     %TC:ignore
     \maketitle
@@ -163,17 +169,25 @@
       \begin{description}
         \item[AI] Artificial Intelligence
         \item[API] Application Programming Interface
+        \item[CC BY-ND 4.0] Creative Commons Attribution-NoDerivatives 4.0 International Licence
+        \item[CC BY-SA 4.0] Creative Commons Attribution-ShareAlike 4.0 International Licence
         \item[CD] Compact Disc
         \item[CDPA] Copyright, Designs and Patents Act 1988
         \item[CLK] Clock (regular pulses used for quadrature rotary encoding)
         \item[CNN] Convolutional Neural Network
         \item[CV] Computer Vision
+        \item[DRM] Digital Rights Management 
         \item[DT] Data (offset pulses used for quadrature rotary encoding)
         \item[EN] Enable
         \item[GDPR] General Data Protection Regulation
+        \item[GUI] Graphical User Interface
         \item[GPIO] General-Purpose Input/Output
         \item[GPU] Graphical Processing Unit
+        \item[HTTP] Hypertext Transfer Protocol
+        \item[HTTPS] Secure Hypertext Transfer Protocol
+        \item[LP] Long Play
         \item[ML] Machine Learning
+        \item[MP3] Moving Picture Experts Group (MPEG) Audio Layer 3
         \item[OCR] Optical Character Recognition
         \item[OS] Operating System
         \item[PWM] Pulse-Width Modulation
@@ -189,6 +203,7 @@
         \item[ToS] Terms of Service
         \item[TOU] Terms of Use
         \item[TPU] Tensor Processing Unit 
+        \item[UML] Unified Modeling Language
         \item[URI] Uniform Resource Identifier
         \item[UX] User Experience
       \end{description}
@@ -196,7 +211,7 @@
     %%%%%%%%%%%%%%%%%% ABSTRACT %%%%%%%%%%%%%%%%%%%%%%%%%%
     \begin{abstract} % put abstract here. Limit is 1 page.
     
-        This project develops an innovative solution that merges the physical and digital music experience by enabling vinyl records to be digitally streamed through image recognition. Leveraging machine learning, the system identifies physical album covers and retrieves corresponding audio tracks from Spotify. Built on a Raspberry Pi 5 platform, it provides users the tangible experience of vinyl while offering the convenience of digital playback. The project's objectives include addressing limitations inherent to vinyl, such as equipment fragility and playback inconvenience, and targeting vinyl enthusiasts who value both aesthetics and usability. Experimentation with various neural network models resulted in a top-1 accuracy of 91.18\%, average response times under four seconds, and 71.5\% code coverage. Qualitative testing confirmed the system’s intuitive interface and nostalgic appeal. Challenges addressed include reliable image recognition, legal and ethical concerns, and robust integration of hardware and software components. Evaluation shows the solution effectively enhances the usability and appeal of vinyl collections.
+        This project develops an innovative solution that merges the physical and digital music experience by enabling vinyl records to be digitally streamed through image recognition. Leveraging machine learning, the system identifies physical album covers and retrieves corresponding audio tracks from Spotify. Built on a Raspberry Pi 5 platform, it provides users the tangible experience of vinyl while offering the convenience of digital playback. The project's objectives include addressing limitations inherent to vinyl, such as equipment fragility and playback inconvenience, and targeting vinyl enthusiasts who value both aesthetics and usability. Experimentation with various neural network models resulted in a top-1 accuracy of 91.18\%, average response times under four seconds, and 71.5\% code coverage. Qualitative testing confirmed the system's intuitive interface and nostalgic appeal. Challenges addressed include reliable image recognition, legal and ethical concerns, and robust integration of hardware and software components. Evaluation shows the solution effectively enhances the usability and appeal of vinyl collections.
     
     \end{abstract}%
     \clearpage
@@ -212,7 +227,7 @@
     \begin{uomacknowledgements}
     I would like to extend my gratitude to the noble mahogany tree, whose sacrifice provided not only the material for a Welsh love spoon -- by which I proposed and became engaged to my beloved fiancée -- but also the offcuts that found purpose in the physical interface of this project. Your contribution to both my personal and academic life has been truly invaluable.
     
-    Also, to my close friend Joshua Bond’s dissertation \cite{jdbond}, which I have yet to finish reading -- but I am sure it is great.
+    Also, to my close friend Joshua Bond's dissertation \cite{jdbond}, which I have yet to finish reading -- but I am sure it is great.
     \end{uomacknowledgements}
     
     %TC:endignore
@@ -222,7 +237,7 @@
     
         \subsection{Background and motivation}
     
-            The resurgence of vinyl records -- recently reaching decade-high sales \cite{geraghty2023uk_vinyl_sales} -- presents both opportunity and challenge: growing interest among younger listeners and collectors \cite{Trapp2023}. Yet, despite their renewed popularity, vinyl records require specialised equipment, knowledge of different record sizes and playback speeds, and accessories such as 33–45 adapters for discs with larger centre holes (see Figure~\ref{fig:vinylSizes}) —- posing practical barriers to modern listeners.
+            The resurgence of vinyl records -- recently reaching decade-high sales \cite{geraghty2023uk_vinyl_sales} -- presents both opportunity and challenge: growing interest among younger listeners and collectors \cite{Trapp2023}. Yet, despite their renewed popularity, vinyl records require specialised equipment, knowledge of different record sizes and playback speeds, and accessories such as 33–45 adapters for discs with larger centre holes (see Figure~\ref{fig:vinylSizes}) -- posing practical barriers to modern listeners.
     
             \begin{figure}[htbp]
                 \centering
@@ -232,31 +247,31 @@
                 \label{fig:vinylSizes}
             \end{figure}
     
-            Combining digital and physical media provides an attractive solution to these challenges by merging the tangible appeal of vinyl with the convenience and accessibility of digital music streaming. Such an integration maintains the emotional and tactile connection that many listeners appreciate in physical collections, while offering the ease of digital technologies. Given current consumer interests and technological advancements, this hybrid approach is timely and relevant.
+            Combining digital and physical media provides an attractive solution to these challenges by merging the tangible appeal of vinyl with the convenience and accessibility of digital music streaming. Such an integration maintains the emotional and tactile connection that many listeners appreciate in physical collections \cite{Liu2020}, while offering the ease of digital technologies. Given current consumer interests and technological advancements, this hybrid approach is timely and relevant.
         
         \subsection{Aims and objectives}
     
             This project aims to resolve key limitations of traditional vinyl playback by:
             \begin{itemize}
-                \item Enabling users to stream music by scanning album covers;
+                \item Identifying and addressing practical limitations of analogue systems;
                 \item Designing a hybrid physical–digital playback system;
-                \item Implementing image-based album recognition with audio streaming;
+                \item Enabling users to stream music by scanning album covers;
                 \item Evaluating performance through quantitative and qualitative testing;
             \end{itemize}
     
-            The full goals and evaluation methodology, including test datasets, user testing approach, and success criteria, is detailed in the Requirements Analysis of the Design Section~\ref{sec:reqany}.
+            The full goals and evaluation methodology, including test datasets, user testing approach, and success criteria, is detailed in the Design Section's Requirements Analysis~(\ref{sec:reqany}).
     
-            Intended users include vinyl enthusiasts, collectors, and casual listeners who appreciate vinyl's tangible and aesthetic aspects but desire greater convenience. TThe project addresses a gap where physical collections are underutilised due to traditional playback inconvenience.
+            Intended users include vinyl enthusiasts, collectors, and casual listeners who appreciate vinyl's tangible and aesthetic aspects but desire greater convenience. The project addresses a gap where physical collections are underutilised due to traditional playback inconvenience.
         
         \subsection{Scope}
     
-            In scope for this project is the development of an application that uses image recognition technology -- such as machine learning and OCR -- to identify vinyl records and retrieve corresponding digital tracks from streaming platforms like Spotify. The solution is built on a Raspberry Pi 5-based hardware platform, integrating both physical and digital user interfaces.
+            In scope for this project is the development of an application that uses image recognition technology -- such as machine learning (ML) and Optical Character Recognition (OCR) -- to identify vinyl records and retrieve corresponding digital tracks from streaming platforms like Spotify. The solution is built on a Raspberry Pi 5-based hardware platform, integrating both physical and digital user interfaces.
     
-            Out of scope elements include extensive hardware customisation beyond essential playback functionality, support for every possible streaming service, and creation of original music databases. The focus is on Spotify's streaming capabilities -- due to its widespread adoption and available API support -- whilst still maintaining flexibility and the ability to change APIs easily, if desired.
+            Out of scope elements include extensive hardware customisation beyond essential playback functionality, support for every possible streaming service, and creation of original music databases. The focus is on Spotify's streaming capabilities -- due to its widespread adoption and available Application Programming Interface (API) support -- whilst still maintaining flexibility and the ability to change APIs easily, if desired.
         
         \subsection{Challenges}
     
-            As demonstrated in prior work, convolutional neural networks are effective for image recognition across varied domains \cite{cnnsforimagerecognition, imagenetclasscnn}, but even these face limitations. The primary challenges anticipated include accurately identifying album artwork using machine learning techniques, managing legal and ethical concerns related to copyrighted album covers, and effectively integrating multiple technologies -- such as hardware components, web APIs, and neural networks -- into a cohesive system. Balancing usability and technical robustness is also a challenge.
+            As demonstrated in prior work, convolutional neural networks are effective for image recognition across varied domains \cite{cnnsforimagerecognition, imagenetclasscnn}, but even these face limitations. The primary challenges anticipated include accurately identifying album artwork using ML techniques, managing legal and ethical concerns related to copyrighted album covers, and effectively integrating multiple technologies -- such as hardware components, web APIs, and neural networks -- into a cohesive system. Balancing usability and technical robustness is also a challenge.
         
         \subsection{Report structure} % ROADMAP
         
@@ -271,7 +286,7 @@
                 \item[Chapter 7] summarises conclusions, identifies project limitations, and suggests avenues for future development.
             \end{description}
     
-            While the chapters are not strictly chronological in presentation, their structure reflects the chronological stages of the development process.
+            While not strictly chronological, the chapters follow the stages of the development process.
     
     %%%%%%%%%%%%%%%%%% SECTION 2 %%%%%%%%%%%%%%%%%%
     \section{Background and Literature Review} % LITERATURE REVIEW / BACKGROUND
@@ -291,29 +306,29 @@
                 ``Vinyl is back!'' \cite{bechhofervttspec}
             \end{quote}
             
-            In 2023, UK vinyl sales reached their highest level since 1990 \cite{geraghty2023uk_vinyl_sales}, confirming the ongoing ``vinyl revival'' \cite{vinylRevival} (see Figure~\ref{fig:vinyl_sales}). Initially dismissed as a short-term trend when it emerged in 2008-2009, this resurgence has persisted, highlighting a renewed interest in physical music formats. Understanding the motivations behind this revival is crucial for informing design decisions, particularly from a UX perspective, as vinyl collectors constitute a key target audience.
+            In 2023, UK vinyl sales reached their highest level since 1990 \cite{geraghty2023uk_vinyl_sales}, confirming the ongoing ``vinyl revival'' \cite{vinylRevival} (see Figure~\ref{fig:vinyl_sales}). Initially dismissed as a short-term trend when it emerged in 2008-2009, this resurgence has persisted, highlighting a renewed interest in physical music formats. Understanding the motivations behind this revival is crucial for informing design decisions, particularly from a User Experience (UX) perspective, as vinyl collectors constitute a key target audience.
             
             \begin{figure}[htbp]
                 \centering
                 \includegraphics[width=\linewidth]{images/vinyl_sales_2023.png}
-                \caption{Vinyl LP, Cassette, and CD Sales Revenue (1973–2020).}
+                \caption{Vinyl LP, Cassette, and Compact Disc (CD) Sales Revenue (1973–2020).}
                 \caption*{Sourced from Journal of Popular Music Studies \cite{vinylRevival}. Reproduced under UK fair dealing provisions for non-commercial academic use.}
                 \label{fig:vinyl_sales}
             \end{figure}
     
-            Although now taken for granted, records -- and their predecessors, Edison's cylinders — transformed music from an ephemeral experience into a reproducible medium. Before recording technology, music was transient and confined to its place and time of performance, unable to be stored or shared beyond a live setting. While compositions could be transcribed into musical notation, each unique performance could never be heard again once it ended, unlike with visual art, where many original works from as far back as antiquity still survive \cite{jdbond}.
+            Although now taken for granted, records -- and their predecessors, Edison's cylinders -- transformed music from an ephemeral experience into a reproducible medium. Before recording technology, music was transient and confined to its place and time of performance, unable to be stored or shared beyond a live setting. While compositions could be transcribed into musical notation, each unique performance could never be heard again once it ended, unlike with visual art, where many original works from as far back as antiquity still survive \cite{jdbond}.
     
-            This revolution in music consumption not only shaped the modern music industry but also cemented vinyl’s cultural significance. By making music ownable and replayable, it changed the way people engaged with it, fostering a more personal and enduring connection. Its enduring appeal, even in the digital age, suggests that its value extends beyond convenience, tapping into a deeper connection with music as a tangible experience.
+            This revolution in music consumption not only shaped the modern music industry but also cemented vinyl's cultural significance. By making music ownable and replayable, it changed the way people engaged with it, fostering a more personal and enduring connection. Its enduring appeal, even in the digital age, suggests that its value extends beyond convenience, tapping into a deeper connection with music as a tangible experience.
     
             % Aesthetics
             \paragraph{Aesthetics and Emotional Appeal}
                 % nostalgia, vibes
     
-                Though nostalgia is widely recognised as a key driver of vinyl’s revival; it varies by age group. Gotting \cite{Gotting2021} shows that engagement peaks among both older listeners, who have direct sentimental ties to the medium, and younger adults, who view vinyl as a culturally rich artefact. Liu \cite{Liu2020} adds that this appeal is partly a reaction to the disposability of digital listening with users seeking more focus and ritual.
+                Though nostalgia is widely recognised as a key driver of vinyl's revival; it varies by age group. Gotting \cite{Gotting2021} shows that engagement peaks among both older listeners, who have direct sentimental ties to the medium, and younger adults, who view vinyl as a culturally rich artefact. Liu \cite{Liu2020} adds that this appeal is partly a reaction to the disposability of digital listening with users seeking more focus and ritual.
     
-                Historically, music was a shared, physical experience: families gathered around a single record player, and listening required attention. Today, however, listeners often engage in fragmented, solitary consumption \cite{historyandrevivalofvinyls}. The skip-anything convenience of streaming has reduced music to background noise for many users. Vinyl’s tactile nature and unskippable format offer a counter-experience -— one that demands physical presence and invites emotional connection.
+                Historically, music was a shared, physical experience: families gathered around a single record player, and listening required attention. Today, however, listeners often engage in fragmented, solitary consumption \cite{historyandrevivalofvinyls}. The skip-anything convenience of streaming has reduced music to background noise for many users. Vinyl's tactile nature and unskippable format offer a counter-experience -- one that demands physical presence and invites emotional connection.
     
-                This resurgence is not only aesthetic but communal. Platforms like Reddit’s r/Vinyl (with over 2.2 million members as of 2025) show that people are forming identity and community around the medium itself. Mall \cite{vinylRevival} and others argue that vinyl offers a kind of cultural resistance: a slower, more deliberate engagement in an increasingly digital and transient world.
+                This resurgence is not only aesthetic but communal. Platforms like Reddit's r/Vinyl\footnote{\url{https://www.reddit.com/r/vinyl/}} (with over 2.2 million members as of 2025) show that people are forming identity and community around the medium itself. Mall \cite{vinylRevival} and others argue that vinyl offers a kind of cultural resistance: a slower, more deliberate engagement in an increasingly digital and transient world.
           
               % Ownership
               % Physicality
@@ -337,11 +352,11 @@
                 \end{quote}
     
                 % quality
-                Perceptions of vinyl’s superior audio quality often stem from early digital compression issues, rather than objective fidelity differences. For example, early MP3 encodings of minimal tracks such as ``Tom’s Diner'' exposed compression artefacts \cite{maguire2014ghost}. Although modern digital formats objectively outperform vinyl in fidelity — especially in terms of bit depth and dynamic range — user perception may not align with these metrics. In low-bandwidth environments, highly compressed audio can degrade noticeably, sometimes sounding worse than a clean vinyl pressing. This contrast is crucial for hybrid systems, where listeners may subconsciously associate streaming with lower quality, reinforcing vinyl’s perceived authenticity.
+                Perceptions of vinyl's superior audio quality often stem from early digital compression issues, rather than objective fidelity differences. For example, early MP3 encodings of minimal tracks such as ``Tom's Diner'' exposed compression artefacts \cite{maguire2014ghost}. Although modern digital formats objectively outperform vinyl in fidelity -- especially in terms of bit depth and dynamic range -- user perception may not align with these metrics. In low-bandwidth environments, highly compressed audio can degrade noticeably, sometimes sounding worse than a clean vinyl pressing. This contrast is crucial for hybrid systems, where listeners may subconsciously associate streaming with lower quality, reinforcing vinyl's perceived authenticity.
     
-                Additionally, vinyl is susceptible to scratches and physical deformities which affect the playback quality. Vinyl enthusiasts appreciate the medium’s imperfections, which are thought to add warmth and character. No two discs sounds exactly the same. This creates a sense of personal ownership with vinyls -- not only does the consumer own the physical disc itself, but they own their precise and unique version of it.
+                Additionally, vinyl is susceptible to scratches and physical deformities which affect the playback quality. Vinyl enthusiasts appreciate the medium's imperfections, which are thought to add warmth and character. No two discs sounds exactly the same. This creates a sense of personal ownership with vinyls -- not only does the consumer own the physical disc itself, but they own their precise and unique version of it.
     
-                It is important to note that many contemporary vinyl releases originate from digital masters, meaning potential losses in fidelity depend on how well an album is adapted to the format. Several inherent limitations affect vinyl playback, including: duration constraints, due to physical disk size; track sequence issues, as resolution gradually degrades towards the inner grooves; and RIAA equalisation, which alters frequency response to accommodate physical limitations of the medium \cite{engineeringvinyls}. Additionally, stereo information handling differs from digital formats, as vinyl relies on lateral and vertical groove modulation, which can introduce crosstalk and phase issues \cite{engineeringvinyls}. These factors, if not carefully managed during production, may compromise the listening experience. Modern tracks often sound better in digital.
+                It is important to note that many contemporary vinyl releases originate from digital masters, meaning potential losses in fidelity depend on how well an album is adapted to the format. Several inherent limitations affect vinyl playback, including: duration constraints, due to physical disk size; track sequence issues, as resolution gradually degrades towards the inner grooves; and RIAA\footnote{Recording Industry Association of America} equalisation, which alters frequency response to accommodate physical limitations of the medium \cite{engineeringvinyls}. Additionally, stereo information handling differs from digital formats, as vinyl relies on lateral and vertical groove modulation, which can introduce crosstalk and phase issues \cite{engineeringvinyls}. These factors, if not carefully managed during production, may compromise the listening experience. Modern tracks often sound better in digital.
     
             \paragraph{Conclusion}
                 While digital audio services offer notable convenience, the enduring vinyl revival demonstrates that many users still value tangible, nostalgic experiences. Nostalgia and charm play a crucial role in this appeal, making it essential to design with these emotional connections in mind. By combining the strengths of both physical and digital formats, a system can provide a richer, more meaningful user experience that aligns with modern consumption habits while preserving the authenticity and personal connection that vinyl enthusiasts cherish. A significant portion of consumers actively engage with both streaming services and physical media, indicating that a hybrid approach has a viable audience.
@@ -350,17 +365,17 @@
     
             % Y. LeCun and Y. Bengio, 1995, "Convolutional Networks for Images, Speech, and Time-Series". Brain theory neural networks, vol. 3361
     
-            Image recognition is the creation of software and tools which can be used to identify objects, places, people, etc. in digital images, which has existed since at least 1946 \cite{hall1979computer}. The field has rapidly evolved with advancing technology \cite{imagenetclasscnn}, and is still be redefined in the present day, particularly with the arrival of machine learning approaches, with new implementations being utilised across the field (e.g. \cite{RAMPRASAD2025100556}, 2025).
+            Image recognition is the creation of software and tools which can be used to identify objects, places, people, etc. in digital images, which has existed since at least 1946 \cite{hall1979computer}. The field has rapidly evolved with advancing technology \cite{imagenetclasscnn}, and is still be redefined in the present day, particularly with the arrival of ML approaches, with new implementations being utilised across the field (e.g. \cite{RAMPRASAD2025100556}, 2025).
     
             \paragraph{Traditional Methods}
             
-                Before the advent of deep learning, image recognition primarily relied on manually crafted feature extraction techniques. Classical methods included edge detection, template matching, and statistical pattern recognition. Notable feature descriptors such as Scale-Invariant Feature Transform (SIFT), Speeded-Up Robust Features (SURF), and Histogram of Oriented Gradients (HOG) played a significant role in object detection and classification \cite{pal2001pattern}. That said, these approaches were often limited by their inability to generalise across variations in lighting, scale, and occlusions. The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) served as a benchmark for evaluating the effectiveness of traditional and emerging techniques \cite{russakovsky2015imagenetlargescalevisual}.
+                Before the advent of deep learning, image recognition primarily relied on manually crafted feature extraction techniques. Classical methods included edge detection, template matching, and statistical pattern recognition. Notable feature descriptors such as Scale-Invariant Feature Transform (SIFT), Speeded-Up Robust Features (SURF), and Histogram of Oriented Gradients (HOG) played a significant role in object detection and classification \cite{pal2001pattern}. That said, these approaches were often limited by their inability to generalise across variations in lighting, scale, and occlusions. The ImageNet Large Scale Visual Recognition Challenge\footnote{https://www.image-net.org/challenges/LSVRC/} (ILSVRC) served as a benchmark for evaluating the effectiveness of traditional and emerging techniques \cite{russakovsky2015imagenetlargescalevisual}.
             
             \paragraph{Emergence of Convolutional Neural Networks}
             
                 The introduction of convolutional neural networks (CNNs) marked a paradigm shift in image recognition. Early work, such as LeNet-5, demonstrated CNNs' potential \cite{726791}, but it was the breakthrough of AlexNet in the 2012 ImageNet competition that solidified their dominance \cite{imagenetclasscnn}. Subsequent architectures, including VGG, ResNet, and EfficientNet, further improved performance by introducing deeper networks, residual connections, and optimised convolutional layers \cite{deppcnnsforimagerecognition}. These advancements enabled significant improvements in tasks such as object detection, facial recognition, and medical image analysis.
     
-                In the context of vinyl cover art recognition, CNNs offer a powerful solution for identifying album artwork despite variations in artistic style, degradation, and distortions. Although, a key challenge in training CNNs for this task is the limited availability of labelled datasets. Unlike large-scale image classification datasets like ImageNet, curated datasets for album cover recognition remain relatively small. To address this limitation, data augmentation techniques -- such as random cropping, rotation, colour jittering, and synthetic distortions -- help improve model robustness by simulating real-world variations \cite{LIN2025102660}. Even further, research has been done recently into using stable diffusion techniques to facilitate fully artificial data augmentation, with generative AI \cite{Alimisis2025}. However, larger augmented datasets increase computational demands, making GPU or TPU optimisations essential for efficiency.
+                In the context of vinyl cover art recognition, CNNs offer a powerful solution for identifying album artwork despite variations in artistic style, degradation, and distortions. Although, a key challenge in training CNNs for this task is the limited availability of labelled datasets. Unlike large-scale image classification datasets like ImageNet, curated datasets for album cover recognition remain relatively small. To address this limitation, data augmentation techniques -- such as random cropping, rotation, colour jittering, and synthetic distortions -- help improve model robustness by simulating real-world variations \cite{LIN2025102660}. Even further, research has been done recently into using stable diffusion techniques to facilitate fully artificial data augmentation, with generative Artificial Intelligence (AI) \cite{Alimisis2025}. However, larger augmented datasets increase computational demands, making optimisation for Graphics Processing Units (GPUs) or Tensor Units (TPUs) essential for efficiency.
     
             \paragraph{Multi-Headed Networks and Consensus-Based Recognition}
     
@@ -368,19 +383,19 @@
             
                 By integrating multi-headed architectures with ensemble strategies, models can achieve higher classification accuracy and robustness, particularly when handling ambiguous or visually noisy inputs. This method has been successfully applied in fine-grained classification tasks and could be adapted for vinyl cover recognition by leveraging multiple specialised feature extractors that assess distinct album cover characteristics.
     
-            \paragraph{Current 'State of the Art'}
+            \paragraph{Current `State of the Art'}
     
-                Visual transformers currently represent the state-of-the-art in image classification, significantly outperforming traditional CNNs on large datasets. Albeit, their performance heavily depends on large-scale data availability; with limited or specialised datasets, such as vinyl cover recognition, transformers may perform poorly or be impractical. Thus, CNN-based architectures or hybrid approaches remain more suitable in scenarios with smaller, niche datasets.
+                Visual transformers currently represent the state-of-the-art in image classification, significantly outperforming traditional CNNs on large datasets \cite{dosovitskiy2020vit}. Albeit, their performance heavily depends on large-scale data availability; for limited or specialised datasets, such as vinyl cover recognition, transformers may perform poorly or be impractical. Thus, CNN-based architectures or hybrid approaches remain more suitable in scenarios with smaller, niche datasets.
     
                 A key challenge is ensuring models generalise effectively to unseen data, avoiding overfitting. Techniques like dropout, which randomly deactivate neurons during training, improve robustness by preventing reliance on specific features. Additionally, splitting datasets into training, validation, and test subsets enables monitoring model generalisation, though careful consideration is required to balance partition sizes and representativeness, whilst also avoiding biases.
     
         \subsection{Legal and Ethical Considerations}
     
-          The training and use of machine learning models for image classification requires the acquisition and processing of data, which, in order to effectively handle the cover art of existing albums, necessitates obtaining and using their copyrighted artworks. This raises both legal and ethical concerns, particularly regarding compliance with UK copyright law and exemptions. This section examines the legal basis for dataset usage, fair dealing exemptions, and the ethical implications of using copyrighted material in an academic AI project.
+          The training and use of ML models for image classification requires the acquisition and processing of data, which, in order to effectively handle the cover art of existing albums, necessitates obtaining and using their copyrighted artworks. This raises both legal and ethical concerns, particularly regarding compliance with UK copyright law. This section examines the legal basis for dataset usage, fair dealing exemptions, and the ethical implications of using copyrighted material in an academic AI project.
     
               \subsubsection{Copyright Law and Fair Dealing}
                   % explain copyright law
-                  Under the \textit{Copyright, Designs and Patents Act 1988} \cite{cdpa1988}, creative works, including album covers, are protected from unauthorised use, reproduction, distribution, and modification.
+                  Under the \textit{Copyright, Designs and Patents Act 1988} (CDPA) \cite{cdpa1988}, creative works, including album covers, are protected from unauthorised use, reproduction, distribution, and modification.
           
                   % introduce fair dealing
                   Even so, UK law also provides a key exception known as Fair Dealing, which allows limited use of copyrighted material under specific conditions, for a very limited scope of use. Importantly, it is not a rigid rule but a context-dependent legal doctrine, evaluated on a case-by-case basis. The law does not explicitly define what qualifies as fair dealing; courts assess reasonableness based on context.
@@ -390,16 +405,16 @@
                       Fair dealing with a work for the purposes of research for a non-commercial purpose does not infringe any copyright in the work provided that it is accompanied by a sufficient acknowledgement. \cite{cdpa1988}
                   \end{quote}
     
-                  This indicates that non-commercial academic research can be exempt from copyright infringement if proper attribution is provided. That said, the applicability of this exemption depends on further and additional factors, such as the amount of material used and its impact on the copyright holder’s market.
+                  This indicates that non-commercial academic research can be exempt from copyright infringement if proper attribution is provided. That said, the applicability of this exemption depends on further and additional factors, such as the amount of material used and its impact on the copyright holder's market.
     
               % 1. Using a dataset to create a model
               \subsubsection{Use of Artworks in Model Training}
               
                   Album covers are protected by copyright as highly creative works. Any reproduction or modification is typically restricted without permission from the copyright holder. As such, the threshold for qualifying as fair dealing is high, when dealing with such artwork. However, training a classification model may qualify for fair dealing, provided certain conditions are met.
     
-                  A key legal question is whether machine learning training qualifies as ``\textit{computational analysis}'' under \textit{Section 29A} of the CDPA, which states:
+                  A key legal question is whether ML training qualifies as ``\textit{computational analysis}'' under \textit{Section 29A} of the CDPA, which states:
                   \begin{quote}
-                      (1) The making of a copy of a work by a person who has lawful access to the work does not infringe copyright in the work provided that—
+                      (1) The making of a copy of a work by a person who has lawful access to the work does not infringe copyright in the work provided that --
                   
                           (a) the copy is made in order that a person who has lawful access to the work may carry out a computational analysis of anything recorded in the work for the sole purpose of research for a non-commercial purpose, and
                           
@@ -412,16 +427,16 @@
     
                   It also reiterates the need for attribution, but, notably states that this is only required in cases where it is feasibly practical.
     
-                  Given these factors, classification likely qualifies under Fair Dealing because the model does not generate new images but merely classifies existing ones. This distinction is important, especially given recent scrutiny of generative AI models like OpenAI’s \textit{DALL·E} \cite{times2025christies_ai_auction, guardian2025ai_art_auction}, which create derivative works rather than merely labelling.
+                  Given these factors, classification likely qualifies under Fair Dealing because the model does not generate new images but merely classifies existing ones. This distinction is important, especially given recent scrutiny of generative AI models like OpenAI's \textit{DALL·E} \cite{times2025christies_ai_auction, guardian2025ai_art_auction}, which create derivative works rather than merely labelling.
     
-                  None of this is clear-cut, though, as we are still in an uncertain time with the law not having been stabalised after the emergence and mass adoption \cite{bick2024rapid} of these new technologies. It is worth noting, however, that there are currently proposals for UK law the explcitly allow the use of copyrighted materials in such cases \cite{guardian2024uk_ai_copyright}, whereas, in the US, there is starting to be legal prescendent of cases winning on the basis \cite{apnews2025thomson_reuters_ai_case} of AI agents using copyrighted data.
+                  None of this is clear-cut, though, as this is still an uncertain time with the law not having been stabilised after the emergence and mass adoption \cite{bick2024rapid} of these new technologies. It is worth noting, however, that there are currently proposals for UK law to explicitly allow the use of copyrighted materials in such cases \cite{guardian2024uk_ai_copyright}, whereas, in the US, there is starting to be legal prescendent of cases winning on the basis \cite{apnews2025thomson_reuters_ai_case} of AI agents using copyrighted data.
     
               % 2. Sourcing said dataset
               \subsubsection{Legal Compliance in Dataset Sourcing}
     
                   Beyond Fair Dealing considerations, data sourcing must be legally compliant. According to \textit{Section 29A} \cite{cdpa1988}, only individuals with lawful access to copyrighted works may use them for computational analysis. Therefore, it is essential to determine how these images can be legitimately acquired.
     
-                  Machine learning models must fully process training images in their entirety to generate a model. This requires the whole image to be either stored persistently (on disk) or temporarily (in memory). Even if handled in chunks, the full image is processed by the model. \textit{Section 28A} outlines more leniency for cases where only temporary copies are stored, for lawful access.
+                  ML models must fully process training images in their entirety to generate a model. This requires the whole image to be either stored persistently (on disk) or temporarily (in memory). Even if handled in chunks, the full image is processed by the model. \textit{Section 28A} outlines more leniency for cases where only temporary copies are stored, for lawful access.
     
                   It is also important to consider if entire images are required, as opposed to only sections of them. If it would be possible to achieve the desired result using only subsets of the acquired dataset, then more data would be stored and used than is justified. The legal precedent \textit{Ashdown v Telegraph Group Ltd (2002)}, highlights that:
     
@@ -432,13 +447,13 @@
                   Thus, ensuring only necessary data is used is critical for compliance.
     
                   % 3. ToS compliance
-                  In addition to just the handling of the data, its source must also be considered. There are three methods by which the training dataset could be acquired: by fetching data from an API, by scraping the data from the web, or, by manually taking the required photos (either by just me, personally, or by crowd-sourcing the images). Realistically, the first two options are most practically feasible.
+                  In addition to just the handling of the data, its source must also be considered. There are three methods by which the training dataset could be acquired: by fetching data from an API, by scraping the data from the web, or, by manually taking the required photos (either personally, or through crowd-sourcing). Realistically, the first two options are most practically feasible.
     
                   There are many vendors of the cover arts of music albums. Notably, music vendors (such as \textit{Spotify}) and music collection and review sites (such as \textit{Discogs}) provide the album arts in a structured format where the artworks are synchronised with the albums which they belong to. Although, due to the recent boom of generative AI models - and the controversy surrounding them \cite{apnews2025mccartney_ai_warning} - many vendors have explicitly prohibited the use of their data for machine learning in their Terms of Services.
     
                   % specific examples should probably be discussed under 'Design'
                   \begin{quote}
-                      Do not use the Spotify Platform or any Spotify Content to train a machine learning or AI model or otherwise ingest Spotify Content into a machine learning or AI model.
+                      Do not use the Spotify Platform or any Spotify Content to train a ML or AI model or otherwise ingest Spotify Content into a machine learning or AI model.
                   \end{quote} \cite{spotifyDevPolicy} (III.14)
                   \begin{quote}
                       Do not misuse the Spotify Platform, including by i. using the Spotify Platform or any Spotify Content to train a machine learning or AI model or otherwise ingesting Spotify Content into a machine learning or AI model;
@@ -454,33 +469,33 @@
               % Does it impact the commercial success of artists?
               % Transparency & attribution concerns.
     
-                  While legality is addressed under Fair Dealing, ethics requires further consideration. Even when lawful, using copyrighted artwork involves reproducing creative works, and this should be done with care and respect for the artists’ rights and livelihoods \cite{heikkila2022ai_art}.
+                  While legality is addressed under Fair Dealing, ethics requires further consideration. Even when lawful, using copyrighted artwork involves reproducing creative works, and this should be done with care and respect for the artists' rights and livelihoods \cite{heikkila2022ai_art}.
     
                   Most significantly, it is worth noting that this AI model is not generative (which is where most of the recent controversies stem from \cite{apnews2025mccartney_ai_warning}), and therefore, instead of producing its own artworks based off of the images fed to it, it simply classifies them by labelling them with its prediction of their corresponding album. Therefore, while the model is technically derived from artists' works, it does not generate new content or compete with them -- unlike generative agents \cite{times2025photographer_ai_copy} -- and so is unlikely to negatively impact their commercial success. If anything, it can be argued that this system should benefit them, by encouraging the purchasing of physical media, and garnering instances of playing their content on a revenue-generating service.
     
-                  Furthermore, as this does not share or distribute the images themselves with the users, I believe it to be even more safe, as the only artefact generated from these images are a classification system which can be used by the user, but even the numerics themselves are not made accessible to the user.
+                  Furthermore, as this does not share or distribute the images themselves with the users, it can be believed to be even more safe, as the only artefact generated from these images are a classification system which can be used by the user, but even the numerics themselves are not made accessible to the user.
     
-                  And, whilst the law allows for the exclusion for explicit attribution of all involved copyright holders, this may not be ethical. On the other hand, as this is a classification system, it arguably gives some degree of implicit accreditation to the artworks used in the training process, when the predicted label is used to redirect the user to said album.
+                  And, whilst the law allows for the exclusion of explicit attribution of all involved copyright holders, this may not be ethical. On the other hand, as this is a classification system, it arguably gives some degree of implicit accreditation to the artworks used in the training process, when the predicted label is used to redirect the user to said album.
     
               \subsubsection{Conclusion}
     
                   This section examined the legal and ethical implications of using copyrighted album covers in machine learning. Based on UK Fair Dealing exemptions in the CDPA 1988, I would argue that there is a solid grounding this project likely qualifies as a legally permissible use case, provided:
                   \begin{description}
-                      \item[-] It is a non-commercial, research project.
-                      \item[-] Data is lawfully acquired from permitting sources.
-                      \item[-] Dataset size and use are limited to what is strictly necessary.
-                      \item[-] No images are shared or altered. % this will need to be checked when talking about data augmentation
+                      \item[-] It is a non-commercial, research project;
+                      \item[-] Data is lawfully acquired from permitting sources;
+                      \item[-] Dataset size and use are limited to what is strictly necessary;
+                      \item[-] No images are shared or altered; % this will need to be checked when talking about data augmentation
                   \end{description}
                   
-                  Ethically, this work differs from controversial generative AI models, as it does not replace artists’ work or impact their revenue streams. Nonetheless, transparency and attribution best practices should be followed.
+                  Ethically, this work differs from controversial generative AI models, as it does not replace artists' work or impact their revenue streams. Nonetheless, transparency and attribution best practices should be followed.
     
     %%%%%%%%%%%%%%%%%% SECTION 3 %%%%%%%%%%%%%%%%%%
     \section{Design} % DESIGN / METHODOLOGY
         % design diagrams!
     
-        Initially envisioned as a mobile or desktop app, the project aimed to support a broad range of devices. Given the personal nature of modern music consumption, bringing vinyl into users' pockets via streaming APIs seemed intuitive. A webstack was chosen early for its compatibility with these APIs and cross-device support, aided by prior experience using Spotify’s SDKs.
+        Initially envisioned as a mobile or desktop app, the project aimed to support a broad range of devices. Given the personal nature of modern music consumption, bringing vinyl into users' pockets via streaming APIs seemed intuitive. A webstack was chosen early for its compatibility with these APIs and cross-device support, aided by prior experience using Spotify's Software Development Kits (SDK).
     
-        Yet, early research highlighted that vinyl’s appeal is deeply rooted in its physicality. As such, the project pivoted towards a single, tactile hardware device: embracing physical interaction while retaining the convenience of digital streaming. This hybrid model aligned more closely with user values and current media habits. The web-based architecture remained, with both server and client running locally. The switch to FastAPI and React also enabled exploration of other technologies, contrasting with prior Java-based (Android) work and enhancing skills in asynchronous communication and frontend state management.
+        Yet, early research highlighted that vinyl's appeal is deeply rooted in its physicality. As such, the project pivoted towards a single, tactile hardware device: embracing physical interaction while retaining the convenience of digital streaming. This hybrid model aligned more closely with user values and current media habits. The web-based architecture remained, with both server and client running locally. The switch to FastAPI and React also enabled exploration of other technologies, contrasting with prior Java-based (Android) work and enhancing skills in asynchronous communication and frontend state management.
     
         This section outlines the reasoning behind this pivot, followed by a breakdown of core design pillars, system architecture, chosen technology stack, hardware considerations, and design decisions that shaped the overall solution.
         
@@ -499,10 +514,10 @@
             \paragraph{Functional Requirements}
                 \begin{itemize}
                     \item \textbf{FR1}: The system must identify album covers using image recognition with at least 90\% accuracy. This threshold balances feasibility and usability, ensuring reliable recognition without demanding unattainably high accuracy, based on similar machine-learning image recognition benchmarks (typical target: ≥85–90\%).
-                    \item \textbf{FR2}: Album identification and music playback must start within 5 seconds. Five seconds represents a practical limit beyond which users begin to perceive the system as sluggish or non-responsive. This aligns with usability guidelines for interactive digital systems.
+                    \item \textbf{FR2}: Album identification and music playback must start within 5 seconds. Five seconds represents a practical limit beyond which users begin to perceive the system as sluggish or non-responsive. This aligns with usability guidelines for interactive digital systems \cite{nngroupResponseTimes}.
                     \item \textbf{FR3}: The system must retrieve corresponding music tracks from Spotify after successful identification.
                     \item \textbf{FR4}: Users must be able to control playback (play, pause, skip) via software interface.
-                    \item \textbf{FR5}: The user interface must clearly display information about the album and track being played.
+                    \item \textbf{FR5}: The UI must clearly display information about the album and track being played.
                     \item \textbf{FR6}: The interface must be intuitive and suitable for non-technical users.
                     \item \textbf{FR7}: The system must provide physical controls (buttons/dials) for basic playback operations.
                 \end{itemize}
@@ -515,7 +530,7 @@
                     \item \textbf{NFR4}: The system must be fully compatible with Raspberry Pi 5 hardware.
                     \item \textbf{NFR5}: Setup and operation should be documented clearly, enabling ease of use without extensive technical expertise.
                     \item \textbf{NFR6}: The solution must adhere strictly to UK copyright laws.
-                    \item \textbf{NFR7}: The system must comply fully with all used APIs' Terms of Service.
+                    \item \textbf{NFR7}: The system must comply fully with all used APIs' Terms of Services.
                 \end{itemize}
             
             \paragraph{Constraints}
@@ -537,7 +552,7 @@
             The following core principles were adopted in, and guided, the design phase:
     
             \begin{itemize}
-                \item \textbf{Platform Agnosticism} The system was designed to avoid reliance on any single external component, using hexagonal architecture (plugs and adapters) to allow interchangeable parts, mandating components all conform to common interfaces. Flexibility extended across both services and device types, aiming to support a broad range of OSes and hardware, emphasising the creation of a general solution.
+                \item \textbf{Platform Agnosticism} The system was designed to avoid reliance on any single external component, using hexagonal architecture (plugs and adapters) to allow interchangeable parts, mandating components all conform to common interfaces. Flexibility extended across both services and device types, aiming to support a broad range of operating systems (OS) and hardware, emphasising the creation of a general solution.
             \end{itemize}
     
             \begin{itemize}
@@ -549,7 +564,7 @@
             \end{itemize}
     
             \begin{itemize}
-                \item \textbf{Open Source} With a firm belief in the importance and value of the open source community, the project will contribute, with all code being made public (subject to academic clearance), and all relevant aspects being clearly documented to maximise the usefulness of this project to others. Such tools and services were favoured where possible.
+                \item \textbf{Open Source} With a firm belief in the importance and value of the open source community, the project will contribute, with all code being made public (subject to academic clearance), \footnote{Permission was granted to make the repository public on 13/03/25: \url{https://github.com/Razzula/virtual-turntable}} and all relevant aspects being clearly documented to maximise the usefulness of this project to others. Such tools and services were favoured where possible.
             \end{itemize}
     
             \begin{itemize}
@@ -566,7 +581,7 @@
         
         \subsection{System Architecture} % high-level system overview
     
-            The final architecture design was to build a web application running on a single physical device, with both server and client hosted locally. Both physical analogue controls and exposed REST endpoints interface with the server, while the client handles audio playback and visual output. Communication between server and client occurs via both standard HTTP and bi-directional WebSocket channels, enabling real-time updates in both directions.
+            The final architecture design was to build a web application running on a single physical device, with both server and client hosted locally. Both physical analogue controls and exposed Representational State Transfer (REST) endpoints interface with the server, while the client handles audio playback and visual output. Communication between server and client occurs via both standard HTTP and bi-directional WebSocket channels, enabling real-time updates in both directions.
     
             The design incorporated a motor to spin a disc during playback, visually enhanced by matching visuals from the UI being vertically projected down onto the system, giving the appearance of a stylised vinyl with holographic overlays (e.g., current track information).
     
@@ -589,18 +604,18 @@
         
             \subsubsection{System Stack}
     
-                The system stack includes FastAPI\footnote{\url{https://fastapi.tiangolo.com/}}, React\footnote{\url{https://react.dev/learn}}, and Raspberry Pi 5\footnote{\url{https://www.raspberrypi.com/products/raspberry-pi-5/}}; specific tools were chosen based on suitability for task and are detailed in the sections below.
+                The system stack includes FastAPI\footnote{\url{https://fastapi.tiangolo.com/}}, React\footnote{\url{https://react.dev/learn}}, and RPi 5\footnote{\url{https://www.raspberrypi.com/products/raspberry-pi-5/}}; specific tools were chosen based on suitability for task and are detailed in the sections below.
     
     
         \subsection{Hardware}
     
-            The system runs on a Raspberry Pi 5, chosen for its flexibility, general OS support, and sufficient processing power for the lightweight CNNs used. Arduino boards were ruled out early, as their microcontroller architecture cannot support a full operating system or run a web browser — both essential for this project’s web-based interface. The NVIDIA® Jetson Nano™ was also considered, featuring an NVIDIA® Maxwell™ GPU with 128 CUDA® cores. In contrast, the Pi 5’s VideoCore VII is designed exclusively for graphics and lacks support for general-purpose GPU compute like CUDA. While the Jetson offers superior acceleration, this was unnecessary given the model requirements — and its higher cost, limited availability, and narrower versatility made it less suitable overall.
+            The system runs on an RPi 5, chosen for its flexibility, general OS support, and sufficient processing power for the lightweight CNNs used. Arduino boards were ruled out early, as their microcontroller architecture cannot support a full OS or run a web browser -- both essential for this project's web-based interface. The NVIDIA® Jetson Nano™\footnote{\url{https://developer.nvidia.com/embedded/jetson-nano}} was also considered, featuring an NVIDIA® Maxwell™ GPU with 128 CUDA® cores. In contrast, the Pi 5's VideoCore VII is designed exclusively for graphics and lacks support for general-purpose GPU compute like CUDA. While the Jetson offers superior acceleration, this was unnecessary given the model requirements -- and its higher cost, limited availability, and narrower versatility made it less suitable overall.
             
             Beyond functionality, aesthetics were key. To maximise nostalgia, the device used stylish mahogany wood with brass controls. Research shows that, in one survey, wood is the most frequently cited material in nostalgic household items, appearing in 34\% of nostalgic objects (with metal second at 21\%) \cite{Skinner2022}. These materials were ubiquitous in classic mid-20th-century audio equipment, so they instantly call to mind ``the charm of a bygone era'' \cite{LookInTheAttic2024}.
     
             \subsubsection{Hardware Components}
     
-                It was essential to ensure all chosen hardware could be supported by the Raspberry Pi 5's GPIO pinout (see Figure~\ref{fig:RPi5Pinout}).
+                It was essential to ensure all chosen hardware could be supported by the RPi 5's General-Purpose Input/Output (GPIO) pinout (see Figure~\ref{fig:RPi5Pinout}).
     
                 \begin{figure}[htbp]
                     \centering
@@ -613,7 +628,7 @@
                 Core components include a DC motor (via driver), rotary encoder switch, camera, and a trigger button (Table~\ref{tab:coreGPIOPins}). The rotary encoder supports vector input (with direction and magnitude) and button presses, enabling a compact control scheme:
     
                 \begin{itemize}
-                    \item \textbf{Knob rotation}: adjust volume
+                    \item \textbf{Knob rotation}: adjust volume.
                     \item \textbf{Button pressed, no rotation}: toggle pause/play.
                     \item \textbf{Knob rotation (button pressed)}: change to previous/next track, depending on direction.
                 \end{itemize}
@@ -628,8 +643,8 @@
                         \multirow{5}{*}{DC Motor (via Driver)} & 1 × 5\,V & Motor driver power \\ \cline{2-3}
                                                                & 1 × GND & Ground \\ \cline{2-3}
                                                                & 1 × 5\,V & Motor power \\ \cline{2-3}
-                                                               & 2 × GPIO & Direction control \\ \cline{2-3}
-                                                               & 1 × GPIO (PWM) & Speed control \\ \hline
+                                                               & 2 × GPIO & Direction control (IN1, IN2) \\ \cline{2-3}
+                                                               & 1 × GPIO (PWM) & Speed control (ENA) \\ \hline
                         \multirow{5}{*}{Rotary Encoder Switch} & 1 × 3.3\,V & \\ \cline{2-3}
                                                                & 2 × GPIO& Rotation data (CLK, DT)\\ \cline{2-3}
                                                                & 1 × GPIO & Button input (SW)\\ \cline{2-3}
@@ -675,7 +690,7 @@
                         GPIO (PWM-capable) & 1 & & 1 & 4 \\ \hline
                         USB or Ribbon Port & 1 & 1 & 2 & 2+\textsuperscript{*}\\ \hline
                     \end{tabular}
-                    \caption*{\textsuperscript{*}Raspberry Pi 5 supports 4× USB + 2× camera ribbon ports.}
+                    \caption*{\textsuperscript{*}RPi 5 supports 4× USB + 2× camera ribbon ports.}
                 \end{table}
     
                 \begin{figure}[h]
@@ -687,9 +702,10 @@
     
             \subsubsection{Operating System}
     
-                Raspberry Pi OS (or just RPiOS; formerly Raspbian), is an operating system produced by the Raspberry Pi Foundation as the official OS for their chipboards. This makes interfacing with components such as GPIO pins seamless and easy. Although, in order to make the system as hardware-agnostic as possible, a standard Ubuntu kernel was used for the project. This forced solutions to not rely on native Raspberry Pi interfaces, and so, whilst it made certain aspects more challenging, it means than the project is not locked to the RPi hardware.
+                Raspberry Pi OS (or just RPiOS; formerly Raspbian), is an OS produced by the Raspberry Pi Foundation as the official OS for their chipboards. This makes interfacing with components such as GPIO pins seamless and easy. Although, in order to make the system as hardware-agnostic as possible, a standard Ubuntu kernel was used for the project. This forced solutions to not rely on native RPi interfaces, and so, whilst it made certain aspects more challenging, it means than the project is not locked to the RPi hardware.
     
-                Ubuntu is also fully open-source, unlike RPiOS, which has some proprietary aspects.
+                Ubuntu is also fully open-source, unlike RPiOS, which has some proprietary aspects. \footnote{RPiOS includes proprietary firmware and binary blobs required for booting and hardware functionality, such as the VideoCore GPU and wireless chipsets.}
+    
     
                 Firefox (also open-source) was used during development (as Ubuntu's default browser), with Chromium tested periodically to ensure cross-browser compatibility.
                 
@@ -698,7 +714,7 @@
             \subsubsection{Primary User Interface}
                 % lofi designs
     
-                React was chosen for its strong support of reactive state updates from multiple sources -- crucial for the host client, which must synchronise state changes from its internal user interface, external streaming vendor, and the server (see Figure~\ref{fig:statePropagationDiagram}). Prior experience with the framework was also an influence.
+                React was chosen for its strong support of reactive state updates from multiple sources -- crucial for the host client, which must synchronise state changes from its internal UI, external streaming vendor, and the server (see Figure~\ref{fig:statePropagationDiagram}). Prior experience with the framework was also an influence.
             
             \subsubsection{Audio Playback}
                 % Spotify Playback SDK
@@ -708,7 +724,7 @@
     
             \subsubsection{Minimal UI}
     
-            Following the decision to build a single physical device, the UI was designed to be minimal and non-interactive by default -- entirely operable without a mouse, input, and screen. To emphasise physical-first design unobtrusively, GUI controls remain hidden unless the mouse was recently in motion, offering an easy fallback control. The UI mirrors the capabilities of physical controls and also further allows configuration of settings, including remote access permissions and motor toggling (available for the host only, see Section~\ref{sec:security}).
+            Following the decision to build a single physical device, the UI was designed to be minimal and non-interactive by default -- entirely operable without a mouse, input, and screen. To emphasise physical-first design unobtrusively, Graphical User Interface (GUI) controls remain hidden unless the mouse was recently in motion, offering an easy fallback control. The UI mirrors the capabilities of physical controls and also further allows configuration of settings, including remote access permissions and motor toggling (available only for the host; see Section~\ref{sec:security}).
      
             \begin{figure}[h]
                 \centering
@@ -730,9 +746,9 @@
         
             \subsubsection{Remote Clients}
     
-                During development, the system was extended to support not only local browser access on the host device but also remote access from external devices such as mobile phones and computers. This decision was motivated by both accessibility and convenience. For users with physical impairments, remote access via phone allows full operation without needing to interact with hardware controls. It also enables users without required peripherals -- such as the camera -- to use their phone’s camera for album scanning, instead of blocking it.
+                During development, the system was extended to support not only local browser access on the host device but also remote access from external devices such as mobile phones and computers. This decision was motivated by both accessibility and convenience. For users with physical impairments, remote access via phone allows full operation without needing to interact with hardware controls. It also enables users without required peripherals -- such as the camera -- to use their phone's camera for album scanning, instead of blocking it.
     
-                Remote access further supports communal interaction: multiple users can simultaneously connect, control playback, or queue music, creating a shared experience. It also preserves some degree portability from the original mobile concept -- users can scan an album when away, and upload it to the system when they are next connected, instead of relying solely on real-time images from cameras.
+                Remote access further supports communal interaction: multiple users can simultaneously connect, control playback, or queue music, creating a shared experience. It also preserves some degree of portability from the original mobile concept -- users can scan an album when away, and upload it to the system when they are next connected, instead of relying solely on real-time images from cameras.
                 
                 Rather than implement a separate front-end or routing system, the client was implemented as a single-page application, with the UI adapting based on whether the device is the host or remote, determined via a server query. This also maximised component re-usability, to help ensure the system was robust without major additional testing being required.
     
@@ -750,9 +766,9 @@
     
             A centralised server was required to coordinate communication between multiple clients, handle physical controls, run album detection (see Section~\ref{sec:mlDesign}), manage authentication (see Section~\ref{sec:security}), and orchestrate system logic.
     
-            Python was chosen for its simplicity and strong ML ecosystem. FastAPI, with Uvicorn, was selected as a lightweight, async-friendly framework suitable for the Pi.
+            Python was chosen for its simplicity and strong ML ecosystem. FastAPI, with Uvicorn, \footnote{\url{https://www.uvicorn.org/}} was selected as a lightweight, async-friendly framework suitable for the Pi.
     
-            The server uses the singleton pattern to ensure the machine learning model loads only once. While scalability wasn't a primary concern, following this and the Single Responsibility Principle ensured a modular, maintainable codebase -- e.g., separating API routes, authentication logic, and control systems into distinct classes.
+            The server uses the singleton pattern to ensure the ML model loads only once. While scalability wasn't a primary concern, following this and the Single Responsibility Principle (SRP) ensured a modular, maintainable codebase -- e.g., separating API routes, authentication logic, and control systems into distinct classes.
     
             As the server handles both physical controls and remote commands (see Figure~\ref{fig:statePropagationDiagram}), real-time, bi-directional communication with clients was essential. WebSockets were chosen over inefficient polling techniques or Server-Sent Events (SSEs) for their low-latency, duplex nature, allowing consistent synchronisation whether updates originate from the server (e.g., physical input) or the client (e.g., remote Spotify actions). This unified channel avoids duplicating logic across multiple communication methods (such as identical handlers for both REST and SSE pings).
         
@@ -762,26 +778,26 @@
     
                 Traditionally, when a track or album is playing, online streaming services show the cover art to the user. Since this project relies on scanning a cover art in order to play the music, it seemed redundant to broadcast the current track by showing the user the same artwork they have in their hands. So, rather than duplicating this, and in order to lean more into the physical vinyl concept, the server was designed to fetch the centre label of the corresponding vinyl, in order to show this on the disc, instead.
     
-                In order to fetch this, Discogs' API\footnote{\url{https://www.discogs.com/developers}} was used, as they maintain a carefully curated library of many images for vinyls, including high-quality images of these labels. Whilst Discogs do not allow their images to be used in AI systems, they can be used if strictly processed by traditional CV methods. Using Hough Circle detection, the image library of the relevant album can be scanned for the best-fitting circle, which, then cropped, can be served to the front-end.
+                In order to fetch this, Discogs' API\footnote{\url{https://www.discogs.com/developers}} was used, as they maintain a carefully curated library of many images for vinyls, including high-quality images of these labels. Whilst Discogs do not allow their images to be used in AI systems, they can be used if strictly processed by traditional computer vision (CV) methods. Using Hough Circle detection, the image library of the relevant album can be scanned for the best-fitting circle, which, then cropped, can be served to the front-end.
           
         \subsection{Machine Learning Model Design} \label{sec:mlDesign}
     
-            Based on the background research, a machine-learning approach was chosen over tailored OCR or feature extraction methods, as album covers can often lack text and vary widely in design. While visual transformers have the best performance best on large datasets, a smaller CNN was selected to better converge on the more limited and specific dataset of albums used here.
+            Based on the background research, a machine-learning approach was chosen over tailored OCR or feature extraction methods, as album covers can often lack text and vary widely in design. While visual transformers have the best performance on large datasets, a smaller CNN was selected to better converge on the more limited and specific dataset of albums used here.
         
             \subsubsection{Dataset Collection}
                 % use of CoverArtArchive
     
-                A suitable dataset was required for training. Manual image collection would be slow and risk bias, and most services (e.g., Spotify, Discogs) prohibit using their assets in AI systems. Last.fm’s terms posed no explicit restrictions, but the Cover Art Archive\footnote{\url{https://coverartarchive.org/}} (via the Internet Archive and Musicbrainz) was selected due to its open licensing in addition to the inclusion of images of the backs of covers -- something other platforms lacked.
+                A suitable dataset was required for training. Manual image collection would be slow and risk bias, and most services (e.g., Spotify, Discogs) prohibit using their assets in AI systems. \textit{Last.fm}'s \footnote{\url{https://www.last.fm/api}} terms posed no explicit restrictions, but the \textit{Cover Art Archive} \footnote{\url{https://coverartarchive.org/}} (via the \textit{Internet Archive} and \textit{Musicbrainz}) was selected due to its open licensing in addition to the inclusion of images of the backs of covers -- something other platforms lacked.
     
                 To ensure unbiased validation, manually photographed images were still collected separately, though to a limited extent due to physical availability constraints (see~\ref{data:val}).
     
             \subsubsection{Solution Design}
     
-                The core aim was to classify scanned album covers using a CNN. To detect cases where no album is present (e.g., the camera triggers too early), a ‘null’ class of random images was included. These would be carefully curated to avoid distorting the classifier’s behaviour. However, since the system runs on a single, static device, the camera’s background is expected to remain stable -- allowing this null class to instead reflect the actual backdrop seen when no album is present.
+                The core aim was to classify scanned album covers using a CNN. To detect cases where no album is present (e.g., the camera triggers too early), a ‘null' class of random images was included. These would be carefully curated to avoid distorting the classifier's behaviour. However, since the system runs on a single, static device, the camera's background is expected to remain stable -- allowing this null class to instead reflect the actual backdrop seen when no album is present.
     
-                This stability could be further leveraged using temporal background subtraction: averaging multiple frames over time to generate a 'baseline' image. Subtracting this from new frames would help detect the presence or absence of an album, and also prevent the background influencing predictions (e.g., small albums revealing too much background).
+                This stability could be further leveraged using temporal background subtraction: averaging multiple frames over time to generate a `baseline' image. Subtracting this from new frames would help detect the presence or absence of an album, and also prevent the background influencing predictions (e.g., small albums revealing too much background).
     
-                If null classification worked well, the camera could continuously poll images and automatically react when a new album is detected — removing the need for manual input. That said, this would be an optional accessibility feature, as the physical act of taking a photo was seen as an important, engaging element.
+                If null classification worked well, the camera could continuously poll images and automatically react when a new album is detected -- removing the need for manual input. That said, this would be an optional accessibility feature, as the physical act of taking a photo was seen as an important, engaging element.
     
                 To further improve robustness, the system should not rely solely on the CNN. When classification confidence is low, it could fall back on OCR and barcode scanning to inform or resolve the decision. This combinatorial approach would help manage edge cases and albums not represented in the training data. Confidence thresholds should be tuned experimentally. Additionally, the model could be extended to support more advanced classifications or enhanced using Reinforcement Learning (RL), as illustrated in Figure~\ref{fig:classifyFlowchart}.
     
@@ -805,7 +821,7 @@
     
                 At this most basic level, the goal is to simply design a model that can accurately learn information from both a small and large dataset of albums, to ensure that it can handle varying collection sizes of different users.
     
-                Since album artworks rarely vary between copies, the task is effectively a closed-world classification problem. The model can therefore prioritise memorisation over generalisation more than a standard model. This memorisation-friendly nature inspired the name Ouroboros — referencing the Greek self-consuming serpent (see Appendix~\ref{app:Greek}).
+                Since album artworks rarely vary between copies, the task is effectively a closed-world classification problem. The model can therefore prioritise memorisation over generalisation moreso than a standard model. This memorisation-friendly nature inspired the name Ouroboros -- referencing the Greek self-consuming serpent (see Appendix~\ref{app:Greek}).
     
                 \paragraph{Amphisbaena} A dual-headed\footnote{Refer to Appendix~\ref{app:Greek} for details on the two-headed Amphisbaena serpent.} neural network, trained to capture and classify an image's most likely artist, in addition to the album itself.
     
@@ -840,7 +856,7 @@
     
             \paragraph{Delegated Persistence} Where possible, non-sensitive user data (e.g., scanned album lists) is stored using external APIs. For example, Spotify playlists are used as persistent storage, shifting GDPR compliance responsibilities to the vendor.
     
-            \paragraph{Local Network Access} To support remote control, Vite's\footnote{\url{https://vitejs.dev/guide/}} network-hosting allows LAN devices to connect. As the system is intended for home use, this is considered safe, provided firewall protections are in place.
+            \paragraph{Local Network Access} To support remote control, \textit{Vite's} \footnote{\url{https://vitejs.dev/guide/}} network-hosting allows LAN devices to connect. As the system is intended for home use, this is considered safe, provided firewall protections are in place.
     
             \begin{figure}
                 \centering
@@ -879,7 +895,7 @@
     
         During development, several changes and refinements were made in response to practical challenges and emerging opportunities. While the original design served as a strong blueprint, some technical and hardware constraints necessitated creative problem-solving and re-evaluation of certain assumptions.
     
-        This section describes the practical implementation of the frontend, backend, hardware, and machine learning components. It highlights key deviations from the design, integration details, and specific trade-offs made during the build process.
+        This section describes the practical implementation of the frontend, backend, hardware, and ML components. It highlights key deviations from the design, integration details, and specific trade-offs made during the build process.
     
         \subsection{Front-end}
     
@@ -890,11 +906,11 @@
     
             \subsubsection{Frontend Personalisation and Audio Effects}
     
-            An alternate local audio player was developed alongside Spotify integration, enabling playback of user-stored files. This addressed notable gaps in Spotify’s catalogue—particularly rare or compilation vinyls—and also allowed the system to function in an offline setting, independent of internet connectivity.
+            An alternate local audio player was developed alongside Spotify integration, enabling playback of user-stored files. This addressed notable gaps in Spotify's catalogue -- particularly rare or compilation vinyls -- and also allowed the system to function in an offline setting, independent of internet connectivity.
     
             To enhance the user experience and evoke the character of physical media, a feature was introduced to overlay randomised noise and static onto locally played tracks. This added perceived `warmth', associated with vinyl playback, offering a more personalised and nostalgic feel across different devices.
             
-            Due to Spotify’s Developer Terms \cite{spotifyDevTerms}, such modifications could not be applied to streamed content, as altering or layering audio over Spotify’s output is strictly prohibited. However, for locally stored files, no such restrictions applied.
+            Due to Spotify's Developer Terms \cite{spotifyDevTerms}, such modifications could not be applied to streamed content, as altering or layering audio over Spotify's output is strictly prohibited. However, for locally stored files, no such restrictions applied.
             
             As a basic proof of concept, a static noise layer was generated and played throughout the track, with subtle fluctuations in volume. The noise profile was determined using a hashed seed based on track metadata and playback time, ensuring variation across devices and tracks, while maintaining consistency for repeated plays by the same user. This meant that even the same audio file would sound slightly different depending on the user and device. The concept could be extended to introduce additional artefacts -- such as scratches, pops, or pitch modulation -- to more closely emulate the idiosyncrasies of vinyl.
     
@@ -902,21 +918,21 @@
         
             \subsubsection{Challenges Encountered}
     
-                \paragraph{Responsiveness vs. Wholeness} During development one challenge that was encountered was the latency that would sometimes occur in fetching a track's metadata after the track had started playing. In order to give the user as seamless of an auditory experience as possible, it was best to let tracks play instantly, with no delay. However, this meant that sometimes the centre label would be blank briefly before 'popping in' afterwards. Generally, UI principles dictate that an aspect should be loaded in completeness before rendering, to avoid unstable changes being displayed to the user. Since the system is primarily an audio system, it was decided to favour responsiveness, allowing the system to asynchronously update the interface if and when it got the metadata. In order to mitigate the pop-in, once a centre label is found the image was cached in the file-store, to prevent this search process being conducted each time. Furthermore, the aforementioned image display covering the vinyl, gives more of a chance for the pop-in to be hidden from the user, for those few seconds.
+                \paragraph{Responsiveness vs. Wholeness} During development one challenge that was encountered was the latency that would sometimes occur in fetching a track's metadata after the track had started playing. In order to give the user as seamless of an auditory experience as possible, it was best to let tracks play instantly, with no delay. However, this meant that sometimes the centre label would be blank briefly before `popping in' afterwards. Generally, UI principles dictate that an aspect should be loaded in completeness before rendering, to avoid unstable changes being displayed to the user. Since the system is primarily an audio system, it was decided to favour responsiveness, allowing the system to asynchronously update the interface if and when it got the metadata. In order to mitigate the pop-in, once a centre label is found the image was cached in the file-store, to prevent this search process being conducted each time. Furthermore, the aforementioned image display covering the vinyl, gives more of a chance for the pop-in to be hidden from the user, for those few seconds.
     
-                \paragraph{DRM Issues} One notable issue came from the choice of the system's hardware. Raspberry Pi SBCs use ARM-based processors. Whilst Ubuntu is designed for this, a notable absence is that Google's WideVine DRM (which is used by both Firefox and chromium-browsers alike) does not have an official AArch64 build, which is needed for a RPi. The absence of a DRM meant that Spotify's audio could not be streamed in the browser. Whilst no AArch64 build exists in the official repos, there is an official build used for ChromeOS systems. It was possible to install and use this version, which enabled DRM content on the Pi. Without it, this would have been a serious hurdle for the project's chosen system architecture.
+                \paragraph{DRM Issues} One notable issue came from the choice of the system's hardware. Raspberry Pi Single-Board Computers (SBCs) use ARM-based processors. Whilst Ubuntu supports this, a notable absence is that Google's WideVine Digital Rights Management (DRM) (which is used by both Firefox and chromium-browsers alike) does not have an official AArch64 build, which is needed for a RPi. The absence of a DRM meant that Spotify's audio could not be streamed in the browser. Whilst no AArch64 build exists in the official repos, there is an official build used for ChromeOS systems. It was possible to install and use this version, which enabled DRM content on the Pi. Without it, this would have been a serious hurdle for the project's chosen system architecture.
     
-                Additionally, there were some issues with missing media codec's in Ubuntu's default packages. This was easy to resolve, at the cost of adding more steps to the setup process, which required a greater need for documentation. This would have been minimised if using more established solutions, such the official Raspbian image on the Pi, or a proprietary OS such as Windows on an x64 board.
+                Additionally, there were some issues with missing media codecs in Ubuntu's default packages. This was easy to resolve, at the cost of adding more steps to the setup process, which required a greater need for documentation. This would have been minimised if using more established solutions, such the official Raspbian image on the Pi, or a proprietary OS such as Windows on an x64 board.
     
             \subsubsection*{Reflection}
-                The minimal-UI approach streamlined implementation and fit the aesthetic aims, but surfaced UX quirks like unclear hidden controls. DRM limitations on ARM were an unexpected hurdle — thankfully overcome — but highlight a fragility in relying on vendor ecosystems.
+                The minimal-UI approach streamlined implementation and fit the aesthetic aims, but surfaced UX quirks like unclear hidden controls. DRM limitations on ARM were an unexpected hurdle -- thankfully overcome -- but highlight a fragility in relying on vendor ecosystems.
     
         \subsection{Back-end} % maybe Front/Back should just merge to software, here
     
-            The backend was developed with Python's FastAPI and asyncio libraries to maximise the performance of parallel tasks. In addition to this, PyTorch (see \ref{sec:mlImp}) and OpenCV\footnote{\url{https://docs.opencv.org/}} were used to make the machine learning and image extraction processes simpler to perform.
+            The backend was developed with Python's FastAPI and asyncio libraries to maximise the performance of parallel tasks. In addition to this, PyTorch (see Section~\ref{sec:mlImp}) and OpenCV\footnote{\url{https://docs.opencv.org/}} were used to make the machine learning and image extraction processes simpler to perform.
     
             \paragraph{State Management}
-            One interesting feature of the system, was that a state-propagation system essentially had to be created. Since the system can be split into three components (host client, remote client, and server), which also integrate with external systems (such as Spotify), all of these components had their own internal state which informed the system how to act, but needed to be writeable from the other components. The solution to this was to essentially create a reactive system, inspired by React's state and hooks system. All active components are linked in a linear chain (see Figure~\ref{fig:statePropagationDiagram}), therefore, other components states can be seen as dependencies. Each component is only concerned with updating adjacent components, when its internal state changes. Whenever a state changes, it is broadcast to connected neighbours. This creates a real-time feedback loop, allowing changes, even from an external device using the official Spotify app, for example, to be synchronised with the motor's state. For each aspect, a single 'point of truth' was determined, and in cases where new connection are established, this was used. For example, the audio is playing through the host client app, and so, if there is a conflict of states, the host client's state is favoured.
+            One interesting feature of the system, was that a state-propagation system essentially had to be created. Since the system can be split into three components (host client, remote client, and server), which also integrate with external systems (such as Spotify), all of these components had their own internal state which informed the system how to act, but needed to be writeable from the other components. The solution to this was to essentially create a reactive system, inspired by React's state and hooks system. All active components are linked in a linear chain (see Figure~\ref{fig:statePropagationDiagram}), therefore, other components states can be seen as dependencies. Each component is only concerned with updating adjacent components, when its internal state changes. Whenever a state changes, it is broadcast to connected neighbours. This creates a real-time feedback loop, allowing changes, even from an external device using the official Spotify app, for example, to be synchronised with the motor's state. For each aspect, a single `point of truth' was determined, and in cases where new connection are established, this was used. For example, the audio is playing through the host client app, and so, if there is a conflict of states, the host client's state is favoured.
             
             \begin{figure}[h]
                 \centering
@@ -925,11 +941,11 @@
                 \label{fig:statePropagationDiagram}
             \end{figure}
     
-            One complication of this feature, was that there were often superfluous broadcasts. For example, if component A updated component B, then it is wasteful for component B to broadcast that same change back to component A. However, most of these broadcasts were kept, as it essentially created a 'handshake' system where components were not only updating each other, but received confirmation that those updates had been performed. The exception to this was in the front-end clients, where external and internal changes were flagged, to ensure that only internal changes were broadcasted. This was important because React's state system already handles state tracking, and could cause infinite feedback loops, throttling performance and the system's communication bandwidth. Additionally, since the host client interfaced directly with external components, it was best to avoid 'spamming' these components, which could result in timeouts.
+            One complication of this feature, was that there were often superfluous broadcasts. For example, if component A updated component B, then it is wasteful for component B to broadcast that same change back to component A. However, most of these broadcasts were kept, as it essentially created a `handshake' system where components were not only updating each other, but received confirmation that those updates had been performed. The exception to this was in the front-end clients, where external and internal changes were flagged, to ensure that only internal changes were broadcasted. This was important because React's state system already handles state tracking, and could cause infinite feedback loops, throttling performance and the system's communication bandwidth. Additionally, since the host client interfaced directly with external components, it was best to avoid `spamming' these components, which could result in timeouts.
     
             \paragraph{Alternate Processes}
     
-            An important consideration was supporting multiple triggers for the same process—for instance, initiating album detection and playback via either a physical camera button or image upload from a remote device (see Figure~\ref{fig:imageSequenceDiagram}).
+            An important consideration was supporting multiple triggers for the same process -- for instance, initiating album detection and playback via either a physical camera button or image upload from a remote device (see Figure~\ref{fig:imageSequenceDiagram}).
     
             \begin{figure}[h]
                 \centering
@@ -942,7 +958,7 @@
     
             \paragraph{Metadata Retrieval}
     
-            When fetching the centre labels from Discogs, using a simply query generated from the Spotify metadata, the images are downloaded and analysed one-by-one, aiming to find a one of a suitable 'roundness'. In order to get an image selected and server to the host client as fast as possible (maximising responsiveness in the system), the first suitable image is used, rather than searching all images for the best candidate. A simple solution was implemented, using manually-defined parameters for a Hough Circles search, based off of the known proportions of centre labels. This made the system less robust than using a dynamic/generalised search, though, caution was taken to respects Discog's prohibition of their data for machine learning systems \cite{discogsToS} -- which is a vague term which, arguably, any automated computer task could be labelled as. This would benefit from deeper implementation, with two key improvements: searching the full image library (and updating past results), and using a more dynamic search to detect variable numbers of circles — ideally focusing on strong edge contrast (e.g., black vinyl). Circles without a smaller inner cutout could also be excluded, as all vinyls have a central hole.
+            When fetching the centre labels from Discogs, using a simply query generated from the Spotify metadata, the images are downloaded and analysed one-by-one, aiming to find a one of a suitable `roundness'. In order to get an image selected and server to the host client as fast as possible (maximising responsiveness in the system), the first suitable image is used, rather than searching all images for the best candidate. A simple solution was implemented, using manually-defined parameters for a Hough Circles search, based off of the known proportions of centre labels. This made the system less robust than using a dynamic/generalised search, though, caution was taken to respects Discog's prohibition of their data for ML systems \cite{discogsToS} -- a vague term which, arguably, any automated computer task could be labelled as. This would benefit from deeper implementation, with two key improvements: searching the full image library (and updating past results), and using a more dynamic search to detect variable numbers of circles -- ideally focusing on strong edge contrast (e.g., black vinyl). Circles without a smaller inner cutout could also be excluded, as all vinyls have a central hole.
     
             \subsubsection{Challenges Encountered}
     
@@ -952,35 +968,36 @@
     
                 \paragraph{Removal of Barcode Scanning}
     
-                It was realised early on that, whilst covers do often have barcodes on their backs, which can uniquely identify the exact album: these barcodes are too low quality to ascertain information from in a image of a full album, without very high quality cameras, which this project did not want to utilise, to avoid reducing the technical accessibility of the system. It could have been setup so that, if a user's scan fails, they can optional re-scan, but this time closer to the image, so that it is just the barcode being captured, but even then, testing found that barcodes are very weak against noise and lighting conditions for general optical cameras (largely due to the fact that they only have one level of redundancy). Some vinyls have QR codes, which are much better suited for general scanning, however, there is no widely adopted system for how a record's QR code correlates to the album (oftentimes it is just a redirect to merch store, etc.). Furthermore, having to position the cover in a specific place, made the system more fiddly than convenient, and so this option was dropped entirely.
+                It was realised early on that, whilst covers do often have barcodes on their backs, which can uniquely identify the exact album: these barcodes are too low quality to ascertain information from in a image of a full album, without very high quality cameras, which this project did not want to utilise, to avoid reducing the technical accessibility of the system. It could have been setup so that, if a user's scan fails, they can optionally re-scan, but this time closer to the image, so that it is just the barcode being captured, but even then, testing found that barcodes are very weak against noise and lighting conditions for general optical cameras (largely due to the fact that they only have one level of redundancy). Some vinyls have QR codes, which are much better suited for general scanning, however, there is no widely adopted system for how a record's QR code correlates to the album (often-times it is just a redirect to merchandise stores, etc.). Furthermore, having to position the cover in a specific place, made the system more tedious than convenient, and so this option was dropped entirely.
     
                 \paragraph{Change of Spotify Security Requirements}
     
-                In mid-February, near the end of development, Spotify announced it would remove support for HTTP callback URIs in favour of HTTPS from the 9th of April \cite{spotify2025security}. This posed a challenge, as the system had used HTTP under the assumption it would only run locally in a development-like environment. As compliance with API requirements was essential, this change had to be accommodated, despite the codebase being effectively frozen aside from bug fixes.
+                In mid-February, near the end of development, Spotify announced it would remove support for HTTP callback Uniform Resource Identifiers (URIs) in favour of HTTPS from the 9th of April \cite{spotify2025security}. This posed a challenge, as the system had used HTTP under the assumption it would only run locally in a development-like environment. As compliance with API requirements was essential, this change had to be accommodated, despite the codebase being effectively frozen aside from bug fixes.
     
                 Switching to HTTPS caused several regressions and required time-consuming fixes late in the development phase. Self-signed certificates had to be manually trusted. Caddy was used to manage this process, enabling a static hostname and making the Spotify callback more robust against network changes by avoiding reliance on local IPs.
     
-                This experience highlighted the value of the system’s agnostic design -- had compliance not been feasible, or a more significant issue arisen\footnote{A late amendment: towards the very end of the project's lifecycle, when testing the finished project for use in the project's screencast, Spotify had an international outage, which prevented full features from being displayed, necessitating a slight delay (see \url{https://www.mirror.co.uk/news/uk-news/breaking-spotify-down-thousands-complain-35066298}).}, the architecture would have eased migration to another provider, though still non-trivial so late into the process.
+                This experience highlighted the value of the system's agnostic design -- had compliance not been feasible, or a more significant issue arisen\footnote{A late amendment: towards the very end of the project's lifecycle, when testing the finished project for use in the project's screencast, Spotify had an international outage, which prevented full features from being displayed, necessitating a slight delay (see \url{https://www.mirror.co.uk/news/uk-news/breaking-spotify-down-thousands-complain-35066298}).}, the architecture would have eased migration to another provider, though still non-trivial so late into the process.
     
             \subsubsection*{Reflection}
-                The modular backend structure and early SRP decisions paid off, enabling flexible triggers and scalable state handling. However, assumptions about single-client usage delayed proper auth handling — a reminder to always consider future scaling.
+                The modular backend structure and early SRP decisions paid off, enabling flexible triggers and scalable state handling. However, assumptions about single-client usage delayed proper auth handling -- a reminder to always consider future scaling.
     
         \subsection{Hardware}
     
             To implement the design, the following hardware components were selected:
     
             \begin{itemize}
-                \item \textbf{Motor Driver}: L298N Motor Driver Module
-                \item \textbf{Micro Metal Geared motor with Encoder}: 6V 75RPM 210:1
-                % https://thepihut.com/products/micro-metal-geared-motor-w-encoder-6v-75rpm-210-1?variant=27740943185&country=GB&currency=GBP&gad_source=1
-                \item \textbf{Trust Trino HD webcam} It was decided to use a general webcam, as opposed to the Raspberry Pi's camera modules, to further avoid hardware lock-in and improve future device compatibility, in addition to the OS choice.
-                % https://dezlwerqy1h00.cloudfront.net/Media/Datasheets/18679-Trust-Trino-Datasheet_en.pdf
-                \item \textbf{KY-040 360 Degree Rotary Encoder Module}: 5\,V
-                % https://eeshop.unl.edu/pdf/KEYES%20Rotary%20encoder%20module%20KY-040.pdf
-                \item \textbf{Standard button}
+                \item \textbf{Motor Driver}: L298N Motor Driver Module. \footnote{\url{https://www.st.com/resource/en/datasheet/l298.pdf}}
+    
+                \item \textbf{Micro Metal Geared motor with Encoder}: 6V 75RPM 210:1 \footnote{\url{https://thepihut.com/products/micro-metal-geared-motor-w-encoder-6v-75rpm-210-1}}
+    
+                \item \textbf{Trust Trino HD Webcam}: A general-purpose webcam was selected instead of RPi camera modules to reduce hardware lock-in and improve compatibility. \footnote{\url{https://dezlwerqy1h00.cloudfront.net/Media/Datasheets/18679-Trust-Trino-Datasheet_en.pdf}}
+    
+                \item \textbf{KY-040 360 Degree Rotary Encoder Module}: 5\,V. \footnote{\url{https://eeshop.unl.edu/pdf/KEYES Rotary encoder module KY-040.pdf}}
+    
+                \item \textbf{Standard button} \footnote{Actually a recycled doorbell button.}
             \end{itemize}
     
-            Additionally, the 'hinge switch' arm was created by simply wiring the Pi to isolated sides of a standard metal hinge, connected to an off-cut piece of wood, shaped similar to an arm.
+            Additionally, the `hinge switch' arm was created by simply wiring the Pi to isolated sides of a standard metal hinge, connected to an off-cut piece of wood, shaped similar to an arm.
     
             Figure~\ref{fig:circuitDiagram} can be referred to for the configuration of these components with the system.
     
@@ -989,20 +1006,20 @@
                 \includegraphics[width=\linewidth]{images/CircuitDiagram.pdf}
                 \caption{Circuit diagram of the connected components.}
                 \label{fig:circuitDiagram}
-                \caption*{Note: The pin layout reflects the actual Raspberry Pi model (cf. Figure~\ref{fig:RPi5Pinout}). Only special pins needed for this project are coloured (outline), and only used pins are filled. Component positions and details are abstracted for clarity.}
+                \caption*{Note: The pin layout reflects the actual Raspberry Pi model (cf. Figure~\ref{fig:RPi5Pinout}). Only special (non-standard GPIO) pins needed for this project are coloured (outline), and only used pins are filled. Component positions and details are abstracted for clarity.}
             \end{figure}
         
             \subsubsection{Challenges Encountered}
     
                 During the implementation phase of the project, a few problems were encountered when handling the hardware components.
     
-                \paragraph{'Measure Twice, Cut Once'}
+                \paragraph{`Measure Twice, Cut Once'}
     
-                    Often, when developing software solution, it is common to use a 'trial and error' approach to make a system work. Whilst development is not a mindless task, developers will often just tweak small changes and run the system until it performs correctly, rather than fully designing every single aspect on paper first. For software, in development environments, this is safe to do and even works well as a time-efficient practice. Many technology stacks even accommodate this, with features such as hot-reloading.
+                    Often, when developing software solutions, it is common to use a `trial and error' approach to make a system work. Whilst development is not a mindless task, developers will often just tweak small changes and run the system until it performs correctly, rather than fully designing every single aspect on paper first. For software, in development environments, this is safe to do and even works well as a time-efficient practice. Many technology stacks even accommodate this, with features such as hot-reloading.
     
-                    However, when dealing with hardware, this is not the case. During the development of this product there were a few cases where irreparable damage was done to some components due to the use of the above software debugging technique. Whilst configuring the motor to support PWM, the motor driver's jumper connection (which connected the PWM EN input pin to the 5V pin for constant pulse) had to be removed, to allow the PWM GPIO pin to connect. However, after removing the jumper both pins were exposed, and rather than check which one was the correct pin, a rather careless attitude was taken, just guessing which pin it was. This resulted connecting the 3V PWM GPIO pin to a live 5V current, which fried the GPIO output.
+                    However, when dealing with hardware, this is not the case. During the development of this product there were a few cases where irreparable damage was done to some components due to the use of the above software debugging technique. Whilst configuring the motor to support Pulse-Width Modulation (PWM), the motor driver's jumper connection (which connected the PWM EN input pin to the 5V pin for constant pulse) had to be removed, to allow the PWM GPIO pin to connect. However, after removing the jumper both pins were exposed, and rather than check which one was the correct pin, a rather careless attitude was taken, just guessing which pin it was. This resulted connecting the 3.3V PWM GPIO pin to a live 5V current, which fried the GPIO output.
     
-                    Thankfully, the damaged pin was one of two which supports PWM on the RPi 5 model, and so, the backup pin was used.
+                    Thankfully, the damaged pin was one of four which supports PWM on the RPi 5 model, and so, a backup pin was used.
     
                     This led to greater caution when handling the hardware components afterwards.
     
@@ -1010,14 +1027,14 @@
     
                     During early development with the Pi, an unofficial charging cable was used as a power source whilst waiting for the official one to arrive. This cable did not have sufficient wattage for the Pi's specs, and, as a result, it was unable to power the device at high-load without causing the device to turn off.
     
-                    To prevent this from being a total blocker, the device was configured to under-clock CPU usage, and some other things, in order to minimise the voltage draw of the device, to minimise how often this would occur.
+                    To prevent this from being a total blocker, the device was configured to under-clock CPU usage in order to minimise the voltage draw of the device, to minimise how often this would occur.
     
                 \paragraph{Overheating}
     
                     Sometimes, during long periods of development, the device would reach very high temperatures. Due to the RPi 5's increased specs over previous models, this is fairly common when running it even for small tasks with only passive cooling. This began to throttle performance during long periods of development and/or testing, however, the solution was simply to setup an active cooling solution. Thankfully, the pins for controlling fan PWM based off of CPU temperatures are separate from the standard GPIO pins, and so did not affect any of the other components.
     
             \subsubsection*{Reflection}
-                Hardware prototyping introduced physical risks absent in software — a fried GPIO pin taught caution the hard way. Pin planning and thermal issues were underestimated early on, but later handled with low-cost fixes and better care.
+                Hardware prototyping introduced physical risks absent in software -- a fried GPIO pin taught caution the hard way. Pin planning and thermal issues were underestimated early on, but later handled with low-cost fixes and better care.
     
       \subsection{Machine Learning Model} \label{sec:mlImp}
     
@@ -1036,7 +1053,7 @@
     
             For implementation of the ML models, PyTorch\footnote{\url{https://pytorch.org/docs/stable/index.html}} was chosen over other libraries (such as TensorFlow,\footnote{\url{https://www.tensorflow.org/api_docs}} Keras,\footnote{\url{https://keras.io/api/}} etc.) due to its superior debugging capabilities and flexibility. Given that this project focused on experimentation rather than production-grade deployment, PyTorch's dynamic computation graph and intuitive design made it a more suitable choice. Experimentation was done through Jupyter notebooks\footnote{\url{https://docs.jupyter.org/en/latest/}}, which aided development due to easily allowing specific code snippets to re-run, and rendering results in-line.
     
-            The initial goal was to create a full pipeline that could reasonably run on the Raspberry Pi model. Although it was known that if the dataset grew beyond a toy sample size, training on the Pi would remain technically possible but highly inefficient. With this in mind, all model training and experimentation was instead conducted on a desktop computer utilising an NVIDIA RTX 3060 Ti GPU.\footnote{https://www.nvidia.com/en-gb/geforce/graphics-cards/30-series/rtx-3060-3060ti/\url{https://www.nvidia.com/en-gb/geforce/graphics-cards/30-series/rtx-3060-3060ti/}} Eventually, the idea of running the model on the Pi was dropped entirely, as shown by the prohibitive training times in Table~\ref{tab:trainingTimes}. It remains feasible only for very small models.
+            The initial goal was to create a full pipeline that could reasonably run on the Raspberry Pi model. Although it was known that if the dataset grew beyond a toy sample size, training on the Pi would remain technically possible but highly inefficient. With this in mind, all model training and experimentation was instead conducted on a desktop computer utilising an NVIDIA RTX 3060 Ti GPU.\footnote{https://www.nvidia.com/en-gb/geforce/graphics-cards/30-series/rtx-3060-3060ti/\url{https://www.nvidia.com/en-gb/geforce/graphics-cards/30-series/rtx-3060-3060ti/}} Eventually, the idea of training the model on the Pi was dropped entirely, as shown by the prohibitive training times in Table~\ref{tab:trainingTimes}. It remains feasible only for very small models.
     
             \begin{table}[H]
                 \centering
@@ -1067,9 +1084,9 @@
                     \label{fig:BabyOuroboros}
                 \end{figure}
     
-                The first iteration of this model (SimpleCNN 'Mini') was trained on only the exceptionally small \ref{data:mini} dataset, as a proof of concept. Figure~\ref{fig:SimpleCNN-Mini_Train} shows how the models accuracy increased as training progressed. Whilst the model rather quickly converged and showed good results on the training data (eventually overfitting), the validation dataset's accuracy did climb in slow intervals, but never exceeded 60\%. Whilst this was a good start, it was thought that the problem with this poor generalisation likely came from the sheer small scale of the dataset.
+                The first iteration of this model (SimpleCNN `Mini') was trained on only the exceptionally small \ref{data:mini} dataset, as a proof of concept. Figure~\ref{fig:SimpleCNN-Mini_Train} shows how the models accuracy increased as training progressed. Whilst the model rather quickly converged and showed good results on the training data (eventually overfitting), the validation dataset's accuracy did climb in slow intervals, but never exceeded 60\%. Whilst this was a good start, it was thought that the problem with this poor generalisation likely came from the sheer small scale of the dataset.
     
-                All input data was normalised according to the same dataset statistic:
+                All input data was normalised, per-pixel, according to the same dataset statistic:
                     \[
                     x' = \frac{x - \mu}{\sigma}
                     \]
@@ -1096,28 +1113,28 @@
     
                 \begin{figure}[h]
                     \centering
-                    \includegraphics[width=0.85\textwidth]{images/SimpleCNN-Mini_Train.png}
+                    \includegraphics[width=0.75\textwidth]{images/SimpleCNN-Mini_Train.png}
                     \caption{Accuracies of simple CNN architecture on small dataset, per epoch.}
                     \label{fig:SimpleCNN-Mini_Train}
                     \caption*{Higher is better. Training of a SimpleCNN model on \ref{data:mini}; validated against \ref{data:val}.}
                 \end{figure}
-    
-                The same model architecture was then used to train on a much a larger dataset (\ref{data:large}). However, this model performed very poorly with the sudden increase of data. As shown in Figure~\ref{fig:SimpleCNNs_TrainLoss-Mini_Train} whilst the loss (`distance' of predictions from the true results) decreases rather smoothly on the smaller dataset, when trying to learn from \ref{data:large}, the model very sharply overfits, and actually worsened in validation performance, never even improving beyond the smaller dataset's initial performance. Figure~\ref{fig:SimpleCNNs_PeakAccuracy-Mini_Train} shows the differences of the best-observed performances of this model architecture across these two training scenarios, showing that performance decreased as the dataset increased.
         
-                \begin{figure}[h]
+                \begin{figure}[H]
                     \centering
-                    \includegraphics[width=0.85\textwidth]{images/SimpleCNNs_TrainLoss.png}
+                    \includegraphics[width=0.75\textwidth]{images/SimpleCNNs_TrainLoss.png}
                     \caption{Comparison of SimpleCNN architecture performance on different sized datasets}
                     \label{fig:SimpleCNNs_TrainLoss-Mini_Train}
-                    \caption*{Lower is better. Trained on 'Mini' (\ref{data:mini}) and 'Large' (\ref{data:large}) datasets; both validated against \ref{data:val}.}
+                    \caption*{Lower is better. Trained on `Mini' (\ref{data:mini}) and `Large' (\ref{data:large}) datasets; both validated against \ref{data:val}.}
                 \end{figure}
+    
+                The same model architecture was then used to train on a much a larger dataset (\ref{data:large}). However, this model performed very poorly with the sudden increase of data. As shown in Figure~\ref{fig:SimpleCNNs_TrainLoss-Mini_Train}, whilst the loss (`distance' of predictions from the true results) decreases rather smoothly on the smaller dataset, when trying to learn from \ref{data:large}, the model very sharply overfits, and actually worsened in validation performance, never even improving beyond the smaller dataset's initial performance. Figure~\ref{fig:SimpleCNNs_PeakAccuracy-Mini_Train} shows the differences of the best-observed performances of this model architecture across these two training scenarios, showing that performance decreased as the dataset increased.
         
                 \begin{figure}[h]
                     \centering
-                    \includegraphics[width=0.85\textwidth]{images/SimpleCNNs_PeakAccuracy.png}
+                    \includegraphics[width=0.75\textwidth]{images/SimpleCNNs_PeakAccuracy.png}
                     \caption{Comparison of best-case SimpleCNN performance on different sized datasets}
                     \label{fig:SimpleCNNs_PeakAccuracy-Mini_Train}
-                    \caption*{Trained on 'Mini' (\ref{data:mini}) and 'Large' (\ref{data:large}) datasets; both validated against \ref{data:val}.}
+                    \caption*{Trained on `Mini' (\ref{data:mini}) and `Large' (\ref{data:large}) datasets; both validated against \ref{data:val}.}
                 \end{figure}
     
                 This model performed reasonably on small datasets, but could not scale, and so was labelled as Baby Ouroboros.
@@ -1136,7 +1153,7 @@
     
                 \paragraph{Transfer Learning: Ouroboros Model}
     
-                After the results of the deeper versions of Baby Ouroboros did not prove very fruitful, a new architecture was planned. Rather than trying to train a full model from scratch, it was decided to trial using a feature-extractor from an existing model, which had been trained on a much larger and more generalised dataset. In order to do this, the ResNet18 model selected, which has been trained on the immense ImageNet library. In theory, a custom solution could have still been trained using this publicly available dataset, with the published parameters and architecture of these models, however, for faster development iterations, it was decided to use the pre-trained feature-extractor, with a custom classifier system built on top of it (see Figure~\ref{fig:OuroborosCNN}).
+                After the results of the deeper versions of Baby Ouroboros did not prove very fruitful, a new architecture was planned. Rather than trying to train a full model from scratch, it was decided to trial using a feature-extractor from an existing model, which had been trained on a much larger and more generalised dataset. In order to do this, the ResNet18 model was selected, which has been trained on the immense ImageNet library. In theory, a custom solution could have still been trained using this publicly available dataset, with the published parameters and architecture of these models, however, for faster development iterations, it was decided to use the pre-trained feature-extractor, with a custom classifier system built on top of it (see Figure~\ref{fig:OuroborosCNN}).
     
                 \begin{figure}[htbp]
                     \centering
@@ -1148,9 +1165,9 @@
     
                 \begin{figure}[h]
                     \centering
-                    \includegraphics[width=0.85\textwidth]{images/ModelComparison.png}
+                    \includegraphics[width=0.75\textwidth]{images/ModelComparison.png}
                     \caption{Average F-Scores for different model architectures and datasets}
-                    \label{fig:CNNSize_Time}
+                    \label{fig:CNNComp}
                     \caption*{Results are peak observed score, over multiple attempts and datasets. Results shown are of SimpleCNN `Mini' trained on \ref{data:mini}; `Large' on \ref{data:large}; others on \ref{data:aug}. All models validated against \ref{data:val} and tested against \ref{data:test}.}
                 \end{figure}
     
@@ -1160,9 +1177,9 @@
     
                     Initially, all ResNet18 weights were frozen, with only the appended classifier head being trained. This approach was intended to avoid heavy biasing and retain pre-trained knowledge, and it already outperformed the in-house DeepCNN model. Further experiments involved selectively unfreezing and fine-tuning varying numbers of layers from the base model to inspect the affect this had on performance.
     
-                    \begin{figure}
+                    \begin{figure}[H]
                         \centering
-                        \includegraphics[width=0.9\textwidth]{images/ResNetLayerTests.png}
+                        \includegraphics[width=0.8\textwidth]{images/ResNetLayerTests.png}
                         \caption{Boxplot showing the distribution of F1 scores across training epochs for different numbers of unfrozen layers in a fine-tuned ResNet18.} \label{fig:ResNetLayers}
                     \end{figure}
                     
@@ -1192,7 +1209,7 @@
         
                     \paragraph{Data Augmentation}
         
-                        In addition to experimenting with the model's configuration, the data was also investigated. Since the design phase, it was known that this model would likely not need much generalisation techniques, due to being a closed-world task, however, to make the model as robust as possible, data augmentation was still investigated. In a real use case, even though the images will be very similar to their training data, there could be slight fluctuations in rotation, size, and lighting or fading of the artwork. Additionally, some extreme transformations might occur, such as the artwork being fully upside down. In order to make the system handle this, each epoch of training was bolstered with augmented copies of with artificial transformations, de-colourings, and cropping taking place (see Figure~\ref{fig:augmentedArts} for an example).
+                        In addition to experimenting with the model's configuration, the data was also investigated. Since the design phase, it was known that this model would likely not need much generalisation techniques, due to being a closed-world task, however, to make the model as robust as possible, data augmentation was still investigated. In a real use case, even though the images will be very similar to their training data, there could be slight fluctuations in rotation, size, and lighting or fading of the artwork. Additionally, some extreme transformations might occur, such as the artwork being fully upside down. In order to make the system handle this, each epoch of training was bolstered with augmented copies with artificial transformations, de-colourings, and cropping taking place (see Figure~\ref{fig:augmentedArts} for an example).
     
                         \begin{figure}[h]
                             \centering
@@ -1208,9 +1225,9 @@
                             }
                         \end{figure}
     
-                        This augmentation was generated `on-the-fly' during training, meaning no modified image was saved or stored beyond the training epoch. Additionally, this meant that each epoch had slightly different variations it was learning on. This made the training process better for generalisation, serving as a forced dropout of seen images; however, the training process became slower, requiring more training epochs to accurately learn from the data, as well as the dataset now be scaled to be a factor bigger, increasing the time taken to train.
+                        This augmentation was generated `on-the-fly' during training, meaning no modified image was saved or stored beyond the training epoch. Additionally, this meant that each epoch had slightly different variations it was learning on. This made the training process better for generalisation, serving as a forced dropout of seen images; however, the training process became slower, requiring more training epochs to accurately learn from the data, as well as the dataset now being scaled to be larger, increasing the time taken to train.
     
-                        Even with GPU optimisation, as the dataset multiplied in size, it became to hold to store within the available VRAM at once, and so batch sizes had to be decreased from ~32 to ~8, in most cases, further slowing the training process.
+                        Even with GPU optimisation, as the dataset multiplied in size, it became infeasible to store the data within the available VRAM at once, and so batch sizes had to be decreased from ~32 to ~8, in most cases, further slowing the training process.
     
                         This `on-the-fly' approach also had drawbacks, as it required additional rendering computations in every epoch cycle, but the performance gains made the extra time taken a worthwhile trade-off.
         
@@ -1253,16 +1270,16 @@
                 \begin{figure}[h]
                     \centering
                     \includegraphics[width=0.6\textwidth]{images/EdAlbums.png}
-                    \caption{Album covers of Ed Sheeran’s studio albums}
+                    \caption{Album covers of Ed Sheeran's studio albums}
                     \label{fig:EdAlbums}
                     \caption*{+ (2011), = (2021), × (2014), ÷ (2017), and − (2023). \\ Images © Asylum Records / Atlantic Records. Retrieved from Cover Art Archive. Used for research/educational purposes. All rights remain with the original copyright holders}
                 \end{figure}
     
-                After some experimentation, it was found that the model was able to achieve some level of success. As a proof of concept, as part of the \ref{data:large} dataset, four of Ed Sheeran's albums were included. These images (the first four, from the left, in Figure~\ref{fig:EdAlbums}) were able to learn enough information such that the − (2023) album (right-most image) in \ref{data:test2} was able to be correctly identified as an Ed Sheeran album (64\% confidence).
+                After some experimentation, it was found that the model was able to achieve some level of success. As a proof of concept, as part of the \ref{data:large} dataset, four of Ed Sheeran's albums were included. These images (the first four, from the left, in Figure~\ref{fig:EdAlbums}) were able to learn enough information such that the − (2023) album (right-most image) included in \ref{data:test2} was able to be correctly identified as an Ed Sheeran album (64\% confidence).
     
-                It is worth noting that this use case is a particularly ideal one, however, with Ed Sheeran's album all being very uniformly consistent.
+                It is worth noting that this use case is a particularly ideal one, however, with Ed Sheeran's albums all being very uniformly consistent.
     
-                The aim to experiment with additional channels as classification, such as genre of decade, was ultimately not viable within the time, alongside the rest of development, and so were left.
+                The aim to experiment with additional classification channels, such as genre or decade, proved unviable within the available time and was therefore omitted, along with further testing with different artists.
     
                 \paragraph{Hydra (Expandable)}
     
@@ -1270,13 +1287,11 @@
     
                 At first, the idea was to simply fine-tune the previously trained models, using a new collection of data. But, it was quickly found that catastrophic data loss occurred when altering weights without the original training images to validate them.
     
-                In order to avoid the retention or re-downloading of copyrighted images to be required for this system to work, instead a matrix database was created. The classification model essentially has two components: a feature extractor and a classifier. The idea was to, once initial training was complete, run each training image through the feature-extractor only, and to store the numerical tensor (the embedding) in this database. Then, if a future revision of the model was desired, the feature extractor could be frozen, then classifier could be re-initialised to allow an additional album, and the already-extracted features could be fed directly into the classifier, alongside the new data going through the full model, to ensure training saw both sets of data.
+                In order to avoid the retention or re-downloading of copyrighted images to be required for this system to work, instead a matrix database was created. The classification model essentially has two components: a feature extractor and a classifier. The idea was to, once initial training was complete, run each training image through the feature-extractor only, and to store the numerical tensor (the embedding) in this database. Then, if a future revision of the model was desired, the feature extractor could be frozen, then classifier could be re-initialised to allow an additional album, and the already-extracted features could be fed directly into the classifier, alongside the new data going through the full model, to ensure training saw both sets of data (illustrated in Figure~\ref{fig:HydraCNN}).
     
-                Whilst this technique showed better results, it was still prone to catastrophic data loss, either biasing towards the new data, or the original data. Freezing the feature extractor, whilst allowing to remember old features better, prevented the model from being able to correctly learn new albums; on the other hand, removing this constraint resulted in the previously extracted data sometimes being almost-random in accuracy-- sometimes performing okay, but other times not; with no consistent way of ensuring ideal performance.
+                Whilst this technique showed better results, it was still prone to catastrophic data loss, either biasing towards the new data, or the original data. Freezing the feature extractor, whilst allowing to remember old features better, prevented the model from being able to correctly learn new albums; on the other hand, removing this constraint resulted in the previously extracted data sometimes being almost-random in accuracy -- sometimes performing okay, but other times not; with no consistent way of ensuring ideal performance.
     
-                For this, a PNN architecture was created, allowing a dynamic number of heads to operate in parallel, using a weighted consensus approach to generate a single classification, as shown in Figure~\ref{fig:HydraCNN}. This idea still utilised a single, frozen feature extractor, utilising the retained embeddings, however, rather than replacing the classifier, a new classifier was added in tandem to the original one. Then, during training, the two heads were weighted, through cross-entropy loss, so that the final result was the 'consensus' of the two. Essentially, the original model was preferred, unless the second model had a high degree of confidence that it was a new class, in which case, the system delegated to the newer head if, and only if, the original head was not also highly confident.
-    
-                \begin{figure}
+                \begin{figure}[h]
                     \centering
                     \includegraphics[width=0.75\linewidth]{images/Hydra.pdf}
                     \caption{Architecture for \textit{Hydra} model (expandable classifiers).}
@@ -1287,13 +1302,15 @@
                     \caption*{* For a detailed breakdown of the feature extractor, refer to Figure~\ref{fig:OuroborosCNN}.}
                 \end{figure}
     
-                This system showed promising improvement over the early attempts, yet performance degradation was still significant, with the model dropping from \~80\% confidence on the initial images to \~30\% (though, accuracy was maintained in the very small testing sample set used). This showed that the dynamic approach was at least, potentially,  viable for a full-scale solution. Though, due to time constraints, no further experimentation was done on this concept.
+                For this, a PNN architecture was created, allowing a dynamic number of heads to operate in parallel, using a weighted consensus approach to generate a single classification, as shown in Figure~\ref{fig:HydraCNN}. This idea still utilised a single, frozen feature extractor, utilising the retained embeddings, however, rather than replacing the classifier, a new classifier was added in tandem to the original one. Then, during training, the two heads were weighted, through cross-entropy loss, so that the final result was the `consensus' of the two. Essentially, the original model was preferred, unless the second model had a high degree of confidence that it was a new class, in which case, the system delegated to the newer head if, and only if, the original head was not also highly confident.
+    
+                This system showed promising improvement over the early attempts, yet performance degradation was still significant, with the model dropping from $\approx$80\% confidence on the initial images to $\approx$30\% (though, accuracy was maintained in the very small testing sample set used). This showed that the dynamic approach was at least, potentially,  viable for a full-scale solution. Though, due to time constraints, no further experimentation was done on this concept.
     
                 A major issue with the initial vision was that, if users were to update their model, the training would ideally run on-demand on the Pi. However, given the reliance on a vector database and a deep model, this would likely be too slow on the SBC. As such, a scheduled, once-per-day cycle could be considered -- echoing existing strategies used reduce load under constrained resources~\cite{gonzalez2019cernbox}.
     
             \subsubsection{Documentation}
     
-                Additionally, in order to make the models clear and distinct from one another, as well as being potentially useful to other developers, a model card \cite{Mitchell_2019} was created\footnote{The model card for the Ouroborus model is provided in Appenidx~\ref{sec:mcard}, with links to the others.}, for each.
+                Additionally, in order to make the models clear and distinct from one another, as well as being potentially useful to other developers, a model card \cite{Mitchell_2019} was created\footnote{The model card for the Ouroborus model is provided in Appenidx~\ref{sec:mcard}, alongside links to the others.}, for each.
             
             \subsubsection{Challenges Encountered}
     
@@ -1344,7 +1361,7 @@
     
             \paragraph{Remote Client Interface}
     
-            The system also provides a web-based remote interface, enabling mobile phones or desktop browsers to connect over the local network. These clients replicate the core controls of the host -- such as play/pause, volume, track skip, and album scanning — allowing accessible, shared interaction. Figures~\ref{fig:laptop}–\ref{fig:phone} show examples of remote clients in use on different devices.
+            The system also provides a web-based remote interface, enabling mobile phones or desktop browsers to connect over the local network. These clients replicate the core controls of the host -- such as play/pause, volume, track skip, and album scanning -- allowing accessible, shared interaction. Figures~\ref{fig:laptop}–\ref{fig:phone} show examples of remote clients in use on different devices.
     
             \begin{figure}[h]
                 \centering
@@ -1485,7 +1502,7 @@
         % how well?
         % how well against others?
     
-        This section evaluates the system’s effectiveness in meeting its goals, considering both quantitative performance and qualitative experience. Evaluation is divided into four areas: technical performance, user experience, comparison with existing workflows, and broader implications.
+        This section evaluates the system's effectiveness in meeting its goals, considering both quantitative performance and qualitative experience. Evaluation is divided into four areas: technical performance, user experience, comparison with existing workflows, and broader implications.
     
         Quantitative metrics include classification accuracy, metadata reliability, system responsiveness, and code robustness. Qualitative factors assess usability, aesthetics, and the hybrid nature of the physical and digital design. Finally, the system is compared against alternative methods, with discussion of limitations, trade-offs, and ethical considerations.
         
@@ -1498,9 +1515,9 @@
                 \begin{figure}
                     \centering
                     \includegraphics[width=0.5\linewidth]{images/modelEval.png}
-                    \caption{Examples of misclassifications from the validation set}
+                    \caption{Examples of misclassifications from the final test set}
                     \caption*{
-                        Each row shows a failure case: the original input image (left), the model’s incorrect prediction (centre), and the correct training image (right). Errors primarily occured due to cover variants.
+                        Each row shows a failure case: the original input image (left), the model's incorrect prediction (centre), and the training image for the correct class (right). Errors primarily occured due to cover variants.
                     }
                     \caption*{
                         Artworks are © their respective copyright owners.
@@ -1514,7 +1531,7 @@
     
                 Since metadata retrieval depends on external sources and network responses, evaluation was performed manually. A representative set of 32 albums was tested using automated centre-level retrieval. Of these, 4 were exact matches, 8 were correct but returned variant covers (e.g., CD editions), 2 matched the correct artist but wrong album, 15 returned no label, 2 returned unrelated images, and 1 returned an entirely incorrect label. In addition to the centre label, the Spotify album is also selected, which affects the textual metadata and album cover shown on remote devices. Of these same albums, 3 albums were compilations not present on Spotify, which led to retrievals of other compilations with similar themes (e.g., disco, Bond themes, Christmas). One album was a musical, correctly identified by title but with different performers, and one “best of” album was not available on Spotify, but yielded the correct artist. Despite some gaps, most queries retrieved results that were either correct or thematically relevant. With only a fairly low percentage of fetching bad data from Spotify (84.38\%; up to 96.88\% excluding compilations) the primary metadata source is correct, and as this only failed for particularly niche albums, a more standard collection should be very robust in the system.
     
-                The centre label system was less reliable, yielding a relevant result only 43.75\% of the time, with a correct label only 37.5\%. While suboptimal, this still enhances visual context. As the feature is supplementary and manually overrideable, even a modest success rate improves engagement without affecting core functionality, though acceptable, as users can override results by adding images to the system's cache. However, future revisions and improvements to this pipeline would certainly be beneficial.
+                The centre label system was less reliable, yielding a relevant result in only 43.75\% of cases, with exact matches at 37.5\%. While suboptimal, it enhances visual context and remains acceptable due to its supplementary nature and the ability for users to override results by caching images manually. Nonetheless, future revisions to improve this pipeline would be beneficial.
     
             \subsubsection{System Responsiveness}
     
@@ -1524,7 +1541,7 @@
     
                 The codebase was evaluated through a suite of automated unit tests, covering core components such as image processing, metadata retrieval, and classification logic. The overall test pass rate is reported, and code coverage was estimated to ensure critical paths are exercised. No critical failures or regressions were observed during testing.
     
-                The frontend achieved an average of 71.5\% statement coverage, with particularly strong performance in components like WebSocketManager.ts (96\%) and SpotifyPlayer.ts (92.4\%). The backend reached 66.2\% average coverage across core Python modules, with several key files such as sessionManager.py, stateManager.py, and modelHandler.py reaching very high coverages of 89–100\%. However, some components — notably main.py, routes.py, and training utilities — remain untested due to their hardware dependence or being out of scope.
+                The frontend achieved an average of 71.5\% statement coverage, with particularly strong performance in components like WebSocketManager.ts (96\%) and SpotifyPlayer.ts (92.4\%). The backend reached 66.2\% average coverage across core Python modules, with several key files such as sessionManager.py, stateManager.py, and modelHandler.py reaching very high coverages of 89–100\%. However, some components -- notably main.py, routes.py, and training utilities -- remain untested due to their hardware dependence or being out of scope.
                 
                 Overall, the combined project-wide coverage stands at 71.5\%, reflecting a strong foundation with room for expanding test coverage to the integration and hardware layers.
     
@@ -1532,7 +1549,7 @@
     
             To evaluate the emotional, aesthetic, and practical experience of the system, a user study was conducted with 17 participants. These users were surveyed after physically using the system, either through direct interaction or a guided session.
     
-            Due to the nature of the device -- a physical prototype requiring in-person use—there were significant constraints in recruiting participants. Access to the system was necessarily limited to those who could be reached directly, meaning the sample primarily consisted of friends, family, and peers. Additionally, many users only had brief interaction windows, limiting the depth of familiarity they could develop.
+            Due to the nature of the device -- a physical prototype requiring in-person use -- there were significant constraints in recruiting participants. Access to the system was necessarily limited to those who could be reached directly, meaning the sample primarily consisted of friends, family, and peers. Additionally, many users only had brief interaction windows, limiting the depth of familiarity they could develop.
             
             This sample bias is acknowledged. There is likely a positive skew in the responses due to personal connection and the novelty of the system. That said, efforts were made to prompt critical feedback, and not all responses were favourable. While this limits generalisability, the feedback gathered still offers valuable insight into the usability, aesthetic reception, and conceptual strengths of the system.
     
@@ -1546,14 +1563,14 @@
                     with 35.3\% rating it 5 (very easy).
                     Only one user rated it as very difficult (1), citing a lack of initial instruction.
                 
-                Notable feedback highlighted the importance of a clear onboarding process, with one user commenting that "the layout was good, but I didn’t know what to do at first." Others praised its familiarity, especially those with vinyl experience, describing the interface as "intuitive and natural."
+                Notable feedback highlighted the importance of a clear onboarding process, with one user commenting that ``the layout was good, but I didn't know what to do at first." Others praised its familiarity, especially those with vinyl experience, describing the interface as ``intuitive and natural."
                 
                 These results suggest that while the system is broadly accessible, it benefits significantly from prior exposure to analogue devices and would be improved by minimal visual guidance or prompts on first use.
     
             \subsubsection{User Experience -- Aesthetics}
-                From the 17 responses, 70.6\% of participants who had experience with vinyl cited aesthetics as a key reason for ownership. This was reflected in comments such as "felt more immersive than expected" and "tactile feedback made it feel authentic."
+                From the 17 responses, 70.6\% of participants who had experience with vinyl cited aesthetics as a key reason for ownership. This was reflected in comments such as ``felt more immersive than expected" and ``tactile feedback made it feel authentic."
     
-                Design choices such as the use of real turntable elements, album art display, and the physical-digital hybrid interaction were positively received. Users described the system as "satisfying to use" and "visually rich."
+                Design choices such as the use of real turntable elements, album art display, and the physical-digital hybrid interaction were positively received. Users described the system as ``satisfying to use" and ``visually rich."
                 
                 These findings indicate strong aesthetic engagement, aligning well with the nostalgic and cultural associations users have with vinyl.
             
@@ -1561,15 +1578,15 @@
             
             The system sits at the intersection of traditional vinyl playback and modern digital music access. Compared to standard streaming platforms, it introduces a tangible, physical interaction absent from purely digital interfaces. While streaming services offer convenience and breadth of access, they lack the ritual and aesthetic value that this system provides.
     
-            In contrast to traditional record players, this system offers automatic metadata enrichment, playback synchronisation via Spotify, and album recognition—features not available in analogue setups. However, it cannot match the audio fidelity or full physicality of actual vinyl playback.
+            In contrast to traditional record players, this system offers automatic metadata enrichment, playback synchronisation via Spotify, and album recognition -- features not available in analogue setups. However, it cannot match the audio fidelity on poor networks, or full physicality of actual vinyl playback.
             
-            Compared to mobile apps that scan album covers (e.g., Shazam or Discogs), this system is less portable but more immersive. Its strength lies in offering a hybrid experience—inviting physical interaction while integrating smart digital features.
+            Compared to mobile apps that scan album covers (e.g., Shazam or Discogs), this system is less portable but more immersive. Its strength lies in offering a hybrid experience -- inviting physical interaction while integrating smart digital features.
     
-            In informal benchmarks, this system’s full album identification-to-playback cycle averaged $\approx 6.2$s. By contrast, Spotify search averages $\approx 3$s (but lacks physical input, and relied on existing user knowledge of the album details), while manual lookup via Discogs took over $\approx 20–30$s. Although slower than pure-digital workflows, the hybrid interaction offers a richer, more deliberate experience.
+            In informal benchmarks, this system's full album identification-to-playback cycle averaged $\approx 5.2$s. By contrast, Spotify search averages $\approx 4$s (but lacks physical input, and relied on existing user knowledge of the album details), while manual lookup via Discogs took over $\approx 20–30$s. Although slower than some pure-digital workflows, the hybrid interaction offers a richer, more deliberate experience.
     
         \subsection{Limitations and Trade-offs}
     
-            A key limitation is the need for physical access to the system, which reduces scalability and reach. The classification model, while highly accurate on common albums, is less reliable on niche or variant covers. Metadata retrieval also depends on external APIs, and can occasionally produce incomplete or inaccurate results.
+            A key limitation is the need for physical access to the system, which reduces scalability and reach. The classification model, while highly accurate on common albums, is less reliable on niche or variant covers. Metadata retrieval also depends on external APIs, and can produce incomplete or inaccurate results.
     
             From a technical standpoint, the system balances performance with simplicity, but lacks full robustness in edge cases (e.g., compilation albums or Spotify mismatches). Code coverage is strong but not complete, particularly around hardware-specific modules.
             
@@ -1697,7 +1714,7 @@
                 
                 Fans of the format claim better sound reproduction, with a fuller frequency range and a "warmth" lacking in digital formats such as CD. Playing vinyl requires specialist equipment: while the ritual of putting a disc on the turntable and dropping the needle is, for some, part of the experience, it can also be seen as an inconvenience.
                 
-                The aim of this project will be to develop an application that supports a blending of the physical and digital worlds. A physical artefact such as an LP is scanned using a camera. The information on the label or cover is then used to identify the release which can be played. This content could be retrieved from a streaming service such as Spotify or Apple Music, an artist site such as \href{https://bandcamp.com/}{Bandcamp}, or the user's own personal media library. This would then allow a user to "play" their records without a turntable. Although the audio quality may not match that of vinyl, such an application would appeal to those who like to collect vinyl for its own sake, or who appreciate the larger format artwork that comes with an old school LP. The application could run on a mobile phone or specialist hardware such as a Raspberry Pi equipped with a camera.
+                The aim of this project will be to develop an application that supports a blending of the physical and digital worlds. A physical artefact such as a Long Play (LP) is scanned using a camera. The information on the label or cover is then used to identify the release which can be played. This content could be retrieved from a streaming service such as Spotify or Apple Music, an artist site such as \href{https://bandcamp.com/}{Bandcamp}, or the user's own personal media library. This would then allow a user to "play" their records without a turntable. Although the audio quality may not match that of vinyl, such an application would appeal to those who like to collect vinyl for its own sake, or who appreciate the larger format artwork that comes with an old school LP. The application could run on a mobile phone or specialist hardware such as a Raspberry Pi equipped with a camera.
                 
                 Example methods that could be used for identification of the release include barcodes, QR codes or OCR acting on label text.
                 
@@ -1768,7 +1785,7 @@
                 \label{fig:dataVenn}
             \end{figure}
     
-            Figure~\ref{fig:dataVenn} shows the full dataset, grouped by source origin (digital or physical), and its partitioning into training, validation, and test sets, along with the subset relationships. Sections~\ref{data:null}--\ref{data:trueTest} provide a detailed breakdown of the precise subsets used in model development and training, including full summaries of their contents and sources, in line with best practices for open, transparent, and reproducible research \cite{Mitchell_2019}.
+            Figure~\ref{fig:dataVenn} shows the full dataset, grouped by source origin (digital or physical), and its partitioning into training, validation, and test sets, along with the subset relationships. Sections~\ref{data:null}.0--\ref{data:trueTest} provide a detailed breakdown of the precise subsets used in model development and training, including full summaries of their contents and sources, in line with best practices for open, transparent, and reproducible research \cite{Mitchell_2019}.
     
             \subsection*{D.0\quad Null Data} \label{data:null}
     
@@ -1793,7 +1810,7 @@
                     \item All data from \ref{data:mini},
                     \item +58 digitally-sourced albums (+113 samples; \texttt{a\_dig}),
                     \item +20 physically-sourced albums (+39 samples; \texttt{b\_phys}),
-                    \item +13 albums\footnote{14 classes were included, but one (Jeff Wayne’s \textit{War of the Worlds}) overlaps with \ref{data:mini}.} with both digital and physical variants (+23 samples; \texttt{c\_dig}).
+                    \item +13 albums\footnote{14 classes were included, but one (Jeff Wayne's \textit{War of the Worlds}) overlaps with \ref{data:mini}.} with both digital and physical variants (+23 samples; \texttt{c\_dig}).
                 \end{itemize}
     
                 196 image samples, for 103 classes, in total.
@@ -2041,7 +2058,7 @@
     
             \subsection{Mythological Inspiration} \label{app:Greek}
     
-                \paragraph{Ouroboros} A mythological serpent known for circling and eating its own tail, as in Figure~\ref{fig:ouroboros}. This name was used for the simple one-headed CNN model design, which 'self-fed' on deployment data with a low-distribution shift between its training data.
+                \paragraph{Ouroboros} A mythological serpent known for circling and eating its own tail, as in Figure~\ref{fig:ouroboros}. This name was used for the simple one-headed CNN model design, which `self-fed' on deployment data with a low-distribution shift between its training data.
     
                 \paragraph{Amphisbaena} A snake-like creature, also of origin in Greek mythology, with a notable second head at the end of its tail, as in Figure~\ref{fig:amphisbaena}. This creature's name was used for the two-headed neural network design.
     
@@ -2065,7 +2082,7 @@
     
             \subsection{Cultural Inspiration} \label{app:Cult}
     
-                \paragraph{Ed Sheeran Meme} As a light-hearted cultural reference, a meme (Figure~\ref{fig:EdMeme}) highlighting the uniformity of Ed Sheeran’s album art served partially as inspiration for designing an artist classifier. The visual similarity in album covers suggested that artist and album may be decoupled yet jointly learnable.
+                \paragraph{Ed Sheeran Meme} As a light-hearted cultural reference, a meme (Figure~\ref{fig:EdMeme}) highlighting the uniformity of Ed Sheeran's album art served partially as inspiration for designing an artist classifier. The visual similarity in album covers suggested that artist and album may be decoupled yet jointly learnable.
     
                 \begin{figure}[H]
                     \centering
@@ -2077,13 +2094,13 @@
     
         \section{Ponderings on what the project expresses} \label{sec:nailArt}
     
-        At the centre of this system lies a single vinyl disc (see Figure~\ref{fig:product}), fixed in place. It serves no functional role in audio playback, but instead acts as a blank canvas — spinning beneath a projector that overlays metadata and centre-label imagery. The user’s actual records are never played, only scanned via their sleeves, preserving them entirely. This one disc, however, is not so fortunate.
+        At the centre of this system lies a single vinyl disc (see Figure~\ref{fig:product}), fixed in place. It serves no functional role in audio playback, but instead acts as a blank canvas -- spinning beneath a projector that overlays metadata and centre-label imagery. The user's actual records are never played, only scanned via their sleeves, preserving them entirely. This one disc, however, is not so fortunate.
     
-        A nail, mounted in place of a stylus, crudely scratches against the rotating surface. Though mechanically redundant, it produces a faint scraping sound -- evoking the familiar hiss of analogue playback. Ironically, this unintended acoustic artefact became central to the experience: an authentic, physical sound that reinforces the illusion of vinyl, even as the music itself is streamed digitally. Yet the sound emitted is, in fact, the destruction of the vinyl’s own grooves -- the very data it once held, gradually scraped away.
+        A nail, mounted in place of a stylus, crudely scratches against the rotating surface. Though mechanically redundant, it produces a faint scraping sound -- evoking the familiar hiss of analogue playback. Ironically, this unintended acoustic artefact became central to the experience: an authentic, physical sound that reinforces the illusion of vinyl, even as the music itself is streamed digitally. Yet the sound emitted is, in fact, the destruction of the vinyl's own grooves -- the very data it once held, gradually scraped away.
         
-        What began as a visual flourish now feels almost symbolic. The system preserves physical media, yet requires one record to be worn down in the process. A vinyl that exists purely to look like any vinyl, its own centre label concealed beneath a blank white sheet to be projected upon in mimicry; and to sound like a generic vinyl — forced to scrape and screech, but not its own original composition, which is instead destroyed with each rotation. In retrospect, it's a strange reversal: a digital player that needs physical damage to feel more analogue. A disc slowly degrading under a metal point to lend authenticity to a digital experience.
+        What began as a visual flourish now feels almost symbolic. The system preserves physical media, yet requires one record to be worn down in the process. A vinyl that exists purely to look like any vinyl, its own centre label concealed beneath a blank white sheet to be projected upon in mimicry; and to sound like a generic vinyl -- forced to scrape and screech, but not its own original composition, which is instead destroyed with each rotation. In retrospect, it's a strange reversal: a digital player that needs physical damage to feel more analogue. A disc slowly degrading under a metal point to lend authenticity to a digital experience.
         
-        None of the user’s own records are harmed, yet this one sacrificial vinyl remains essential. It makes no contribution to the music, yet is critical to the illusion. It is not played, but must still be heard -- not for the value of what it once held, but for what it now represents.
+        None of the user's own records are harmed, yet this one sacrificial vinyl remains essential. It makes no contribution to the music, yet is critical to the illusion. It is not played, but must still be heard -- not for the value of what it once held, but for what it now represents.
         
         There is something both comical and oddly poetic in this inversion: a system that digitises collections, yet requires a physical artefact to feel analogue. In hindsight, this unintentional arrangement reflects a curious tension -- between preservation and performance, where simulation relies on the very thing it seeks to replace.
         
