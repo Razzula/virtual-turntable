@@ -2,6 +2,16 @@
 
 University of Manchester - Third Year Project (COMP30040)
 
+This project was awarded a **First-Class** classification (**86.4%**).
+
+| Component     | Weight | Mark | Normalised | Contribution |
+|---------------|--------|------|------------|--------------|
+| [Report](./report/COMP30040_Third_Year_Project_Report.pdf)        | 0.55   | 85/100 | 0.85       | 0.4675       |
+| Achievements  | 0.30   | 88/100 | 0.88       | 0.264        |
+| [Screencast](https://youtu.be/t4fFDltrNjo)    | 0.15   | 88/100 | 0.88       | 0.132        |
+| **Total**     | —      | —     | —          | **0.8635**   |
+
+
 ## Brief
 
 Written by **Sean Bechhofer**: https://studentnet.cs.manchester.ac.uk/ugt/year3/project/projectbookdetails.php?projectid=55259
